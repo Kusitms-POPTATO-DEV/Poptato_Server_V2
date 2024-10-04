@@ -1,2 +1,2 @@
-## 👨‍👩‍👦‍👦 Poptato Backend Server 👨‍👩‍👦‍👦
+## 🥔 Poptato Backend Server 🥔
 README 수정중..
