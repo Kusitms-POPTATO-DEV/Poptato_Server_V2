@@ -1,0 +1,51 @@
+name: Java CD with Gradle
+
+on:
+  pull_request:
+    types: [ closed ]
+    branches: [ "dev","main" ]
+
+jobs:
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Connect to EC2 via SSH
+        uses: appleboy/ssh-action@master
+        env:
+          APPLICATION_YML: ${{ secrets.APPLICATION_YML }}
+          TEST_APPLICATION_YML: ${{ secrets.APPLICATION_TEST_YML }}
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          script_stop: true
+          envs: APPLICATION_YML,TEST_APPLICATION_YML
+          script: |
+            cd /home/ubuntu/poptato_server
+
+            git switch dev
+
+            git pull origin dev
+
+            rm -rf src/main/resources/application.yml
+
+            mkdir -p src/main/resources
+
+            echo "$APPLICATION_YML" > src/main/resources/application.yml
+
+            rm -rf src/test/resources/application.yml
+
+            echo "$TEST_APPLICATION_YML" > src/test/resources/application.yml
+
+            chmod +x gradlew
+
+            ./gradlew clean
+
+            ./gradlew build
+
+            ./gradlew asciidoctor
+
+            sudo fuser -k -n tcp "${{ secrets.SERVER_PORT }}" || true
+
+            nohup java -jar build/libs/*SNAPSHOT.jar > ./output.log 2>&1 &
