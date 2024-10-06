@@ -36,6 +36,8 @@ jobs:
             echo "$APPLICATION_YML" > src/main/resources/application.yml
 
             rm -rf src/test/resources/application.yml
+            
+            mkdir -p src/test/resources
 
             echo "$TEST_APPLICATION_YML" > src/test/resources/application.yml
 
