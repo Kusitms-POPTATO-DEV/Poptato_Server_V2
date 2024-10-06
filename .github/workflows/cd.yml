@@ -23,6 +23,8 @@ jobs:
           script_stop: true
           envs: APPLICATION_YML,TEST_APPLICATION_YML
           script: |
+            mkdir -p /home/ubuntu/poptato_server
+            
             cd /home/ubuntu/poptato_server
 
             git switch dev
