@@ -25,6 +25,12 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
+          
+      - name: Create main resources directory
+        run: mkdir -p src/main/resources
+
+      - name: Create test resources directory
+        run: mkdir -p src/test/resources
 
       # main의 application.yml 생성
       - name: Set Release YML File
