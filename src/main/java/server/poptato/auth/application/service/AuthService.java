@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import server.poptato.auth.application.dto.request.TokenRequestDto;
 import server.poptato.auth.application.dto.response.LoginResponseDto;
 import server.poptato.config.jwt.JwtService;
+import server.poptato.external.kakao.dto.response.KakaoUserInfo;
 import server.poptato.external.kakao.service.KakaoSocialService;
 import server.poptato.global.dto.TokenPair;
 import server.poptato.global.dto.UserCreateResponse;
@@ -25,11 +26,14 @@ public class AuthService {
     private final UserRepository userRepository;
 
     public LoginResponseDto login(final String baseUrl, final String kakaoCode) {
-        String kakaoId = kakaoSocialService.getIdFromKakao(baseUrl, kakaoCode);
+        KakaoUserInfo info  = kakaoSocialService.getIdAndNickNameFromKakao(baseUrl, kakaoCode);
+        String kakaoId = info.kakaoId();
+        String name = info.nickname();
         Optional<User> user = userRepository.findByKakaoId(kakaoId);
         if (user.isEmpty()) {
             User newUser = User.builder()
                     .kakaoId(kakaoId)
+                    .name(name)
                     .build();
             userRepository.save(newUser);
 

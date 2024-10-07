@@ -1,7 +1,9 @@
 package server.poptato.external.kakao.service;
 
 
+import server.poptato.external.kakao.dto.response.KakaoUserInfo;
+
 public abstract class SocialService {
-    public abstract String getIdFromKakao(String baseUrl, String kakaoCode);
+    public abstract KakaoUserInfo getIdAndNickNameFromKakao(String baseUrl, String kakaoCode);
 
 }

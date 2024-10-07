@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import server.poptato.external.kakao.dto.response.KakaoAccessTokenResponse;
+import server.poptato.external.kakao.dto.response.KakaoUserInfo;
 import server.poptato.external.kakao.dto.response.KakaoUserResponse;
 import server.poptato.external.kakao.feign.KakaoApiClient;
 import server.poptato.external.kakao.feign.KakaoAuthApiClient;
@@ -22,7 +23,7 @@ public class KakaoSocialService extends SocialService {
     private final KakaoApiClient kakaoApiClient;
 
     @Override
-    public String getIdFromKakao(String baseUrl, String kakaoCode) {
+    public KakaoUserInfo getIdAndNickNameFromKakao(String baseUrl, String kakaoCode) {
         String redirectUrl = baseUrl + KAKAO_ROUTER;
         KakaoAccessTokenResponse tokenResponse = kakaoAuthApiClient.getOAuth2AccessToken(
                 GRANT_TYPE,
@@ -31,7 +32,10 @@ public class KakaoSocialService extends SocialService {
                 kakaoCode
         );
 
+        // 액세스 토큰으로 사용자 정보 요청
         KakaoUserResponse userResponse = kakaoApiClient.getUserInformation(Bearer + tokenResponse.accessToken());
-        return String.valueOf(userResponse.id());
+
+        // ID와 닉네임을 함께 반환
+        return new KakaoUserInfo(String.valueOf(userResponse.id()), userResponse.properties().nickname());
     }
 }
