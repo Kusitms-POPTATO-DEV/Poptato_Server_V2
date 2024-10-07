@@ -25,6 +25,7 @@ public enum BaseExceptionErrorCode implements ResponseStatus {
     TOKEN_TIME_EXPIRED_EXCEPTION(2007,HttpStatus.BAD_REQUEST.value(),"토큰 시간이 만료되었습니다."),
     INVALID_TOKEN_EXCEPTION(2008,HttpStatus.BAD_REQUEST.value(),"토큰이 유효하지 않습니다."),
     EMPTY_KAKAO_CODE_EXCEPTION(2009,HttpStatus.BAD_REQUEST.value(),"카카오 코드를 입력해야 합니다"),
+    USER_NOT_FOUND_EXCEPTION(2009,HttpStatus.NOT_FOUND.value(),"유저가 존재하지 않습니다"),
 
     /**
      * 3000: Server, Database 오류 (INTERNAL_SERVER_ERROR)
