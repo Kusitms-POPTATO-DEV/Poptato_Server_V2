@@ -22,10 +22,9 @@ jobs:
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script_stop: true
           envs: APPLICATION_YML,TEST_APPLICATION_YML
+          # git clone 같은 초기 작업은 ec2에서 먼저 진행
           script: |
-            mkdir -p /home/ubuntu/poptato_server
-            
-            cd /home/ubuntu/poptato_server
+            cd /home/ubuntu/poptato_server/Poptato_Server
 
             git switch dev
 
