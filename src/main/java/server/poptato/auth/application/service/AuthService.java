@@ -34,10 +34,10 @@ public class AuthService {
             userRepository.save(newUser);
 
             TokenPair tokenPair = jwtService.generateTokenPair(String.valueOf(newUser.getId()));
-            return new LoginResponseDto(tokenPair.accessToken(), tokenPair.refreshToken());
+            return new LoginResponseDto(tokenPair.accessToken(), tokenPair.refreshToken(), true);
         }
         TokenPair tokenPair = jwtService.generateTokenPair(String.valueOf(user.get().getId()));
-        return new LoginResponseDto(tokenPair.accessToken(), tokenPair.refreshToken());
+        return new LoginResponseDto(tokenPair.accessToken(), tokenPair.refreshToken(), false);
     }
 
     public UserCreateResponse createUserToken(String useId) {

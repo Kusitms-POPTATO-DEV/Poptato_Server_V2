@@ -12,8 +12,9 @@ import server.poptato.auth.application.service.AuthService;
 import server.poptato.config.resolver.kakao.KakaoCode;
 import server.poptato.global.dto.TokenPair;
 import server.poptato.global.response.BaseResponse;
+import server.poptato.global.response.status.ResponseStatus;
 
-import static server.poptato.global.exception.errorcode.BaseExceptionErrorCode.SUCCESS;
+import static server.poptato.global.exception.errorcode.BaseExceptionErrorCode.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -29,7 +30,11 @@ public class AuthController {
             HttpServletRequest request) {
         String originHeader = request.getHeader(ORIGIN);
         LoginResponseDto response = authService.login(originHeader, kakaoCode);
-        return new BaseResponse<>(response);
+        if (response.isNewUser()) {
+            return new BaseResponse<>(SUCCESS_REGISTER, response);  // 회원가입 성공 응답
+        } else {
+            return new BaseResponse<>(SUCCESS_LOGIN, response);  // 로그인 성공 응답
+        }
     }
 
     @PostMapping("/logout")

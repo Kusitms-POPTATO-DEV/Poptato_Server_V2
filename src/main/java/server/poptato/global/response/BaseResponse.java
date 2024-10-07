@@ -18,14 +18,14 @@ public class BaseResponse<T> implements ResponseStatus {
     private final T result;
 
 
-    public BaseResponse(T result) {
-        this.code = SUCCESS.getCode();
-        this.status = SUCCESS.getStatus();
-        this.message = SUCCESS.getMessage();
+    public BaseResponse(ResponseStatus status, T result) {
+        this.code = status.getCode();
+        this.status = status.getStatus();
+        this.message = status.getMessage();
         this.result = result;
     }
 
-    public BaseResponse() {
+    public BaseResponse(T result) {
         this.code = SUCCESS.getCode();
         this.status = SUCCESS.getStatus();
         this.message = SUCCESS.getMessage();
