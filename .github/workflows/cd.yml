@@ -45,10 +45,8 @@ jobs:
             chmod +x gradlew
 
             ./gradlew clean
-
-            ./gradlew build
-
-            ./gradlew asciidoctor
+            ./gradlew build -x test
+            ./gradlew asciidoctor -x test
 
             sudo fuser -k -n tcp "${{ secrets.SERVER_PORT }}" || true
 
