@@ -1,6 +1,5 @@
 package server.poptato.auth.api;
 
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -9,11 +8,11 @@ import org.springframework.web.bind.annotation.RestController;
 import server.poptato.auth.api.request.TokenRequestDto;
 import server.poptato.auth.application.response.LoginResponseDto;
 import server.poptato.auth.application.service.AuthService;
-import server.poptato.config.jwt.JwtService;
-import server.poptato.config.resolver.kakao.KakaoCode;
-import server.poptato.config.resolver.user.UserId;
+import server.poptato.external.kakao.resolver.KakaoCode;
+import server.poptato.external.kakao.resolver.OriginHeader;
 import server.poptato.global.dto.TokenPair;
 import server.poptato.global.response.BaseResponse;
+import server.poptato.user.resolver.UserId;
 
 import static server.poptato.global.exception.errorcode.BaseExceptionErrorCode.*;
 
@@ -22,21 +21,14 @@ import static server.poptato.global.exception.errorcode.BaseExceptionErrorCode.*
 @RequiredArgsConstructor
 public class AuthController {
 
-    private static final String ORIGIN = "origin";
     private final AuthService authService;
-    private final JwtService jwtService;
 
     @PostMapping("/login")
     public BaseResponse<LoginResponseDto> login(
             @KakaoCode String kakaoCode,
-            HttpServletRequest request) {
-        String originHeader = request.getHeader(ORIGIN);
+            @OriginHeader String originHeader) {
         LoginResponseDto response = authService.login(originHeader, kakaoCode);
-        if (response.isNewUser()) {
-            return new BaseResponse<>(SUCCESS_REGISTER, response);  // 회원가입 성공 응답
-        } else {
-            return new BaseResponse<>(SUCCESS_LOGIN, response);  // 로그인 성공 응답
-        }
+        return new BaseResponse<>(SUCCESS, response);
     }
 
     @PostMapping("/logout")
@@ -47,6 +39,6 @@ public class AuthController {
     @PostMapping("/refresh")
     public BaseResponse<TokenPair> refresh(@RequestBody final TokenRequestDto tokenRequestDto) {
         TokenPair response = authService.refresh(tokenRequestDto);
-        return new BaseResponse<>(response);
+        return new BaseResponse<>(SUCCESS, response);
     }
 }

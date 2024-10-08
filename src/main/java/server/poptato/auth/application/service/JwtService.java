@@ -1,4 +1,4 @@
-package server.poptato.config.jwt;
+package server.poptato.auth.application.service;
 
 
 
@@ -14,7 +14,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import server.poptato.global.dto.TokenPair;
 import server.poptato.global.exception.BaseException;
-import server.poptato.global.response.BaseErrorResponse;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;

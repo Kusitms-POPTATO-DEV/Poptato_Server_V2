@@ -1,4 +1,4 @@
-package server.poptato.config.resolver.user;
+package server.poptato.user.resolver;
 
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -9,9 +9,10 @@ import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
-import server.poptato.config.jwt.JwtService;
+import server.poptato.auth.application.service.JwtService;
 import server.poptato.global.exception.BaseException;
 import server.poptato.global.response.BaseErrorResponse;
+import server.poptato.user.resolver.UserId;
 
 import static server.poptato.global.exception.errorcode.BaseExceptionErrorCode.*;
 

@@ -4,13 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import server.poptato.auth.api.request.TokenRequestDto;
 import server.poptato.auth.application.response.LoginResponseDto;
-import server.poptato.config.jwt.JwtService;
 import server.poptato.external.kakao.dto.response.KakaoUserInfo;
 import server.poptato.external.kakao.service.KakaoSocialService;
 import server.poptato.global.dto.TokenPair;
 import server.poptato.global.exception.BaseException;
 import server.poptato.user.domain.entity.User;
-import server.poptato.user.domain.repository.UserRepository;
 import server.poptato.user.infra.repository.JpaUserRepository;
 
 import java.util.Optional;

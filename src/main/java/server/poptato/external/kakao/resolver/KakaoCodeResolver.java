@@ -1,4 +1,4 @@
-package server.poptato.config.resolver.kakao;
+package server.poptato.external.kakao.resolver;
 
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,10 +10,8 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 import server.poptato.global.exception.BaseException;
-import server.poptato.global.response.BaseErrorResponse;
 
 import static server.poptato.global.exception.errorcode.BaseExceptionErrorCode.EMPTY_KAKAO_CODE_EXCEPTION;
-import static server.poptato.global.exception.errorcode.BaseExceptionErrorCode.NO_REQUEST_PARAMETER;
 
 
 @Component

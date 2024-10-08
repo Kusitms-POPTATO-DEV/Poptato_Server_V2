@@ -1,4 +1,4 @@
-package server.poptato.config.redis;
+package server.poptato.external.redis;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
