@@ -32,15 +32,7 @@ public class AuthService {
         String email = info.email();
         Optional<User> user = userRepository.findByKakaoId(kakaoId);
         if (user.isEmpty()) {
-            User newUser = User.builder()
-                    .kakaoId(kakaoId)
-                    .name(name)
-                    .email(email)
-                    .build();
-            userRepository.save(newUser);
-
-            TokenPair tokenPair = jwtService.generateTokenPair(String.valueOf(newUser.getId()));
-            return new LoginResponseDto(tokenPair.accessToken(), tokenPair.refreshToken(), true, newUser.getId());
+            return createNewUserResponse(kakaoId, name, email);
         }
         TokenPair tokenPair = jwtService.generateTokenPair(String.valueOf(user.get().getId()));
         return new LoginResponseDto(tokenPair.accessToken(), tokenPair.refreshToken(), false, user.get().getId());
@@ -64,5 +56,18 @@ public class AuthService {
         final TokenPair tokenPair = jwtService.generateTokenPair(userId);
         jwtService.saveRefreshToken(userId, tokenPair.refreshToken());
         return tokenPair;
+    }
+
+    private LoginResponseDto createNewUserResponse(String kakaoId, String name, String email) {
+        User newUser = User.builder()
+                .kakaoId(kakaoId)
+                .name(name)
+                .email(email)
+                .build();
+        userRepository.save(newUser);
+
+        // 토큰 발급 및 응답 객체 생성
+        TokenPair tokenPair = jwtService.generateTokenPair(String.valueOf(newUser.getId()));
+        return new LoginResponseDto(tokenPair.accessToken(), tokenPair.refreshToken(), true, newUser.getId());
     }
 }
