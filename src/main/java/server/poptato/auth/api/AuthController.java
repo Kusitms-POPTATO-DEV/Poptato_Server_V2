@@ -6,13 +6,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import server.poptato.auth.application.dto.request.TokenRequestDto;
-import server.poptato.auth.application.dto.response.LoginResponseDto;
+import server.poptato.auth.api.request.TokenRequestDto;
+import server.poptato.auth.application.response.LoginResponseDto;
 import server.poptato.auth.application.service.AuthService;
 import server.poptato.config.resolver.kakao.KakaoCode;
 import server.poptato.global.dto.TokenPair;
 import server.poptato.global.response.BaseResponse;
-import server.poptato.global.response.status.ResponseStatus;
 
 import static server.poptato.global.exception.errorcode.BaseExceptionErrorCode.*;
 

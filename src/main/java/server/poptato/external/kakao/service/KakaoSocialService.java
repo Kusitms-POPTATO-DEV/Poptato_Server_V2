@@ -23,7 +23,7 @@ public class KakaoSocialService extends SocialService {
     private final KakaoApiClient kakaoApiClient;
 
     @Override
-    public KakaoUserInfo getIdAndNickNameFromKakao(String baseUrl, String kakaoCode) {
+    public KakaoUserInfo getIdAndNickNameAndEmailFromKakao(String baseUrl, String kakaoCode) {
         String redirectUrl = baseUrl + KAKAO_ROUTER;
         KakaoAccessTokenResponse tokenResponse = kakaoAuthApiClient.getOAuth2AccessToken(
                 GRANT_TYPE,
@@ -36,6 +36,6 @@ public class KakaoSocialService extends SocialService {
         KakaoUserResponse userResponse = kakaoApiClient.getUserInformation(Bearer + tokenResponse.accessToken());
 
         // ID와 닉네임을 함께 반환
-        return new KakaoUserInfo(String.valueOf(userResponse.id()), userResponse.properties().nickname());
+        return new KakaoUserInfo(String.valueOf(userResponse.id()), userResponse.properties().nickname(), userResponse.kakao_account().email());
     }
 }

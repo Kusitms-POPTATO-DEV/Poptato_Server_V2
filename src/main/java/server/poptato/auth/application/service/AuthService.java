@@ -2,16 +2,16 @@ package server.poptato.auth.application.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import server.poptato.auth.application.dto.request.TokenRequestDto;
-import server.poptato.auth.application.dto.response.LoginResponseDto;
+import server.poptato.auth.api.request.TokenRequestDto;
+import server.poptato.auth.application.response.LoginResponseDto;
 import server.poptato.config.jwt.JwtService;
 import server.poptato.external.kakao.dto.response.KakaoUserInfo;
 import server.poptato.external.kakao.service.KakaoSocialService;
 import server.poptato.global.dto.TokenPair;
-import server.poptato.global.dto.UserCreateResponse;
 import server.poptato.global.exception.BaseException;
 import server.poptato.user.domain.entity.User;
 import server.poptato.user.domain.repository.UserRepository;
+import server.poptato.user.infra.repository.JpaUserRepository;
 
 import java.util.Optional;
 
@@ -23,17 +23,19 @@ import static server.poptato.global.exception.errorcode.BaseExceptionErrorCode.U
 public class AuthService {
     private final JwtService jwtService;
     private final KakaoSocialService kakaoSocialService;
-    private final UserRepository userRepository;
+    private final JpaUserRepository userRepository;
 
     public LoginResponseDto login(final String baseUrl, final String kakaoCode) {
-        KakaoUserInfo info  = kakaoSocialService.getIdAndNickNameFromKakao(baseUrl, kakaoCode);
+        KakaoUserInfo info  = kakaoSocialService.getIdAndNickNameAndEmailFromKakao(baseUrl, kakaoCode);
         String kakaoId = info.kakaoId();
         String name = info.nickname();
+        String email = info.email();
         Optional<User> user = userRepository.findByKakaoId(kakaoId);
         if (user.isEmpty()) {
             User newUser = User.builder()
                     .kakaoId(kakaoId)
                     .name(name)
+                    .email(email)
                     .build();
             userRepository.save(newUser);
 
@@ -43,16 +45,6 @@ public class AuthService {
         TokenPair tokenPair = jwtService.generateTokenPair(String.valueOf(user.get().getId()));
         return new LoginResponseDto(tokenPair.accessToken(), tokenPair.refreshToken(), false, user.get().getId());
     }
-
-    public UserCreateResponse createUserToken(String useId) {
-
-        TokenPair tokenPair = jwtService.generateTokenPair(useId);
-        UserCreateResponse userCreateResponse = new UserCreateResponse(tokenPair.accessToken(), tokenPair.refreshToken());
-
-        return userCreateResponse;
-    }
-
-
 
     public void logout(final Long userId) {
         final User user = userRepository.findById(userId).orElseThrow(() -> new BaseException(USER_NOT_FOUND_EXCEPTION));
