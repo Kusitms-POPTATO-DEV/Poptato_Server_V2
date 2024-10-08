@@ -9,7 +9,9 @@ import org.springframework.web.bind.annotation.RestController;
 import server.poptato.auth.api.request.TokenRequestDto;
 import server.poptato.auth.application.response.LoginResponseDto;
 import server.poptato.auth.application.service.AuthService;
+import server.poptato.config.jwt.JwtService;
 import server.poptato.config.resolver.kakao.KakaoCode;
+import server.poptato.config.resolver.user.UserId;
 import server.poptato.global.dto.TokenPair;
 import server.poptato.global.response.BaseResponse;
 
@@ -22,6 +24,7 @@ public class AuthController {
 
     private static final String ORIGIN = "origin";
     private final AuthService authService;
+    private final JwtService jwtService;
 
     @PostMapping("/login")
     public BaseResponse<LoginResponseDto> login(
@@ -37,12 +40,10 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public BaseResponse logout(HttpServletRequest request) {
-        Long userId = (Long) request.getAttribute("userId");  // `userId`를 헤더에서 가져온다고 가정
+    public BaseResponse logout(@UserId Long userId) {
         authService.logout(userId);
         return new BaseResponse(SUCCESS);
     }
-
     @PostMapping("/refresh")
     public BaseResponse<TokenPair> refresh(@RequestBody final TokenRequestDto tokenRequestDto) {
         TokenPair response = authService.refresh(tokenRequestDto);
