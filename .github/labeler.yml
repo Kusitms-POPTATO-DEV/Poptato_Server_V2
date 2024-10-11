@@ -1,12 +1,26 @@
-feature:
-  - "feature/*"
-fix:
-  - "fix/*"
-chore:
-  - "chore/*"
-docs:
-  - "docs/*"
-refactor:
-  - "refactor/*"
-bug:
-  - "bug/*"
+enable:
+  issues: false
+  prs: true
+
+labels:
+  'fix':
+    include:
+      - '\bfix\b'
+  'documentation':
+    include:
+      - '\bdocs\b'
+  'test':
+    include:
+      - '\btest\b'
+  'feature':
+    include:
+      - '\bfeat\b'
+  'bug':
+    include:
+      - '\bbug\b'
+  'refactor':
+    include:
+      - '\brefactor\b'
+  'chore':
+    include:
+      - '\bchore\b'
