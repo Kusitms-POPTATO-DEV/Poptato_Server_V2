@@ -1,0 +1,23 @@
+filters:
+  - label: feat
+    regexs:
+      - /\bfeat\b/i
+      - /feature/i
+  - label: bug
+    regexs:
+      - /bug/i
+  - label: documentation
+    regexs:
+      - /docs/i
+  - label: test
+    regexs:
+      - /test/i
+  - label: fix
+    regexs:
+      - /fix/i
+  - label: chore
+    regexs:
+      - /\bchore(\(.*\))?:/i
+  - label: refactor
+    regexs:
+      - /refactor/i
