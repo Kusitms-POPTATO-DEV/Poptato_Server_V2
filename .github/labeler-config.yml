@@ -3,21 +3,28 @@ filters:
     regexs:
       - /\bfeat\b/i
       - /feature/i
+    targets: [title]
   - label: bug
     regexs:
       - /bug/i
+    targets: [title]
   - label: documentation
     regexs:
       - /docs/i
+    targets: [title]
   - label: test
     regexs:
       - /test/i
+    targets: [title]
   - label: fix
     regexs:
       - /fix/i
+    targets: [title]
   - label: chore
     regexs:
       - /\bchore(\(.*\))?:/i
+    targets: [title]
   - label: refactor
     regexs:
       - /refactor/i
+    targets: [title]
