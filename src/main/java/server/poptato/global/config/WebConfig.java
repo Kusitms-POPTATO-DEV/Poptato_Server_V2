@@ -1,4 +1,4 @@
-package server.poptato.config;
+package server.poptato.global.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
