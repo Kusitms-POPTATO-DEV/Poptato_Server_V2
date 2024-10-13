@@ -23,6 +23,8 @@ public class Todo{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @NotNull
+    private Long userId;
+    @NotNull
     @Enumerated(EnumType.STRING)
     private Type type;
     @NotNull
