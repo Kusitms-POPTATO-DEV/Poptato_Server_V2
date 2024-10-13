@@ -7,16 +7,16 @@ labels:
       - '\bdocs\b'
   'test':
     include:
-      - '\btest\b'
-  'feature':
+      - 'test'
+  'feat':
     include:
-      - '\bfeat\b'
+      - 'feat'
   'bug':
     include:
-      - '\bbug\b'
+      - 'bug'
   'refactor':
     include:
-      - '\brefactor\b'
+      - 'refactor'
   'chore':
     include:
-      - '\bchore\b'
+      - 'chore'
