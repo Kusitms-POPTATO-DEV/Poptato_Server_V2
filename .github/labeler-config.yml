@@ -1,7 +1,7 @@
 filters:
   - label: feat
     regexs:
-      - /\bfeat\b/i
+      - /feat/i
       - /feature/i
     targets: [title]
   - label: bug
@@ -22,7 +22,7 @@ filters:
     targets: [title]
   - label: chore
     regexs:
-      - /\bchore(\(.*\))?:/i
+      - /chore/i
     targets: [title]
   - label: refactor
     regexs:
