@@ -9,6 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import server.poptato.auth.application.service.JwtService;
+import server.poptato.global.exception.BaseException;
 import server.poptato.user.domain.entity.User;
 import server.poptato.user.infra.repository.JpaUserRepository;
 
@@ -59,7 +60,7 @@ public class UserServiceTest {
 
         Mockito.when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> userService.deleteUser(userId));
+        assertThrows(BaseException.class, () -> userService.deleteUser(userId));
         Mockito.verify(todoRepository, Mockito.never()).deleteAll(Mockito.anyList());
         Mockito.verify(jwtService, Mockito.never()).deleteRefreshToken(String.valueOf(userId));
         Mockito.verify(userRepository, Mockito.never()).delete(Mockito.any());
