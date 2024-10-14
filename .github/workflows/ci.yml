@@ -25,7 +25,7 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          
+
       - name: Create main resources directory
         run: mkdir -p src/main/resources
 
@@ -36,23 +36,21 @@ jobs:
       - name: Set Release YML File
         run: |
           cd ./src/main/resources
-          rm -rf ./application.yml
           touch ./application.yml
           echo "${{ secrets.APPLICATION_YML }}" >./application.yml
 
       # test의 data.sql 생성
       - name: Set Test DATA SQL File
         run: |
-          cd ./src/test/resources
-          rm -rf ./data.sql
+          cd ..
+          cd ..
+          cd ./test/resources
           touch ./data.sql
           echo "${{ secrets.TEST_DATA_SQL }}" > ./data.sql
 
       # test의 application.yml 생성
       - name: Set Release Test YML File
         run: |
-          cd ./src/test/resources
-          rm -rf ./application.yml
           touch ./application.yml
           echo "${{ secrets.APPLICATION_TEST_YML }}" >./application.yml
 
