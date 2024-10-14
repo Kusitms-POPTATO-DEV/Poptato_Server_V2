@@ -46,7 +46,7 @@ jobs:
           cd ./src/test/resources
           rm -rf ./data.sql
           touch ./data.sql
-          echo "${{ secrets.TEST_DATA_SQL }}" > test/resources/application.yml
+          echo "${{ secrets.TEST_DATA_SQL }}" > test/resources/data.sql
 
       # test의 application.yml 생성
       - name: Set Release Test YML File
