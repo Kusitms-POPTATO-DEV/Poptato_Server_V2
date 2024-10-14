@@ -41,6 +41,12 @@ jobs:
             mkdir -p src/test/resources
 
             echo "$TEST_APPLICATION_YML" > src/test/resources/application.yml
+            
+            rm -rf src/test/resources/data.sql
+            
+            mkdir -p src/test/resources
+
+            echo "$TEST_DATA_SQL" > src/test/resources/data.sql
 
             chmod +x gradlew
 

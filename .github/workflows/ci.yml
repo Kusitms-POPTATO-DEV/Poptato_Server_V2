@@ -51,7 +51,7 @@ jobs:
         run: |
           cd ./src/test/resources
           touch ./application.yml
-          echo "${{ secrets.APPLICATION_TEST_YML }}" >./application.yml
+          printf "%s" "${{ secrets.APPLICATION_TEST_YML }}" >./application.yml
 
       #Gradle 설정 및 의존성 다운
       - name: Setup Gradle
