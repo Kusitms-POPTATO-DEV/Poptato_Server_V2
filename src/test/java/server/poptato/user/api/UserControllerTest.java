@@ -4,8 +4,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -28,8 +26,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.jsonPath;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -69,27 +67,27 @@ class UserControllerTest {
     }
 
     @Test
-    @DisplayName("회원 탈퇴 성공 - Todo가 있는 경우")
+    @DisplayName("회원 탈퇴 성공")
     void deleteUserSuccessWithTodos() throws Exception {
         // Given
         User user = User.builder()
                 .id(userId)
                 .kakaoId("kakao12345")
-                .name("John Doe")
-                .email("john.doe@example.com")
+                .name("Kyounglin")
+                .email("Kyounglin@example.com")
                 .createDate(LocalDateTime.now())
                 .modifyDate(LocalDateTime.now())
                 .build();
 
-        // Todo 리스트 생성 (Todo가 있는 경우)
+        // Todo 리스트 생성
         List<Todo> todos = List.of(
                 Todo.builder()
                         .userId(userId)
-                        .type(Type.TODAY)  // Type 예시 값
+                        .type(Type.TODAY)
                         .content("Task 1")
                         .isBookmark(false)
                         .todayDate(LocalDate.now())
-                        .todayStatus(TodayStatus.COMPLETED)  // Status 예시 값
+                        .todayStatus(TodayStatus.COMPLETED)
                         .createDate(LocalDateTime.now())
                         .modifyDate(LocalDateTime.now())
                         .build(),
@@ -112,14 +110,12 @@ class UserControllerTest {
         // User 찾기 성공
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
-        // Todo 리스트 조회 시 실제 Todo 리스트 반환
+        // Todo 리스트 반환
         when(todoRepository.findAllByUserId(userId)).thenReturn(todos);
 
-        // UserService의 deleteUser() 메서드 호출 모킹
         doNothing().when(jwtService).deleteRefreshToken(anyString());
         doNothing().when(userRepository).delete(user);
 
-        // When & Then
         mockMvc.perform(MockMvcRequestBuilders.delete("/user")
                         .header("Authorization", "Bearer " + accessToken))
                 .andExpect(status().isOk())
@@ -129,7 +125,6 @@ class UserControllerTest {
     @Test
     @DisplayName("회원 탈퇴 실패 - 토큰 없음")
     void deleteUserFailureNoToken() throws Exception {
-        // When & Then
         mockMvc.perform(MockMvcRequestBuilders.delete("/user"))
                 .andExpect(status().isBadRequest())
                 .andDo(print());
@@ -138,13 +133,11 @@ class UserControllerTest {
     @Test
     @DisplayName("회원 탈퇴 실패 - 유효하지 않은 토큰")
     void deleteUserFailureInvalidToken() throws Exception {
-        // Given
         String invalidToken = "invalidToken";
 
         // 토큰 검증 실패
         when(jwtService.verifyToken(anyString())).thenReturn(false);
 
-        // When & Then
         mockMvc.perform(MockMvcRequestBuilders.delete("/user")
                         .header("Authorization", "Bearer " + invalidToken))
                 .andExpect(status().isBadRequest())
@@ -164,6 +157,7 @@ class UserControllerTest {
         // When & Then
         mockMvc.perform(MockMvcRequestBuilders.delete("/user")
                         .header("Authorization", "Bearer " + accessToken))
+//                .andExpect(status().isNotFound())
                 .andDo(print());
     }
 }

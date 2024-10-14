@@ -22,13 +22,8 @@ public class UserService {
     public void deleteUser(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(USER_NOT_FOUND_EXCEPTION));
-
-        // 유저와 연관된 모든 Todo 삭제
         todoRepository.deleteAll(todoRepository.findAllByUserId(userId));
-
-        // Redis에서 리프레시 토큰 삭제
         jwtService.deleteRefreshToken(String.valueOf(userId));
-
         userRepository.delete(user);
     }
 }
