@@ -10,6 +10,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import server.poptato.auth.application.service.JwtService;
 import server.poptato.global.exception.BaseException;
+import server.poptato.todo.infra.repository.JpaTodoRepository;
+import server.poptato.user.application.service.UserService;
 import server.poptato.user.domain.entity.User;
 import server.poptato.user.infra.repository.JpaUserRepository;
 
@@ -25,7 +27,7 @@ public class UserServiceTest {
     private JpaUserRepository userRepository;
 
     @MockBean
-    private TodoRepository todoRepository;
+    private JpaTodoRepository todoRepository;
 
     @MockBean
     private JwtService jwtService;
