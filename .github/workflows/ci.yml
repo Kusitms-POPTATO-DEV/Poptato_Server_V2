@@ -44,7 +44,6 @@ jobs:
         run: |
           cd ..
           cd ..
-          cd ./test/resources
           touch ./data.sql
           echo "${{ secrets.TEST_DATA_SQL }}" > ./data.sql
 
