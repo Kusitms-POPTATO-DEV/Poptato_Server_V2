@@ -37,7 +37,7 @@ jobs:
         run: |
           cd ./src/main/resources
           rm -rf ./application.yml
-          mkdir -p ./application.yml
+          touch ./application.yml
           echo "${{ secrets.APPLICATION_YML }}" >./application.yml
 
       # test의 data.sql 생성
@@ -45,7 +45,7 @@ jobs:
         run: |
           cd ./src/test/resources
           rm -rf ./data.sql
-          mkdir -p ./data.sql
+          touch ./data.sql
           echo "${{ secrets.TEST_DATA_SQL }}" > test/resources/application.yml
 
       # test의 application.yml 생성
@@ -53,7 +53,7 @@ jobs:
         run: |
           cd ./src/test/resources
           rm -rf ./application.yml
-          mkdir -p ./application.yml
+          touch ./application.yml
           echo "${{ secrets.APPLICATION_TEST_YML }}" >./application.yml
 
       #Gradle 설정 및 의존성 다운
