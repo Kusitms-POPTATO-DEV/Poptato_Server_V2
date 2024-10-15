@@ -6,8 +6,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import server.poptato.external.kakao.resolver.KakaoCodeResolver;
-import server.poptato.external.kakao.resolver.OriginResolver;
 import server.poptato.user.resolver.UserResolver;
 
 import java.util.List;
@@ -16,9 +14,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class WebConfig implements WebMvcConfigurer {
     private final UserResolver userResolver;
-    private final KakaoCodeResolver kakaoCodeResolver;
-    private final OriginResolver originResolver;
-
     @Override
     public void addCorsMappings(final CorsRegistry registry) {
         registry.addMapping("/**")
@@ -32,8 +27,6 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
         resolvers.add(userResolver);
-        resolvers.add(kakaoCodeResolver);
-        resolvers.add(originResolver);
 
     }
 }
