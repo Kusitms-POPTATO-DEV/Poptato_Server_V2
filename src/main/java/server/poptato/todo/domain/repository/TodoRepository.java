@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface TodoRepository {
     List<Todo> findAllByUserId(Long userId);
+    void deleteAll(List<Todo> todos);
 }

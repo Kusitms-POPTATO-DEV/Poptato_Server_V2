@@ -9,5 +9,7 @@ import java.util.List;
 public interface JpaTodoRepository extends TodoRepository, JpaRepository<Todo,Long> {
     @Override
     List<Todo> findAllByUserId(Long userId);
+    @Override
+    void deleteAll(List<Todo> todos);
 
 }

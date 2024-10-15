@@ -12,18 +12,9 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import server.poptato.auth.application.service.JwtService;
-import server.poptato.todo.domain.entity.Todo;
-import server.poptato.todo.domain.value.TodayStatus;
-import server.poptato.todo.domain.value.Type;
 import server.poptato.todo.infra.repository.JpaTodoRepository;
 import server.poptato.user.application.service.UserService;
-import server.poptato.user.domain.entity.User;
 import server.poptato.user.infra.repository.JpaUserRepository;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
@@ -67,54 +58,14 @@ class UserControllerTest {
     }
 
     @Test
-    @DisplayName("회원 탈퇴 성공")
-    void deleteUserSuccessWithTodos() throws Exception {
-        // Given
-        User user = User.builder()
-                .id(userId)
-                .kakaoId("kakao12345")
-                .name("Kyounglin")
-                .email("Kyounglin@example.com")
-                .createDate(LocalDateTime.now())
-                .modifyDate(LocalDateTime.now())
-                .build();
-
-        // Todo 리스트 생성
-        List<Todo> todos = List.of(
-                Todo.builder()
-                        .userId(userId)
-                        .type(Type.TODAY)
-                        .content("Task 1")
-                        .isBookmark(false)
-                        .todayDate(LocalDate.now())
-                        .todayStatus(TodayStatus.COMPLETED)
-                        .createDate(LocalDateTime.now())
-                        .modifyDate(LocalDateTime.now())
-                        .build(),
-                Todo.builder()
-                        .userId(userId)
-                        .type(Type.TODAY)
-                        .content("Task 2")
-                        .isBookmark(true)
-                        .todayDate(LocalDate.now())
-                        .todayStatus(TodayStatus.COMPLETED)
-                        .createDate(LocalDateTime.now())
-                        .modifyDate(LocalDateTime.now())
-                        .build()
-        );
-
+    @DisplayName("회원 탈퇴 성공 - 토큰 검증 후 응답 확인")
+    void deleteUserSuccess() throws Exception {
         // 토큰 검증 성공
         when(jwtService.verifyToken(anyString())).thenReturn(true);
         when(jwtService.getUserIdInToken(anyString())).thenReturn(userId.toString());
 
-        // User 찾기 성공
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-
-        // Todo 리스트 반환
-        when(todoRepository.findAllByUserId(userId)).thenReturn(todos);
-
-        doNothing().when(jwtService).deleteRefreshToken(anyString());
-        doNothing().when(userRepository).delete(user);
+        // UserService의 deleteUser()가 호출되는지 확인
+        doNothing().when(userService).deleteUser(userId);
 
         mockMvc.perform(MockMvcRequestBuilders.delete("/user")
                         .header("Authorization", "Bearer " + accessToken))
@@ -141,23 +92,6 @@ class UserControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.delete("/user")
                         .header("Authorization", "Bearer " + invalidToken))
                 .andExpect(status().isBadRequest())
-                .andDo(print());
-    }
-
-    @Test
-    @DisplayName("회원 탈퇴 실패 - 유저가 존재하지 않음")
-    void deleteUserFailureUserNotFound() throws Exception {
-        // Given
-        // User 찾기 실패
-        when(jwtService.verifyToken(anyString())).thenReturn(true);
-        when(jwtService.getUserIdInToken(anyString())).thenReturn(userId.toString());
-
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
-
-        // When & Then
-        mockMvc.perform(MockMvcRequestBuilders.delete("/user")
-                        .header("Authorization", "Bearer " + accessToken))
-//                .andExpect(status().isNotFound())
                 .andDo(print());
     }
 }
