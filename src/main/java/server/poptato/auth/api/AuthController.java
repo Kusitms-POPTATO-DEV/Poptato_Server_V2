@@ -9,7 +9,6 @@ import server.poptato.auth.api.request.KakaoLoginRequestDto;
 import server.poptato.auth.api.request.TokenRequestDto;
 import server.poptato.auth.application.response.LoginResponseDto;
 import server.poptato.auth.application.service.AuthService;
-import server.poptato.external.kakao.resolver.KakaoCode;
 import server.poptato.global.dto.TokenPair;
 import server.poptato.global.response.BaseResponse;
 import server.poptato.user.resolver.UserId;
