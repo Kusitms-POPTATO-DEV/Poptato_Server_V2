@@ -16,29 +16,29 @@ public class KakaoSocialService extends SocialService {
 
     @Value("${kakao.client-id}")
     private String clientId;
-
-    @Value("${kakao.baseUrl}")
-    private String baseUrl;
     private static final String Bearer = "Bearer ";
     private static final String GRANT_TYPE = "authorization_code";
-    private static final String KAKAO_ROUTER = "/login/oauth2/code/kakao";
     private final KakaoAuthApiClient kakaoAuthApiClient;
     private final KakaoApiClient kakaoApiClient;
 
     @Override
     public KakaoUserInfo getIdAndNickNameAndEmailFromKakao(String kakaoCode) {
-        String redirectUrl = baseUrl + KAKAO_ROUTER;
+        // 인가 코드로 액세스 토큰 요청 (redirect_uri 없이)
         KakaoAccessTokenResponse tokenResponse = kakaoAuthApiClient.getOAuth2AccessToken(
                 GRANT_TYPE,
                 clientId,
-                redirectUrl,
                 kakaoCode
         );
 
-        // 액세스 토큰으로 사용자 정보 요청
+        // 액세스 토큰으로 카카오 사용자 정보 요청
         KakaoUserResponse userResponse = kakaoApiClient.getUserInformation(Bearer + tokenResponse.accessToken());
 
-        // ID와 닉네임을 함께 반환
-        return new KakaoUserInfo(String.valueOf(userResponse.id()), userResponse.properties().nickname(), userResponse.kakao_account().email());
+        // ID, 닉네임, 이메일을 반환
+        return new KakaoUserInfo(
+                String.valueOf(userResponse.id()),
+                userResponse.properties().nickname(),
+                userResponse.kakao_account().email()
+        );
     }
 }
+
