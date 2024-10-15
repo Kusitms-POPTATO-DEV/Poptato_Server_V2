@@ -16,6 +16,9 @@ public class KakaoSocialService extends SocialService {
 
     @Value("${kakao.client-id}")
     private String clientId;
+
+    @Value("${kakao.baseUrl}")
+    private String baseUrl;
     private static final String Bearer = "Bearer ";
     private static final String GRANT_TYPE = "authorization_code";
     private static final String KAKAO_ROUTER = "/login/oauth2/code/kakao";
@@ -23,7 +26,7 @@ public class KakaoSocialService extends SocialService {
     private final KakaoApiClient kakaoApiClient;
 
     @Override
-    public KakaoUserInfo getIdAndNickNameAndEmailFromKakao(String baseUrl, String kakaoCode) {
+    public KakaoUserInfo getIdAndNickNameAndEmailFromKakao(String kakaoCode) {
         String redirectUrl = baseUrl + KAKAO_ROUTER;
         KakaoAccessTokenResponse tokenResponse = kakaoAuthApiClient.getOAuth2AccessToken(
                 GRANT_TYPE,
