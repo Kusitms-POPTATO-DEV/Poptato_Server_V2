@@ -14,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import server.poptato.auth.application.service.JwtService;
+import server.poptato.todo.api.request.DragAndDropRequestDto;
 import server.poptato.todo.api.request.SwipeRequestDto;
 import server.poptato.todo.application.TodoService;
 import server.poptato.todo.exception.TodoException;
@@ -22,6 +23,8 @@ import server.poptato.user.application.service.UserService;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+
+import java.util.ArrayList;
 import java.util.Set;
 
 import static org.mockito.Mockito.verify;
@@ -193,6 +196,36 @@ public class TodoControllerTest {
         //when
         mockMvc.perform(patch("/swipe")
                         .content("{\"todoId\": 1}")
+                        .header("Authorization", "Bearer "+accessToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print());
+    }
+
+    @DisplayName("드래그앤드롭 시 요청 바디에 type이나 list가 없으면 Validator가 잡는다.")
+    @Test
+    void 드래그앤드롭_요청바디_예외(){
+        //given
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        validator = factory.getValidator();
+
+        DragAndDropRequestDto request = DragAndDropRequestDto.builder()
+                .type(null)
+                .todoIds(new ArrayList<>())
+                .build();
+
+        //when
+        Set<ConstraintViolation<DragAndDropRequestDto>> violations = validator.validate(request);
+        //then
+        Assertions.assertEquals(violations.size(), 2);
+    }
+
+    @DisplayName("드래그앤드롭 요청 시 성공한다.")
+    @Test
+    void 드래그앤드롭_성공_응답() throws Exception {
+        //when
+        mockMvc.perform(patch("/dragAndDrop")
+                        .content("{\"type\": \"TODAY\", \"todoIds\": [1, 2, 3, 4]}")
                         .header("Authorization", "Bearer "+accessToken)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())

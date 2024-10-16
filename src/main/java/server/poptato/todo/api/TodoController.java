@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import server.poptato.global.response.BaseResponse;
+import server.poptato.todo.api.request.DragAndDropRequestDto;
 import server.poptato.todo.api.request.SwipeRequestDto;
 import server.poptato.todo.application.TodoService;
 import server.poptato.todo.application.response.BacklogListResponseDto;
@@ -39,14 +40,21 @@ public class TodoController {
     }
 
     @PatchMapping("/swipe")
-    public BaseResponse swipe(//@UserId Long userId,
+    public BaseResponse swipe(@UserId Long userId,
                               @Validated @RequestBody SwipeRequestDto swipeRequestDto){
-        todoService.swipe(1L, swipeRequestDto.getTodoId());
+        todoService.swipe(userId, swipeRequestDto.getTodoId());
         return new BaseResponse<>();
     }
     @PatchMapping("/todo/{todoId}/bookmark")
     public BaseResponse toggleIsBookmark(@PathVariable Long todoId) {
         todoService.toggleIsBookmark(todoId);
+        return new BaseResponse<>();
+    }
+
+    @PatchMapping("/dragAndDrop")
+    public BaseResponse dragAndDrop(//@UserId Long userId,
+                                    @Validated @RequestBody DragAndDropRequestDto dragAndDropRequestDto){
+        todoService.dragAndDrop(1L, dragAndDropRequestDto);
         return new BaseResponse<>();
     }
 }
