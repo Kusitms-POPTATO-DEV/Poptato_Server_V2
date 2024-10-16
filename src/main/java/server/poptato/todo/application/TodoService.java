@@ -89,9 +89,6 @@ public class TodoService {
 
         // isBookmark 값을 토글하는 메서드 호출
         todo.toggleBookmark();
-
-        // 변경된 todo 저장
-        todoRepository.save(todo);
     }
 
     private void checkIsExistUser(long userId) {

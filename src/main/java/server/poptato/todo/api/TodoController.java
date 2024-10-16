@@ -37,7 +37,7 @@ public class TodoController {
         return new BaseResponse<>(backlogListResponse);
     }
     @PatchMapping("/todo/{todoId}/bookmark")
-    public BaseResponse<Todo> toggleIsBookmark(@PathVariable Long todoId) {
+    public BaseResponse toggleIsBookmark(@PathVariable Long todoId) {
         todoService.toggleIsBookmark(todoId);
         return new BaseResponse<>();
     }
