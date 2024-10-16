@@ -26,7 +26,7 @@ public class AuthController {
     public BaseResponse<LoginResponseDto> login(@RequestBody KakaoLoginRequestDto kakaoLoginRequestDto) {
         String kakaoCode = kakaoLoginRequestDto.kakaoCode();
         LoginResponseDto response = authService.login(kakaoCode);
-        return new BaseResponse<>(SUCCESS, response);
+        return new BaseResponse<>(response);
     }
 
     @PostMapping("/logout")
@@ -37,6 +37,6 @@ public class AuthController {
     @PostMapping("/refresh")
     public BaseResponse<TokenPair> refresh(@RequestBody final TokenRequestDto tokenRequestDto) {
         TokenPair response = authService.refresh(tokenRequestDto);
-        return new BaseResponse<>(SUCCESS, response);
+        return new BaseResponse<>(response);
     }
 }
