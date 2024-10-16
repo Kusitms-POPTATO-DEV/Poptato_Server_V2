@@ -4,6 +4,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import server.poptato.todo.application.response.PaginatedHistoryResponseDto;
 import server.poptato.todo.application.response.TodayListResponseDto;
 import server.poptato.todo.application.response.TodayResponseDto;
 import server.poptato.todo.domain.entity.Todo;
@@ -15,6 +16,7 @@ import server.poptato.todo.exception.errorcode.TodoExceptionErrorCode;
 import server.poptato.user.exception.UserException;
 import server.poptato.user.exception.errorcode.UserExceptionErrorCode;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -193,5 +195,25 @@ class TodoServiceTest {
         assertThrows(TodoException.class, () -> {
             todoService.toggleIsBookmark(nonExistentTodoId);  // 예외가 발생해야 함
         });
+    }
+    @Test
+    @DisplayName("Histories 페이징 테스트")
+    void getHistories_ShouldReturnPagedResult() {
+        // given
+        for (int i = 1; i <= 15; i++) {
+            Todo todo = Todo.builder()
+                    .userId(1L)
+                    .content("Test Content " + i)
+                    .completedDateTime(LocalDateTime.now())
+                    .build();
+            todoRepository.save(todo);
+        }
+
+        // when
+        PaginatedHistoryResponseDto result = todoService.getHistories(0, 5);
+
+        // then
+        assertThat(result.getHistories()).hasSize(5);  // 페이지당 5개의 todo가 반환
+        assertThat(result.getTotalPageCount()).isEqualTo(3);  // 총 3페이지
     }
 }

@@ -3,10 +3,13 @@ package server.poptato.todo.application;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import server.poptato.global.response.BaseResponse;
 import server.poptato.todo.application.response.BacklogListResponseDto;
+import server.poptato.todo.application.response.HistoryResponseDto;
+import server.poptato.todo.application.response.PaginatedHistoryResponseDto;
 import server.poptato.todo.application.response.TodayListResponseDto;
 import server.poptato.todo.domain.entity.Todo;
 import server.poptato.todo.domain.repository.TodoRepository;
@@ -20,7 +23,9 @@ import server.poptato.user.exception.errorcode.UserExceptionErrorCode;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static server.poptato.todo.exception.errorcode.TodoExceptionErrorCode.TODO_NOT_EXIST;
 
@@ -89,6 +94,22 @@ public class TodoService {
 
         // isBookmark 값을 토글하는 메서드 호출
         todo.toggleBookmark();
+    }
+
+    public PaginatedHistoryResponseDto getHistories(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Todo> todosPage = todoRepository.findAll(pageable);  // 페이지네이션된 결과를 가져옴
+
+        List<HistoryResponseDto> histories = todosPage.getContent().stream()
+                .sorted(Comparator.comparing(todo -> todo.getCompletedDateTime().toLocalDate()))  // 날짜 오름차순 정렬
+                .map(todo -> new HistoryResponseDto(
+                        todo.getId(),
+                        todo.getContent(),
+                        todo.getCompletedDateTime().toLocalDate()  // 날짜를 localdate로 변환
+                ))
+                .collect(Collectors.toList());
+
+        return new PaginatedHistoryResponseDto(histories, todosPage.getTotalPages());
     }
 
     private void checkIsExistUser(long userId) {
