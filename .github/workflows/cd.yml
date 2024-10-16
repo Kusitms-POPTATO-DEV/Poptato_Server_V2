@@ -15,7 +15,8 @@ jobs:
         uses: appleboy/ssh-action@master
         env:
           APPLICATION_YML: ${{ secrets.APPLICATION_YML }}
-          TEST_APPLICATION_YML: ${{ secrets.APPLICATION_TEST_YML }}
+          APPLICATION_TEST_YML: ${{ secrets.APPLICATION_TEST_YML }}
+          TEST_DATA_SQL: ${{ secrets.TEST_DATA_SQL }}
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
