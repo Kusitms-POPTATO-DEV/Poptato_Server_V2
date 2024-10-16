@@ -80,6 +80,18 @@ public class TodoService {
                 .orElseThrow(() -> new TodoException(TODO_NOT_EXIST));
         todoRepository.delete(todo);
     }
+    @Transactional
+    public Todo toggleIsBookmark(Long todoId) {
+        // 해당 Todo를 조회
+        Todo todo = todoRepository.findById(todoId)
+                .orElseThrow(() -> new TodoException(TODO_NOT_EXIST));
+
+        // isBookmark 값을 토글하는 메서드 호출
+        todo.toggleBookmark();
+
+        // 변경된 todo 저장
+        return todoRepository.save(todo);
+    }
 
     private void checkIsExistUser(long userId) {
         userRepository.findById(userId).orElseThrow(()
