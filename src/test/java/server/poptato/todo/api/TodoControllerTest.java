@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import server.poptato.auth.application.service.JwtService;
 import server.poptato.todo.application.TodoService;
+import server.poptato.user.application.service.UserService;
 
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -26,6 +27,8 @@ public class TodoControllerTest {
     private MockMvc mockMvc;
     @MockBean
     private TodoService todoService;
+    @MockBean
+    private UserService userService;
     @Autowired
     private JwtService jwtService;
     @MockBean

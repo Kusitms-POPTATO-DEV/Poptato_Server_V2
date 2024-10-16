@@ -6,6 +6,7 @@ import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.lang.Nullable;
 import server.poptato.todo.domain.value.TodayStatus;
 import server.poptato.todo.domain.value.Type;
 
@@ -29,12 +30,20 @@ public class Todo{
     private Type type;
     @NotNull
     private String content;
+    @Nullable
     private LocalDate deadline;
     @NotNull
     private boolean isBookmark;
+    @Nullable
     private LocalDate todayDate;
     @Enumerated(EnumType.STRING)
     private TodayStatus todayStatus;
+    @Nullable
+    private Integer todayOrder;
+    @Nullable
+    private Integer backlogOrder;
+    @Nullable
+    private LocalDateTime completedDateTime;
     @CreatedDate
     @Column(updatable = false)
     private LocalDateTime createDate;
