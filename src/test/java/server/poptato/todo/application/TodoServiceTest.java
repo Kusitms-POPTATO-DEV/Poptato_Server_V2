@@ -210,7 +210,7 @@ class TodoServiceTest {
         }
 
         // when
-        PaginatedHistoryResponseDto result = todoService.getHistories(0, 5);
+        PaginatedHistoryResponseDto result = todoService.getHistories(1L,0, 5);
 
         // then
         assertThat(result.getHistories()).hasSize(5);  // 페이지당 5개의 todo가 반환

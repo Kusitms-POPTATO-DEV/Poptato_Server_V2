@@ -7,13 +7,5 @@ import server.poptato.todo.domain.repository.TodoRepository;
 import java.util.Optional;
 
 public interface JpaTodoRepository extends TodoRepository, JpaRepository<Todo,Long> {
-    @Override
-    void deleteAllByUserId(Long userId);
-    @Override
-    Optional<Todo> findById(Long todoId);
-    @Override
-    void delete(Todo todo);
-    @Override
-    Todo save(Todo todo);
 
 }

@@ -96,9 +96,10 @@ public class TodoService {
         todo.toggleBookmark();
     }
 
-    public PaginatedHistoryResponseDto getHistories(int page, int size) {
+    public PaginatedHistoryResponseDto getHistories(Long userId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Todo> todosPage = todoRepository.findAll(pageable);  // 페이지네이션된 결과를 가져옴
+        //유정 아이디와 completedDate가 null 이 아닌것들을 가져옴
+        Page<Todo> todosPage = todoRepository.findByUserIdAndCompletedDateTimeIsNotNull(userId, pageable);
 
         List<HistoryResponseDto> histories = todosPage.getContent().stream()
                 .sorted(Comparator.comparing(todo -> todo.getCompletedDateTime().toLocalDate()))  // 날짜 오름차순 정렬

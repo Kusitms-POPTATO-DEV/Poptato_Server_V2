@@ -25,4 +25,5 @@ public interface TodoRepository {
      Todo save(Todo todo);
     // 백로그 목록 조회
     Page<Todo> findByUserIdAndTypeInOrderByBacklogOrderAsc(Long userId, List<Type> types, Pageable pageable);
+    Page<Todo> findByUserIdAndCompletedDateTimeIsNotNull(Long userId, Pageable pageable);
 }
