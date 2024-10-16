@@ -1,5 +1,5 @@
 package server.poptato.todo.domain.value;
 
 public enum Type {
-    BACKLOG, TODAY
+    BACKLOG, YESTERDAY, TODAY
 }
