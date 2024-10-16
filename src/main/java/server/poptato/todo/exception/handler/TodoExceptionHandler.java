@@ -1,4 +1,4 @@
-package server.poptato.user.exception.handler;
+package server.poptato.todo.exception.handler;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
@@ -7,16 +7,16 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import server.poptato.global.response.BaseErrorResponse;
-import server.poptato.user.exception.UserException;
+import server.poptato.todo.exception.TodoException;
 
 @Slf4j
-@Order(0)
+@Order(1)
 @RestControllerAdvice
-public class UserExceptionHandler {
+public class TodoExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(UserException.class)
-    public BaseErrorResponse handleUserException(UserException e) {
-        log.error("[UserException: handle_UserException 호출]", e);
+    @ExceptionHandler(TodoException.class)
+    public BaseErrorResponse handleTodoException(TodoException e) {
+        log.error("[UserException: handle_TodoException 호출]", e);
         return new BaseErrorResponse(e.getExceptionStatus(), e.getMessage());
     }
 }

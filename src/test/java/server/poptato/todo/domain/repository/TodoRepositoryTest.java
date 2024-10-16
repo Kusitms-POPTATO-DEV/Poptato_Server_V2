@@ -27,14 +27,12 @@ class TodoRepositoryTest {
         //given
         Long userId = 1L;
         LocalDate todayDate = LocalDate.of(2024, 10, 16);
-        Pageable pageable = PageRequest.of(0, 8);
 
         //when
-        Page<Todo> result = todoRepository.findByUserIdAndTypeAndTodayDateAndTodayStatusOrderByCompletedDateTimeDesc(
-                userId, Type.TODAY, todayDate, TodayStatus.COMPLETED ,pageable);
+        List<Todo> todos = todoRepository.findByUserIdAndTypeAndTodayDateAndTodayStatusOrderByCompletedDateTimeDesc(
+                userId, Type.TODAY, todayDate, TodayStatus.COMPLETED);
 
-        assertThat(result).isNotEmpty();
-        List<Todo> todos = result.getContent();
+        assertThat(todos).isNotEmpty();
 
         // userId가 모두 1인지 확인
         assertThat(todos.stream().allMatch(todo -> todo.getUserId().equals(userId))).isTrue();
@@ -57,14 +55,12 @@ class TodoRepositoryTest {
         //given
         Long userId = 1L;
         LocalDate todayDate = LocalDate.of(2024, 10, 16);
-        Pageable pageable = PageRequest.of(0, 8);
 
         //when
-        Page<Todo> result = todoRepository.findByUserIdAndTypeAndTodayDateAndTodayStatusOrderByTodayOrderAsc(
-                userId, Type.TODAY, todayDate, TodayStatus.INCOMPLETE, pageable);
+        List<Todo> todos = todoRepository.findByUserIdAndTypeAndTodayDateAndTodayStatusOrderByTodayOrderAsc(
+                userId, Type.TODAY, todayDate, TodayStatus.INCOMPLETE);
 
-        assertThat(result).isNotEmpty();
-        List<Todo> todos = result.getContent();
+        assertThat(todos).isNotEmpty();
 
         // userId가 모두 1인지 확인
         assertThat(todos.stream().allMatch(todo -> todo.getUserId().equals(userId))).isTrue();

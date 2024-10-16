@@ -1,15 +1,15 @@
 package server.poptato.todo.application;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import server.poptato.todo.application.response.TodayListResponseDto;
 import server.poptato.todo.domain.entity.Todo;
 import server.poptato.todo.domain.repository.TodoRepository;
 import server.poptato.todo.domain.value.TodayStatus;
 import server.poptato.todo.domain.value.Type;
+import server.poptato.todo.exception.TodoException;
+import server.poptato.todo.exception.errorcode.TodoExceptionErrorCode;
 import server.poptato.user.domain.repository.UserRepository;
 import server.poptato.user.exception.UserException;
 import server.poptato.user.exception.errorcode.UserExceptionErrorCode;
@@ -27,26 +27,27 @@ public class TodoService {
         checkIsExistUser(userId);
 
         LocalDate todayDate = LocalDate.now();
-        PageRequest pageRequest = PageRequest.of(page, size);
+        List<Todo> todays = new ArrayList<>();
 
         // 미완료된 할 일 먼저 조회
-        Page<Todo> incompleteTodos = todoRepository.findByUserIdAndTypeAndTodayDateAndTodayStatusOrderByTodayOrderAsc(
-                userId, Type.TODAY, todayDate, TodayStatus.INCOMPLETE, pageRequest);
+        List<Todo> incompleteTodos = todoRepository.findByUserIdAndTypeAndTodayDateAndTodayStatusOrderByTodayOrderAsc(
+                userId, Type.TODAY, todayDate, TodayStatus.INCOMPLETE);
+        todays.addAll(incompleteTodos);
 
-        List<Todo> todays = new ArrayList<>(incompleteTodos.getContent());
+        // 완료된 할 일 조회
+        List<Todo> completedTodos = todoRepository.findByUserIdAndTypeAndTodayDateAndTodayStatusOrderByCompletedDateTimeDesc(
+                    userId, Type.TODAY, todayDate, TodayStatus.COMPLETED);
+        todays.addAll(completedTodos);
 
-        // 만약 미완료된 할 일이 size를 채우지 못하면, 완료된 할 일에서 남은 할 일만큼 가져옴
-        if (todays.size() < size) {
-            int remainingSize = size - todays.size();
-            Pageable completedPageable = PageRequest.of(0, remainingSize);
+        // 전체 리스트에서 페이징
+        int start = (page) * size;
+        int end = Math.min(start + size, todays.size());
+        if (start > end) throw new TodoException(TodoExceptionErrorCode.INVALID_PAGE);
 
-            Page<Todo> completedTodos = todoRepository.findByUserIdAndTypeAndTodayDateAndTodayStatusOrderByCompletedDateTimeDesc(
-                    userId, Type.TODAY, todayDate, TodayStatus.COMPLETED, completedPageable);
+        List<Todo> todaySubList = todays.subList(start, end);
+        int totalPageCount = (int) Math.ceil((double) todays.size() / size);
 
-            todays.addAll(completedTodos.getContent());
-        }
-
-        return new TodayListResponseDto(todayDate,todays);
+        return new TodayListResponseDto(todayDate,todaySubList,totalPageCount);
     }
 
     private void checkIsExistUser(long userId) {

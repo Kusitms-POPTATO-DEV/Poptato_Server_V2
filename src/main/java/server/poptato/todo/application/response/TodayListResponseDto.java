@@ -11,11 +11,13 @@ import java.util.stream.Collectors;
 public class TodayListResponseDto {
     LocalDate date;
     List<TodayResponseDto> todays;
+    int totalPageCount;
 
-    public TodayListResponseDto(LocalDate date, List<Todo> todays) {
+    public TodayListResponseDto(LocalDate date, List<Todo> todays, int totalPageCount) {
         this.date = date;
         this.todays = todays.stream()
                 .map(TodayResponseDto::new)
                 .collect(Collectors.toList());
+        this.totalPageCount = totalPageCount;
     }
 }
