@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import server.poptato.todo.application.response.BacklogListResponseDto;
 import server.poptato.todo.application.response.TodayListResponseDto;
 import server.poptato.todo.domain.entity.Todo;
@@ -19,6 +20,8 @@ import server.poptato.user.exception.errorcode.UserExceptionErrorCode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
+import static server.poptato.todo.exception.errorcode.TodoExceptionErrorCode.TODO_NOT_EXIST;
 
 @RequiredArgsConstructor
 @Service
@@ -71,10 +74,15 @@ public class TodoService {
                .build();
     }
 
+    @Transactional
+    public void deleteTodoById(Long todoId) {
+        Todo todo = todoRepository.findById(todoId)
+                .orElseThrow(() -> new TodoException(TODO_NOT_EXIST));
+        todoRepository.delete(todo);
+    }
+
     private void checkIsExistUser(long userId) {
         userRepository.findById(userId).orElseThrow(()
                 -> new UserException(UserExceptionErrorCode.USER_NOT_EXIST));
     }
-
-
 }

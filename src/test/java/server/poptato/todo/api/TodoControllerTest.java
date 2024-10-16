@@ -14,11 +14,14 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import server.poptato.auth.application.service.JwtService;
 import server.poptato.todo.application.TodoService;
+import server.poptato.todo.exception.TodoException;
 import server.poptato.user.application.service.UserService;
 
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static server.poptato.todo.exception.errorcode.TodoExceptionErrorCode.TODO_NOT_EXIST;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -50,10 +53,10 @@ public class TodoControllerTest {
     void 투데이_목록조회_성공응답() throws Exception {
         //when
         mockMvc.perform(MockMvcRequestBuilders.get("/todays")
-                .param("page","0")
-                .param("size","8")
-                .header("Authorization", "Bearer "+accessToken)
-                .contentType(MediaType.APPLICATION_JSON))
+                        .param("page","0")
+                        .param("size","8")
+                        .header("Authorization", "Bearer "+accessToken)
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print());
     }
@@ -79,6 +82,34 @@ public class TodoControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andDo(print());
+    }
+    @Test
+    public void shouldReturnNoContent_WhenTodoIsDeleted() throws Exception { //투두 있을 때
+        Long todoId = 1L;
+
+        // todoService의 deleteTodoById 메서드가 호출될 때 예외가 발생하지 않도록 설정
+        doNothing().when(todoService).deleteTodoById(todoId);
+
+        mockMvc.perform(delete("/todo/{todoId}", todoId)
+                        .header("Authorization", "Bearer " + accessToken))
+                .andExpect(status().isOk());
+
+        verify(todoService, times(1)).deleteTodoById(todoId);
+    }
+
+    @Test
+    public void shouldReturnNotFound_WhenTodoDoesNotExist() throws Exception { //투두 없을 때
+        Long todoId = 1L;
+
+        // todoService의 deleteTodoById가 호출될 때 exception  발생하도록 설정
+        doThrow(new TodoException(TODO_NOT_EXIST))
+                .when(todoService).deleteTodoById(todoId);
+
+        mockMvc.perform(delete("/todo/{todoId}", todoId)
+                        .header("Authorization", "Bearer " + accessToken))
+                .andExpect(status().isBadRequest());
+
+        verify(todoService, times(1)).deleteTodoById(todoId);
     }
 
     @DisplayName("백로그 목록 조회 시 page와 size를 query string으로 받고 헤더에 accessToken을 담아 요청한다.")

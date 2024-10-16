@@ -6,18 +6,30 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import server.poptato.todo.application.response.TodayListResponseDto;
 import server.poptato.todo.application.response.TodayResponseDto;
+import server.poptato.todo.domain.entity.Todo;
+import server.poptato.todo.domain.repository.TodoRepository;
 import server.poptato.todo.domain.value.TodayStatus;
+import server.poptato.todo.domain.value.Type;
 import server.poptato.todo.exception.TodoException;
 import server.poptato.todo.exception.errorcode.TodoExceptionErrorCode;
 import server.poptato.user.exception.UserException;
 import server.poptato.user.exception.errorcode.UserExceptionErrorCode;
 
-import static org.assertj.core.api.Assertions.*;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 class TodoServiceTest {
     @Autowired
     private TodoService todoService;
+
+    @Autowired
+    TodoRepository todoRepository;
+
+
     @DisplayName("존재하지 않는 유저일 경우 예외가 발생한다.")
     @Test
     void 해당하는_유저정보_없는_예외(){
@@ -77,7 +89,42 @@ class TodoServiceTest {
             }
         }
     }
+    // 새로운 유저로 삭제 테스트
+    @DisplayName("투두가 있을 때 유저 2의 투두를 삭제한다.")
+    @Test
+    public void shouldDeleteTodoById_WhenTodoExists_ForUser2() {
+        //given
+        Long userId = 2L;
+        Todo todo = Todo.builder()
+                .userId(userId)
+                .content("Test Todo")
+                .type(Type.BACKLOG)
+                .todayStatus(TodayStatus.COMPLETED)
+                .build();
 
+        // 실제로 Todo 저장
+        Todo savedTodo = todoRepository.save(todo);
+        Long todoId = savedTodo.getId();
+
+        //when
+        todoService.deleteTodoById(todoId);
+
+        //then
+        Optional<Todo> deletedTodo = todoRepository.findById(todoId);
+        assertThat(deletedTodo).isEmpty();  // 삭제되었는지 검증
+    }
+
+    @DisplayName("투두가 없을 때 유저 2의 투두를 삭제할 때 예외가 발생한다.")
+    @Test
+    public void shouldThrowException_WhenTodoNotFound_ForUser2() {
+        //given
+        Long nonExistentTodoId = 30L;  // 존재하지 않는 투두 ID
+
+        //when & then
+        assertThrows(TodoException.class, () -> {
+            todoService.deleteTodoById(nonExistentTodoId);  // 투두가 없을 때 예외 발생 검증
+        });
+    }
     @DisplayName("size=8을 요청하면, 백로그 목록 조회 시 8개의 데이터만 응답된다.")
     @Test
     void 백로그_데이터_8개만_응답(){
