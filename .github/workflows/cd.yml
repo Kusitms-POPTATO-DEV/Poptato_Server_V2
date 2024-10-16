@@ -40,7 +40,7 @@ jobs:
             
             mkdir -p src/test/resources
 
-            echo "$TEST_APPLICATION_YML" > src/test/resources/application.yml
+            echo "$APPLICATION_TEST_YML" > src/test/resources/application.yml
             
             rm -rf src/test/resources/data.sql
             
