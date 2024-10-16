@@ -49,4 +49,8 @@ public class Todo{
     private LocalDateTime createDate;
     @LastModifiedDate
     private LocalDateTime modifyDate;
+    // isBookmark 값을 토글하는 도메인 메서드
+    public void toggleBookmark() {
+        this.isBookmark = !this.isBookmark;
+    }
 }

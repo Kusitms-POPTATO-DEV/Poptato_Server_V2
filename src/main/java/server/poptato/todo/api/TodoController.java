@@ -6,6 +6,7 @@ import server.poptato.global.response.BaseResponse;
 import server.poptato.todo.application.TodoService;
 import server.poptato.todo.application.response.BacklogListResponseDto;
 import server.poptato.todo.application.response.TodayListResponseDto;
+import server.poptato.todo.domain.entity.Todo;
 import server.poptato.user.resolver.UserId;
 
 @RestController
@@ -34,5 +35,10 @@ public class TodoController {
             @RequestParam(value = "size", defaultValue = "8") int size){
         BacklogListResponseDto backlogListResponse = todoService.getBacklogList(userId, page, size);
         return new BaseResponse<>(backlogListResponse);
+    }
+    @PatchMapping("/todo/{todoId}/bookmark")
+    public BaseResponse toggleIsBookmark(@PathVariable Long todoId) {
+        todoService.toggleIsBookmark(todoId);
+        return new BaseResponse<>();
     }
 }

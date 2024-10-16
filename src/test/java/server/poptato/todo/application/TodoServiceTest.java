@@ -20,6 +20,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static server.poptato.todo.exception.errorcode.TodoExceptionErrorCode.TODO_NOT_EXIST;
 
 @SpringBootTest
 class TodoServiceTest {
@@ -134,5 +135,63 @@ class TodoServiceTest {
         int size = 8;
         //when & then
         assertThat(todoService.getBacklogList(userId,page,size).getBacklogs().size()).isEqualTo(size);
+    }
+
+    @Test
+    @DisplayName("isBookmark가 true일 때 false로 변경하는 테스트")
+    void toggleIsBookmark_TrueToFalse() {
+        // given
+        Todo todo = Todo.builder()
+                .userId(1L)
+                .type(Type.TODAY)
+                .content("Sample Todo")
+                .isBookmark(true)  // isBookmark가 true로 설정됨
+                .build();
+
+        // Todo를 실제로 저장
+        Todo savedTodo = todoRepository.save(todo);
+        Long todoId = savedTodo.getId();
+
+        // when: toggleIsBookmark 호출 (void 메서드)
+        todoService.toggleIsBookmark(todoId);
+
+        // then: DB에서 Todo를 다시 가져와서 확인
+        Todo updatedTodo = todoRepository.findById(todoId).orElseThrow(() -> new TodoException(TODO_NOT_EXIST));
+        assertThat(updatedTodo.isBookmark()).isFalse();  // isBookmark가 false로 변경되었는지 확인
+    }
+
+    @Test
+    @DisplayName("isBookmark가 false일 때 true로 변경하는 테스트")
+    void toggleIsBookmark_FalseToTrue() {
+        // given
+        Todo todo = Todo.builder()
+                .userId(1L)
+                .type(Type.TODAY)
+                .content("Sample Todo")
+                .isBookmark(false)  // isBookmark가 false로 설정됨
+                .build();
+
+        // Todo를 실제로 저장
+        Todo savedTodo = todoRepository.save(todo);
+        Long todoId = savedTodo.getId();
+
+        // when: toggleIsBookmark 호출 (void 메서드)
+        todoService.toggleIsBookmark(todoId);
+
+        // then: DB에서 Todo를 다시 가져와서 확인
+        Todo updatedTodo = todoRepository.findById(todoId).orElseThrow(() -> new TodoException(TODO_NOT_EXIST));
+        assertThat(updatedTodo.isBookmark()).isTrue();  // isBookmark가 true로 변경되었는지 확인
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 Todo ID일 경우 예외가 발생한다.")
+    void toggleIsBookmark_TodoNotFound() {
+        // given
+        Long nonExistentTodoId = 999L;  // 존재하지 않는 Todo ID
+
+        // when & then
+        assertThrows(TodoException.class, () -> {
+            todoService.toggleIsBookmark(nonExistentTodoId);  // 예외가 발생해야 함
+        });
     }
 }
