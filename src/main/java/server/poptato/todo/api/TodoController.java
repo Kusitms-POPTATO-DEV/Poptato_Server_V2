@@ -1,12 +1,13 @@
 package server.poptato.todo.api;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import server.poptato.global.response.BaseResponse;
 import server.poptato.todo.api.request.SwipeRequestDto;
+import server.poptato.todo.application.TodoService;
 import server.poptato.todo.application.response.BacklogListResponseDto;
 import server.poptato.todo.application.response.TodayListResponseDto;
-import server.poptato.todo.application.TodoService;
 import server.poptato.user.resolver.UserId;
 
 @RestController
@@ -22,6 +23,12 @@ public class TodoController {
         return new BaseResponse<>(todayListResponse);
     }
 
+    @DeleteMapping("/todo/{todoId}")
+    public BaseResponse deleteTodoById(@PathVariable Long todoId) {
+        todoService.deleteTodoById(todoId);
+        return new BaseResponse<>();
+    }
+
     @GetMapping("/backlogs")
     public BaseResponse<BacklogListResponseDto> getBacklogList(
             @UserId Long userId,
@@ -32,8 +39,14 @@ public class TodoController {
     }
 
     @PatchMapping("/swipe")
-    public BaseResponse swipe(@UserId Long userId, @RequestBody SwipeRequestDto swipeRequestDto){
-        todoService.swipe(userId, swipeRequestDto.getTodoId());
+    public BaseResponse swipe(//@UserId Long userId,
+                              @Validated @RequestBody SwipeRequestDto swipeRequestDto){
+        todoService.swipe(1L, swipeRequestDto.getTodoId());
+        return new BaseResponse<>();
+    }
+    @PatchMapping("/todo/{todoId}/bookmark")
+    public BaseResponse toggleIsBookmark(@PathVariable Long todoId) {
+        todoService.toggleIsBookmark(todoId);
         return new BaseResponse<>();
     }
 }

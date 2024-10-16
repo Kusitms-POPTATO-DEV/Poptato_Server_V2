@@ -11,7 +11,10 @@ public enum TodoExceptionErrorCode implements ResponseStatus {
      * 5000: Todo 도메인 오류
      */
 
-    INVALID_PAGE(5000, HttpStatus.BAD_REQUEST.value(), "유효햐지 않은 페이지 수입니다.");
+    INVALID_PAGE(5000, HttpStatus.BAD_REQUEST.value(), "유효햐지 않은 페이지 수입니다."),
+    TODO_NOT_EXIST(5001, HttpStatus.BAD_REQUEST.value(), "투두가 존재하지 않습니다"),
+    TODO_USER_NOT_MATCH(5002, HttpStatus.BAD_REQUEST.value(), "사용자의 할 일이 아닙니다."),
+    ALREADY_COMPLETED_TODO(5003, HttpStatus.BAD_REQUEST.value(), "달성된 할 일은 스와이프할 수 없습니다.");
 
     private final int code;
     private final int status;

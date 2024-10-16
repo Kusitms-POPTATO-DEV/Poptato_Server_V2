@@ -49,4 +49,24 @@ public class Todo{
     private LocalDateTime createDate;
     @LastModifiedDate
     private LocalDateTime modifyDate;
+    // isBookmark 값을 토글하는 도메인 메서드
+    public void toggleBookmark() {
+        this.isBookmark = !this.isBookmark;
+    }
+
+    public void changeToToday(Integer maxTodayOrder) {
+        this.type = Type.TODAY;
+        this.backlogOrder = null;
+        this.todayOrder = maxTodayOrder + 1;
+        this.todayStatus = TodayStatus.INCOMPLETE;
+        this.todayDate = LocalDate.now();
+    }
+
+    public void changeToBacklog(Integer maxBacklogOrder) {
+        this.type = Type.BACKLOG;
+        this.backlogOrder = maxBacklogOrder + 1;
+        this.todayOrder = null;
+        this.todayStatus = null;
+        this.todayDate = null;
+    }
 }
