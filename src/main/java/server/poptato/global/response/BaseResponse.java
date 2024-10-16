@@ -29,7 +29,7 @@ public class BaseResponse<T> implements ResponseStatus {
         this.code = SUCCESS.getCode();
         this.status = SUCCESS.getStatus();
         this.message = SUCCESS.getMessage();
-        this.result = null;
+        this.result = result;
     }
 
     public int getCode() {

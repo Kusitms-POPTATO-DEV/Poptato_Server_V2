@@ -13,5 +13,7 @@ public interface JpaTodoRepository extends TodoRepository, JpaRepository<Todo,Lo
     Optional<Todo> findById(Long todoId);
     @Override
     void delete(Todo todo);
+    @Override
+    Todo save(Todo todo);
 
 }

@@ -1,24 +1,26 @@
 package server.poptato.todo.api;
 
-import com.sun.net.httpserver.Authenticator;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import server.poptato.global.response.BaseResponse;
-import server.poptato.todo.application.service.TodoService;
-
-import static server.poptato.global.exception.errorcode.BaseExceptionErrorCode.SUCCESS;
+import server.poptato.todo.application.TodoService;
+import server.poptato.todo.application.response.TodayListResponseDto;
+import server.poptato.user.resolver.UserId;
 
 @RestController
-@RequestMapping("/todo")
 @RequiredArgsConstructor
 public class TodoController {
-
     private final TodoService todoService;
+    @GetMapping("/todays")
+    public BaseResponse<TodayListResponseDto> getTodayList(
+            @UserId Long userId,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "8") int size){
+        TodayListResponseDto todayListResponse = todoService.getTodayList(userId, page, size);
+        return new BaseResponse<>(todayListResponse);
+    }
 
-    @DeleteMapping("/{todoId}")
+    @DeleteMapping("/todo/{todoId}")
     public BaseResponse deleteTodoById(@PathVariable Long todoId) {
         todoService.deleteTodoById(todoId);
         return new BaseResponse<>();
