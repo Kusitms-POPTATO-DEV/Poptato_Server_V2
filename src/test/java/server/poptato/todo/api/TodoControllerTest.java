@@ -80,4 +80,40 @@ public class TodoControllerTest {
                 .andExpect(status().isBadRequest())
                 .andDo(print());
     }
+
+    @DisplayName("백로그 목록 조회 시 page와 size를 query string으로 받고 헤더에 accessToken을 담아 요청한다.")
+    @Test
+    void 백로그_목록조회_성공응답() throws Exception {
+        //when
+        mockMvc.perform(MockMvcRequestBuilders.get("/backlogs")
+                        .param("page","0")
+                        .param("size","8")
+                        .header("Authorization", "Bearer "+accessToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print());
+    }
+
+    @DisplayName("백로그 목록 조회 시 Query String에 Default 값이 적용되고, JWT로 사용자 아이디를 조회한다.")
+    @Test
+    void 백로그_목록조회_쿼리스트링_기본값() throws Exception {
+        //when
+        mockMvc.perform(MockMvcRequestBuilders.get("/backlogs")
+                        .header("Authorization", "Bearer "+accessToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print());
+
+        verify(todoService).getBacklogList(1L,0, 8);
+    }
+
+    @DisplayName("백로그 목록 조회 시 헤더에 JWT가 없으면 예외가 발생한다.")
+    @Test
+    void 백로그_목록조회_JWT_예외() throws Exception {
+        //when
+        mockMvc.perform(MockMvcRequestBuilders.get("/backlogs")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andDo(print());
+    }
 }

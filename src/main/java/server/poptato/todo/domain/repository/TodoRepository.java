@@ -19,4 +19,6 @@ public interface TodoRepository {
     List<Todo> findByUserIdAndTypeAndTodayDateAndTodayStatusOrderByCompletedDateTimeDesc(
             Long userId, Type type, LocalDate todayDate, TodayStatus todayStatus);
 
+    // 백로그 목록 조회
+    Page<Todo> findByUserIdAndTypeInOrderByBacklogOrderAsc(Long userId, List<Type> types, Pageable pageable);
 }

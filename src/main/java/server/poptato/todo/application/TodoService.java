@@ -1,8 +1,10 @@
 package server.poptato.todo.application;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import server.poptato.todo.application.response.BacklogListResponseDto;
 import server.poptato.todo.application.response.TodayListResponseDto;
 import server.poptato.todo.domain.entity.Todo;
 import server.poptato.todo.domain.repository.TodoRepository;
@@ -47,11 +49,32 @@ public class TodoService {
         List<Todo> todaySubList = todays.subList(start, end);
         int totalPageCount = (int) Math.ceil((double) todays.size() / size);
 
-        return new TodayListResponseDto(todayDate,todaySubList,totalPageCount);
+        return TodayListResponseDto.builder()
+                .date(todayDate)
+                .todays(todaySubList)
+                .totalPageCount(totalPageCount)
+                .build();
+    }
+
+    public BacklogListResponseDto getBacklogList(Long userId, int page, int size) {
+        checkIsExistUser(userId);
+
+        PageRequest pageRequest = PageRequest.of(page, size);
+        List<Type> types = List.of(Type.BACKLOG, Type.YESTERDAY);
+
+        Page<Todo> backlogs = todoRepository.findByUserIdAndTypeInOrderByBacklogOrderAsc(userId, types, pageRequest);
+
+       return BacklogListResponseDto.builder()
+               .totalCount(backlogs.getTotalElements())
+               .backlogs(backlogs.getContent())
+               .totalPageCount(backlogs.getTotalPages())
+               .build();
     }
 
     private void checkIsExistUser(long userId) {
         userRepository.findById(userId).orElseThrow(()
                 -> new UserException(UserExceptionErrorCode.USER_NOT_EXIST));
     }
+
+
 }
