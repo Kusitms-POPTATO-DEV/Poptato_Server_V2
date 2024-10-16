@@ -9,4 +9,11 @@ import java.util.Optional;
 public interface JpaUserRepository extends UserRepository, JpaRepository<User, Long> {
     @Override
     Optional<User> findByKakaoId(String kakaoId);
+    @Override
+    Optional<User> findById(Long userId);
+
+    @Override
+    void delete(User user);
+    @Override
+    User save(User user);
 }

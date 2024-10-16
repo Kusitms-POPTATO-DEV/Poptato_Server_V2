@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class BaseExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler({BaseException.class, NoHandlerFoundException.class, TypeMismatchException.class})
+    @ExceptionHandler({BaseException.class,NoHandlerFoundException.class, TypeMismatchException.class})
     public BaseErrorResponse handle_BadRequest(Exception exception) {
         log.error("[BaseExceptionControllerAdvice: handle_BadRequest 호출]", exception);
         return new BaseErrorResponse(BaseExceptionErrorCode.URL_NOT_FOUND);
