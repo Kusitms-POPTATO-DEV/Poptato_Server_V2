@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import server.poptato.todo.api.request.SwipeRequestDto;
 import server.poptato.todo.application.response.BacklogListResponseDto;
 import server.poptato.todo.application.response.TodayListResponseDto;
 import server.poptato.todo.domain.entity.Todo;
@@ -32,7 +33,7 @@ public class TodoService {
         List<Todo> todays = new ArrayList<>();
 
         // 미완료된 할 일 먼저 조회
-        List<Todo> incompleteTodos = todoRepository.findByUserIdAndTypeAndTodayDateAndTodayStatusOrderByTodayOrderAsc(
+        List<Todo> incompleteTodos = todoRepository.findByUserIdAndTypeAndTodayDateAndTodayStatusOrderByTodayOrderDesc(
                 userId, Type.TODAY, todayDate, TodayStatus.INCOMPLETE);
         todays.addAll(incompleteTodos);
 
@@ -62,7 +63,7 @@ public class TodoService {
         PageRequest pageRequest = PageRequest.of(page, size);
         List<Type> types = List.of(Type.BACKLOG, Type.YESTERDAY);
 
-        Page<Todo> backlogs = todoRepository.findByUserIdAndTypeInOrderByBacklogOrderAsc(userId, types, pageRequest);
+        Page<Todo> backlogs = todoRepository.findByUserIdAndTypeInOrderByBacklogOrderDesc(userId, types, pageRequest);
 
        return BacklogListResponseDto.builder()
                .totalCount(backlogs.getTotalElements())
@@ -77,4 +78,7 @@ public class TodoService {
     }
 
 
+    public void swipe(Long userId, Long todoId) {
+
+    }
 }

@@ -1,9 +1,10 @@
 package server.poptato.todo.api;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -13,10 +14,14 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import server.poptato.auth.application.service.JwtService;
+import server.poptato.todo.api.request.SwipeRequestDto;
 import server.poptato.todo.application.TodoService;
 import server.poptato.user.application.service.UserService;
 
+import java.util.Set;
+
 import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -33,6 +38,7 @@ public class TodoControllerTest {
     private JwtService jwtService;
     @MockBean
     private RedisTemplate<String, String> redisTemplate;
+    private Validator validator;
     private String accessToken;
     private final String userId = "1";
 
@@ -114,6 +120,39 @@ public class TodoControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.get("/backlogs")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
+                .andDo(print());
+    }
+
+    @DisplayName("스와이프 시 요청 바디에 todoId가 없으면 Validator가 잡는다.")
+    @Test
+    void 스와이프_요청바디_예외(){
+        //given
+        Long todoId = 1L;
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        validator = factory.getValidator();
+
+        SwipeRequestDto request = SwipeRequestDto.builder()
+                        .todoId(todoId).build();
+
+        //when
+        Set<ConstraintViolation<SwipeRequestDto>> violations = validator.validate(request);
+        //then
+        Assertions.assertEquals(violations.size(), 1);
+    }
+
+    @DisplayName("스와이프 요청 시 성공한다.")
+    @Test
+    void 스와이프_성공_응답() throws Exception {
+        //given
+        String request = "{\n" +
+                "    \"todoId\": \"1\",\n" +
+                "}";
+        //when
+        mockMvc.perform(patch("/swipe")
+                        .content(request)
+                        .header("Authorization", "Bearer "+accessToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
                 .andDo(print());
     }
 }

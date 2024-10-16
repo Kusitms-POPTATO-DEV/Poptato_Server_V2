@@ -1,10 +1,9 @@
 package server.poptato.todo.api;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import server.poptato.global.response.BaseResponse;
+import server.poptato.todo.api.request.SwipeRequestDto;
 import server.poptato.todo.application.response.BacklogListResponseDto;
 import server.poptato.todo.application.response.TodayListResponseDto;
 import server.poptato.todo.application.TodoService;
@@ -30,5 +29,11 @@ public class TodoController {
             @RequestParam(value = "size", defaultValue = "8") int size){
         BacklogListResponseDto backlogListResponse = todoService.getBacklogList(userId, page, size);
         return new BaseResponse<>(backlogListResponse);
+    }
+
+    @PatchMapping("/swipe")
+    public BaseResponse swipe(@UserId Long userId, @RequestBody SwipeRequestDto swipeRequestDto){
+        todoService.swipe(userId, swipeRequestDto.getTodoId());
+        return new BaseResponse<>();
     }
 }

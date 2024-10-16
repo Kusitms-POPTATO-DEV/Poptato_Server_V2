@@ -12,7 +12,7 @@ import java.util.List;
 public interface TodoRepository {
     void deleteAllByUserId(Long userId);
     // 미완료된 할 일 조회
-    List<Todo> findByUserIdAndTypeAndTodayDateAndTodayStatusOrderByTodayOrderAsc(
+    List<Todo> findByUserIdAndTypeAndTodayDateAndTodayStatusOrderByTodayOrderDesc(
             Long userId, Type type, LocalDate todayDate, TodayStatus todayStatus);
 
     // 완료된 할 일 조회
@@ -20,5 +20,5 @@ public interface TodoRepository {
             Long userId, Type type, LocalDate todayDate, TodayStatus todayStatus);
 
     // 백로그 목록 조회
-    Page<Todo> findByUserIdAndTypeInOrderByBacklogOrderAsc(Long userId, List<Type> types, Pageable pageable);
+    Page<Todo> findByUserIdAndTypeInOrderByBacklogOrderDesc(Long userId, List<Type> types, Pageable pageable);
 }
