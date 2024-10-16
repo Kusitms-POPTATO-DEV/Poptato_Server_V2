@@ -23,4 +23,6 @@ public interface TodoRepository {
     Optional<Todo> findById(Long todoId);
     void delete(Todo todo);
      Todo save(Todo todo);
+    // 백로그 목록 조회
+    Page<Todo> findByUserIdAndTypeInOrderByBacklogOrderAsc(Long userId, List<Type> types, Pageable pageable);
 }

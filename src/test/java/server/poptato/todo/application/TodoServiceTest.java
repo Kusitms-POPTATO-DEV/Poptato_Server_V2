@@ -2,10 +2,8 @@ package server.poptato.todo.application;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import server.poptato.todo.application.response.TodayListResponseDto;
 import server.poptato.todo.application.response.TodayResponseDto;
 import server.poptato.todo.domain.entity.Todo;
@@ -19,9 +17,9 @@ import server.poptato.user.exception.errorcode.UserExceptionErrorCode;
 
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
 
 @SpringBootTest
 class TodoServiceTest {
@@ -46,7 +44,7 @@ class TodoServiceTest {
     }
     @DisplayName("size=8을 요청하면, 투데이 목록 조회 시 8개의 데이터만 응답된다.")
     @Test
-    void 데이터_8개만_응답(){
+    void 투데이_데이터_8개만_응답(){
         //given
         Long userId = 1L;
         int page = 0;
@@ -126,5 +124,15 @@ class TodoServiceTest {
         assertThrows(TodoException.class, () -> {
             todoService.deleteTodoById(nonExistentTodoId);  // 투두가 없을 때 예외 발생 검증
         });
+    }
+    @DisplayName("size=8을 요청하면, 백로그 목록 조회 시 8개의 데이터만 응답된다.")
+    @Test
+    void 백로그_데이터_8개만_응답(){
+        //given
+        Long userId = 1L;
+        int page = 0;
+        int size = 8;
+        //when & then
+        assertThat(todoService.getBacklogList(userId,page,size).getBacklogs().size()).isEqualTo(size);
     }
 }

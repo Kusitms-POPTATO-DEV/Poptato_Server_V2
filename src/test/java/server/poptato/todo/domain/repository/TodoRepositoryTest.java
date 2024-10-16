@@ -76,4 +76,30 @@ class TodoRepositoryTest {
             assertThat(todos.get(i).getTodayOrder()).isLessThanOrEqualTo(todos.get(i + 1).getTodayOrder());
         }
     }
+
+    @DisplayName("userId가 1이 등록한 백로그 리스트가 순서에 따라 성공적으로 정렬되어 조회된다.")
+    @Test
+    void 백로그_목록조회_성공응답() {
+        //given
+        Long userId = 1L;
+        List<Type> types = List.of(Type.BACKLOG, Type.YESTERDAY);
+        PageRequest pageRequest = PageRequest.of(0, 8);
+
+        //when
+        Page<Todo> backlogs = todoRepository.findByUserIdAndTypeInOrderByBacklogOrderAsc(
+                userId, types, pageRequest);
+
+        assertThat(backlogs.getContent()).isNotEmpty();
+
+        // userId가 모두 1인지 확인
+        assertThat(backlogs.getContent().stream().allMatch(backlog -> backlog.getUserId().equals(userId))).isTrue();
+
+        // type이 BACKLOG 혹은 YESTERDAY인지 확인
+        assertThat(backlogs.getContent().stream().allMatch(backlog -> backlog.getType().equals(Type.BACKLOG)  || backlog.getType().equals(Type.YESTERDAY))).isTrue();
+
+        // backlogOrder가 오름차순으로 정렬되어야 함
+        for (int i = 0; i < backlogs.getContent().size() - 1; i++) {
+            assertThat(backlogs.getContent().get(i).getBacklogOrder()).isLessThanOrEqualTo(backlogs.getContent().get(i + 1).getBacklogOrder());
+        }
+    }
 }
