@@ -22,7 +22,7 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script_stop: true
-          envs: APPLICATION_YML,TEST_APPLICATION_YML
+          envs: APPLICATION_YML, APPLICATION_TEST_YML, TEST_DATA_SQL
           # git clone 같은 초기 작업은 ec2에서 먼저 진행
           script: |
             cd /home/ubuntu/poptato_server/Poptato_Server
