@@ -42,7 +42,7 @@ public class TodoService {
         // 전체 리스트에서 페이징
         int start = (page) * size;
         int end = Math.min(start + size, todays.size());
-        if (start > end) throw new TodoException(TodoExceptionErrorCode.INVALID_PAGE);
+        if (start >= end) throw new TodoException(TodoExceptionErrorCode.INVALID_PAGE);
 
         List<Todo> todaySubList = todays.subList(start, end);
         int totalPageCount = (int) Math.ceil((double) todays.size() / size);

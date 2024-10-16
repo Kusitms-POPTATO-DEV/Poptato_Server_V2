@@ -7,6 +7,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import server.poptato.todo.application.response.TodayListResponseDto;
 import server.poptato.todo.application.response.TodayResponseDto;
 import server.poptato.todo.domain.value.TodayStatus;
+import server.poptato.todo.exception.TodoException;
+import server.poptato.todo.exception.errorcode.TodoExceptionErrorCode;
 import server.poptato.user.exception.UserException;
 import server.poptato.user.exception.errorcode.UserExceptionErrorCode;
 
@@ -37,6 +39,19 @@ class TodoServiceTest {
         int size = 8;
         //when & then
         assertThat(todoService.getTodayList(userId,page,size).getTodays().size()).isEqualTo(size);
+    }
+
+    @DisplayName("유효하지 않는 페이지 수일 경우 예외가 발생한다.")
+    @Test
+    void 유효하지_않은_페이지_수_예외(){
+        //given
+        Long userId = 1L;
+        int page = 2;
+        int size = 8;
+        //when & then
+        assertThatThrownBy(()-> todoService.getTodayList(userId,page,size))
+                .isInstanceOf(TodoException.class)
+                .hasMessage(TodoExceptionErrorCode.INVALID_PAGE.getMessage());
     }
 
     @DisplayName("투데이 목록 조회 시, 미달성 투데이가 먼저 조회되고, 그 다음 달성 투데이가 조회된다.")
