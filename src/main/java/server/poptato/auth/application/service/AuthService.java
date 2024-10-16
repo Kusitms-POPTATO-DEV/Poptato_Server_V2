@@ -9,7 +9,7 @@ import server.poptato.external.kakao.service.KakaoSocialService;
 import server.poptato.global.dto.TokenPair;
 import server.poptato.global.exception.BaseException;
 import server.poptato.user.domain.entity.User;
-import server.poptato.user.infra.repository.JpaUserRepository;
+import server.poptato.user.domain.repository.UserRepository;
 
 import java.util.Optional;
 
@@ -21,10 +21,10 @@ import static server.poptato.global.exception.errorcode.BaseExceptionErrorCode.U
 public class AuthService {
     private final JwtService jwtService;
     private final KakaoSocialService kakaoSocialService;
-    private final JpaUserRepository userRepository;
+    private final UserRepository userRepository;
 
-    public LoginResponseDto login(final String baseUrl, final String kakaoCode) {
-        KakaoUserInfo info  = kakaoSocialService.getIdAndNickNameAndEmailFromKakao(baseUrl, kakaoCode);
+    public LoginResponseDto login(final String accessToken) {
+        KakaoUserInfo info  = kakaoSocialService.getIdAndNickNameAndEmailFromKakao(accessToken);
         String kakaoId = info.kakaoId();
         String name = info.nickname();
         String email = info.email();
