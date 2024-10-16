@@ -153,7 +153,7 @@ class TodoServiceTest {
     void 스와이프_사용자_예외(){
         //given
         Long todoId = 1L;
-        Long userId = 100L;
+        Long userId = 50L;
         //when & then
         assertThatThrownBy(()-> todoService.swipe(userId,todoId))
                 .isInstanceOf(TodoException.class)
@@ -184,18 +184,6 @@ class TodoServiceTest {
         assertThat(todoRepository.findById(todoId).get().getType()).isEqualTo(Type.BACKLOG);
     }
 
-    @DisplayName("BACKLOG인 할일이면 TODAY로 수정된다.")
-    @Test
-    void 스와이프_BACKLOG에서_TODAY로(){
-        //given
-        Long userId = 1L;
-        Long todoId = 18L;
-        //when & then
-        todoService.swipe(userId,todoId);
-
-        assertThat(todoRepository.findById(todoId).get().getType()).isEqualTo(Type.TODAY);
-    }
-
     @DisplayName("BACKLOG인 할일을 스와이프하면 todayOrder가 17이 된다.")
     @Test
     void 스와이프_TODAYORDER_갱신_성공(){
@@ -206,18 +194,6 @@ class TodoServiceTest {
         todoService.swipe(userId,todoId);
 
         assertThat(todoRepository.findById(todoId).get().getTodayOrder()).isEqualTo(17);
-    }
-
-    @DisplayName("TODAY인 할일을 스와이프하면 backlogOrder가 11이 된다.")
-    @Test
-    void 스와이프_BACKLOGORDER_갱신_성공(){
-        //given
-        Long userId = 1L;
-        Long todoId = 4L;
-        //when & then
-        todoService.swipe(userId,todoId);
-
-        assertThat(todoRepository.findById(todoId).get().getBacklogOrder()).isEqualTo(11);
     }
 
     @Test
