@@ -6,8 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import server.poptato.todo.application.response.TodayListResponseDto;
 import server.poptato.todo.application.response.TodayResponseDto;
-import server.poptato.todo.domain.entity.Todo;
 import server.poptato.todo.domain.repository.TodoRepository;
+import server.poptato.todo.domain.entity.Todo;
 import server.poptato.todo.domain.value.TodayStatus;
 import server.poptato.todo.domain.value.Type;
 import server.poptato.todo.exception.TodoException;
@@ -26,9 +26,8 @@ import static server.poptato.todo.exception.errorcode.TodoExceptionErrorCode.TOD
 class TodoServiceTest {
     @Autowired
     private TodoService todoService;
-
     @Autowired
-    TodoRepository todoRepository;
+    private TodoRepository todoRepository;
 
 
     @DisplayName("존재하지 않는 유저일 경우 예외가 발생한다.")
@@ -137,6 +136,66 @@ class TodoServiceTest {
         assertThat(todoService.getBacklogList(userId,page,size).getBacklogs().size()).isEqualTo(size);
     }
 
+    @DisplayName("존재하지 않는 할 일이면 예외가 발생한다.")
+    @Test
+    void 스와이프_존재하지_않는_할일_예외(){
+        //given
+        Long notExistTodoId = 1000L;
+        Long userId = 1L;
+        //when & then
+        assertThatThrownBy(()-> todoService.swipe(userId,notExistTodoId))
+                .isInstanceOf(TodoException.class)
+                .hasMessage(TodoExceptionErrorCode.TODO_NOT_EXIST.getMessage());
+    }
+
+    @DisplayName("사용자의 할 일이 아닌 경우 예외가 발생한다.")
+    @Test
+    void 스와이프_사용자_예외(){
+        //given
+        Long todoId = 1L;
+        Long userId = 50L;
+        //when & then
+        assertThatThrownBy(()-> todoService.swipe(userId,todoId))
+                .isInstanceOf(TodoException.class)
+                .hasMessage(TodoExceptionErrorCode.TODO_USER_NOT_MATCH.getMessage());
+    }
+
+    @DisplayName("달성한 TODAY이면 예외가 발생한다.")
+    @Test
+    void 스와이프_달성한_투데이_예외(){
+        //given
+        Long userId = 1L;
+        Long todoId = 3L;
+        //when & then
+        assertThatThrownBy(()-> todoService.swipe(userId,todoId))
+                .isInstanceOf(TodoException.class)
+                .hasMessage(TodoExceptionErrorCode.ALREADY_COMPLETED_TODO.getMessage());
+    }
+
+    @DisplayName("TODAY인 할일이면 BACKLOG로 수정된다.")
+    @Test
+    void 스와이프_TODAY에서_BACKLOG로(){
+        //given
+        Long userId = 1L;
+        Long todoId = 4L;
+        //when & then
+        todoService.swipe(userId,todoId);
+
+        assertThat(todoRepository.findById(todoId).get().getType()).isEqualTo(Type.BACKLOG);
+    }
+
+    @DisplayName("BACKLOG인 할일을 스와이프하면 todayOrder가 17이 된다.")
+    @Test
+    void 스와이프_TODAYORDER_갱신_성공(){
+        //given
+        Long userId = 1L;
+        Long todoId = 18L;
+        //when & then
+        todoService.swipe(userId,todoId);
+
+        assertThat(todoRepository.findById(todoId).get().getTodayOrder()).isEqualTo(17);
+    }
+
     @Test
     @DisplayName("isBookmark가 true일 때 false로 변경하는 테스트")
     void toggleIsBookmark_TrueToFalse() {
@@ -194,4 +253,6 @@ class TodoServiceTest {
             todoService.toggleIsBookmark(nonExistentTodoId);  // 예외가 발생해야 함
         });
     }
+
+
 }

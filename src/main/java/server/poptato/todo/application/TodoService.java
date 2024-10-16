@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import server.poptato.todo.api.request.SwipeRequestDto;
 import org.springframework.transaction.annotation.Transactional;
 import server.poptato.global.response.BaseResponse;
 import server.poptato.todo.application.response.BacklogListResponseDto;
@@ -21,6 +22,7 @@ import server.poptato.user.exception.errorcode.UserExceptionErrorCode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static server.poptato.todo.exception.errorcode.TodoExceptionErrorCode.TODO_NOT_EXIST;
 
@@ -36,7 +38,7 @@ public class TodoService {
         List<Todo> todays = new ArrayList<>();
 
         // 미완료된 할 일 먼저 조회
-        List<Todo> incompleteTodos = todoRepository.findByUserIdAndTypeAndTodayDateAndTodayStatusOrderByTodayOrderAsc(
+        List<Todo> incompleteTodos = todoRepository.findByUserIdAndTypeAndTodayDateAndTodayStatusOrderByTodayOrderDesc(
                 userId, Type.TODAY, todayDate, TodayStatus.INCOMPLETE);
         todays.addAll(incompleteTodos);
 
@@ -66,7 +68,7 @@ public class TodoService {
         PageRequest pageRequest = PageRequest.of(page, size);
         List<Type> types = List.of(Type.BACKLOG, Type.YESTERDAY);
 
-        Page<Todo> backlogs = todoRepository.findByUserIdAndTypeInOrderByBacklogOrderAsc(userId, types, pageRequest);
+        Page<Todo> backlogs = todoRepository.findByUserIdAndTypeInOrderByBacklogOrderDesc(userId, types, pageRequest);
 
        return BacklogListResponseDto.builder()
                .totalCount(backlogs.getTotalElements())
@@ -91,8 +93,37 @@ public class TodoService {
         todo.toggleBookmark();
     }
 
+    @Transactional
+    public void swipe(Long userId, Long todoId) {
+        checkIsExistUser(userId);
+        Todo todo = todoRepository.findById(todoId)
+                .orElseThrow(() -> new TodoException(TODO_NOT_EXIST));
+        if(todo.getUserId()!=userId)
+            throw new TodoException(TodoExceptionErrorCode.TODO_USER_NOT_MATCH);
+
+        if(todo.getType().equals(Type.TODAY)){
+            swipeTodayToBacklog(todo);
+        }
+        else if(todo.getType().equals(Type.YESTERDAY) || todo.getType().equals(Type.BACKLOG)){
+            swipeBacklogToToday(todo);
+        }
+    }
+
     private void checkIsExistUser(long userId) {
         userRepository.findById(userId).orElseThrow(()
                 -> new UserException(UserExceptionErrorCode.USER_NOT_EXIST));
     }
+
+    private void swipeBacklogToToday(Todo todo) {
+        Integer maxTodayOrder = todoRepository.findMaxTodayOrderByUserIdOrZero(todo.getUserId());
+        todo.changeToToday(maxTodayOrder);
+    }
+
+    private void swipeTodayToBacklog(Todo todo) {
+        if(todo.getTodayStatus().equals(TodayStatus.COMPLETED))
+            throw new TodoException(TodoExceptionErrorCode.ALREADY_COMPLETED_TODO);
+        Integer maxBacklogOrder = todoRepository.findMaxBacklogOrderByUserIdOrZero(todo.getUserId());
+        todo.changeToBacklog(maxBacklogOrder);
+    }
+
 }

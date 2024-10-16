@@ -1,12 +1,13 @@
 package server.poptato.todo.api;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import server.poptato.global.response.BaseResponse;
+import server.poptato.todo.api.request.SwipeRequestDto;
 import server.poptato.todo.application.TodoService;
 import server.poptato.todo.application.response.BacklogListResponseDto;
 import server.poptato.todo.application.response.TodayListResponseDto;
-import server.poptato.todo.domain.entity.Todo;
 import server.poptato.user.resolver.UserId;
 
 @RestController
@@ -35,6 +36,13 @@ public class TodoController {
             @RequestParam(value = "size", defaultValue = "8") int size){
         BacklogListResponseDto backlogListResponse = todoService.getBacklogList(userId, page, size);
         return new BaseResponse<>(backlogListResponse);
+    }
+
+    @PatchMapping("/swipe")
+    public BaseResponse swipe(//@UserId Long userId,
+                              @Validated @RequestBody SwipeRequestDto swipeRequestDto){
+        todoService.swipe(1L, swipeRequestDto.getTodoId());
+        return new BaseResponse<>();
     }
     @PatchMapping("/todo/{todoId}/bookmark")
     public BaseResponse toggleIsBookmark(@PathVariable Long todoId) {
