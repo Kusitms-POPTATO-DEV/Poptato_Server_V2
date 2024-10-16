@@ -22,16 +22,16 @@ public class KakaoSocialService extends SocialService {
     private final KakaoApiClient kakaoApiClient;
 
     @Override
-    public KakaoUserInfo getIdAndNickNameAndEmailFromKakao(String kakaoCode) {
+    public KakaoUserInfo getIdAndNickNameAndEmailFromKakao(String accessToken) {
         // 인가 코드로 액세스 토큰 요청 (redirect_uri 없이)
-        KakaoAccessTokenResponse tokenResponse = kakaoAuthApiClient.getOAuth2AccessToken(
-                GRANT_TYPE,
-                clientId,
-                kakaoCode
-        );
+//        KakaoAccessTokenResponse tokenResponse = kakaoAuthApiClient.getOAuth2AccessToken(
+//                GRANT_TYPE,
+//                clientId,
+//                kakaoCode
+//        );
 
         // 액세스 토큰으로 카카오 사용자 정보 요청
-        KakaoUserResponse userResponse = kakaoApiClient.getUserInformation(Bearer + tokenResponse.accessToken());
+        KakaoUserResponse userResponse = kakaoApiClient.getUserInformation(Bearer + accessToken);
 
         // ID, 닉네임, 이메일을 반환
         return new KakaoUserInfo(

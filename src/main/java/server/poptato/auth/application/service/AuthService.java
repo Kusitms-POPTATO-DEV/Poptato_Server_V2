@@ -23,8 +23,8 @@ public class AuthService {
     private final KakaoSocialService kakaoSocialService;
     private final UserRepository userRepository;
 
-    public LoginResponseDto login(final String kakaoCode) {
-        KakaoUserInfo info  = kakaoSocialService.getIdAndNickNameAndEmailFromKakao(kakaoCode);
+    public LoginResponseDto login(final String accessToken) {
+        KakaoUserInfo info  = kakaoSocialService.getIdAndNickNameAndEmailFromKakao(accessToken);
         String kakaoId = info.kakaoId();
         String name = info.nickname();
         String email = info.email();
