@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import server.poptato.global.response.BaseResponse;
 import server.poptato.todo.application.response.BacklogListResponseDto;
 import server.poptato.todo.application.response.TodayListResponseDto;
 import server.poptato.todo.domain.entity.Todo;
@@ -81,7 +82,7 @@ public class TodoService {
         todoRepository.delete(todo);
     }
     @Transactional
-    public Todo toggleIsBookmark(Long todoId) {
+    public void toggleIsBookmark(Long todoId) {
         // 해당 Todo를 조회
         Todo todo = todoRepository.findById(todoId)
                 .orElseThrow(() -> new TodoException(TODO_NOT_EXIST));
@@ -90,7 +91,7 @@ public class TodoService {
         todo.toggleBookmark();
 
         // 변경된 todo 저장
-        return todoRepository.save(todo);
+        todoRepository.save(todo);
     }
 
     private void checkIsExistUser(long userId) {

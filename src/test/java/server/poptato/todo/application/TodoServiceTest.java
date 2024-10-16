@@ -20,6 +20,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static server.poptato.todo.exception.errorcode.TodoExceptionErrorCode.TODO_NOT_EXIST;
 
 @SpringBootTest
 class TodoServiceTest {
@@ -151,12 +152,12 @@ class TodoServiceTest {
         Todo savedTodo = todoRepository.save(todo);
         Long todoId = savedTodo.getId();
 
-        // when
-        Todo updatedTodo = todoService.toggleIsBookmark(todoId);
+        // when: toggleIsBookmark 호출 (void 메서드)
+        todoService.toggleIsBookmark(todoId);
 
-        // then
+        // then: DB에서 Todo를 다시 가져와서 확인
+        Todo updatedTodo = todoRepository.findById(todoId).orElseThrow(() -> new TodoException(TODO_NOT_EXIST));
         assertThat(updatedTodo.isBookmark()).isFalse();  // isBookmark가 false로 변경되었는지 확인
-        assertThat(updatedTodo.getId()).isEqualTo(todoId);  // ID가 일치하는지 확인
     }
 
     @Test
@@ -174,12 +175,12 @@ class TodoServiceTest {
         Todo savedTodo = todoRepository.save(todo);
         Long todoId = savedTodo.getId();
 
-        // when
-        Todo updatedTodo = todoService.toggleIsBookmark(todoId);
+        // when: toggleIsBookmark 호출 (void 메서드)
+        todoService.toggleIsBookmark(todoId);
 
-        // then
+        // then: DB에서 Todo를 다시 가져와서 확인
+        Todo updatedTodo = todoRepository.findById(todoId).orElseThrow(() -> new TodoException(TODO_NOT_EXIST));
         assertThat(updatedTodo.isBookmark()).isTrue();  // isBookmark가 true로 변경되었는지 확인
-        assertThat(updatedTodo.getId()).isEqualTo(todoId);  // ID가 일치하는지 확인
     }
 
     @Test

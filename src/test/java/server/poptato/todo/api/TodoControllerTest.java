@@ -19,6 +19,7 @@ import server.poptato.user.application.service.UserService;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static server.poptato.todo.exception.errorcode.TodoExceptionErrorCode.TODO_NOT_EXIST;
@@ -146,5 +147,21 @@ public class TodoControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andDo(print());
+    }
+
+    @Test
+    @DisplayName("isBookmark 토글 시 응답이 정상적으로 반환되는지 확인")
+    public void shouldReturnOk_WhenIsBookmarkToggled() throws Exception {
+        Long todoId = 1L;
+
+        // todoService의 toggleIsBookmark 메서드가 호출될 때 예외가 발생하지 않도록 설정
+        doNothing().when(todoService).toggleIsBookmark(todoId);
+
+        mockMvc.perform(patch("/todo/{todoId}/bookmark", todoId)
+                        .header("Authorization", "Bearer " + "someAccessToken")) // 헤더에 토큰 추가
+                .andExpect(status().isOk());
+
+        // todoService의 toggleIsBookmark 메서드가 한 번 호출되었는지 확인
+        verify(todoService, times(1)).toggleIsBookmark(todoId);
     }
 }
