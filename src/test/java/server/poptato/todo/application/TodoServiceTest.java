@@ -32,7 +32,7 @@ class TodoServiceTest {
     }
     @DisplayName("size=8을 요청하면, 투데이 목록 조회 시 8개의 데이터만 응답된다.")
     @Test
-    void 데이터_8개만_응답(){
+    void 투데이_데이터_8개만_응답(){
         //given
         Long userId = 1L;
         int page = 0;
@@ -76,5 +76,16 @@ class TodoServiceTest {
                 assertThat(today.getTodayStatus()).isEqualTo(TodayStatus.COMPLETED);
             }
         }
+    }
+
+    @DisplayName("size=8을 요청하면, 백로그 목록 조회 시 8개의 데이터만 응답된다.")
+    @Test
+    void 백로그_데이터_8개만_응답(){
+        //given
+        Long userId = 1L;
+        int page = 0;
+        int size = 8;
+        //when & then
+        assertThat(todoService.getBacklogList(userId,page,size).getBacklogs().size()).isEqualTo(size);
     }
 }
