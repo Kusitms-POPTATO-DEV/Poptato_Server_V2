@@ -18,15 +18,14 @@ public interface TodoRepository {
             Long userId, Type type, LocalDate todayDate, TodayStatus todayStatus);
     Optional<Todo> findById(Long todoId);
     void delete(Todo todo);
-    // 백로그 목록 조회
-    Page<Todo> findByUserIdAndTypeInOrderByBacklogOrderAsc(Long userId, List<Type> types, Pageable pageable);
     Page<Todo> findByUserIdAndCompletedDateTimeIsNotNull(Long userId, Pageable pageable);
     Todo save(Todo todo);
     Page<Todo> findByUserIdAndTypeInOrderByBacklogOrderDesc(Long userId, List<Type> types, Pageable pageable);
     Integer findMaxBacklogOrderByUserIdOrZero(Long userId);
     Integer findMaxTodayOrderByUserIdOrZero(Long userId);
-    List<Todo> findByIdIn(List<Long> ids);
     int findMaxBacklogOrderByIdIn(List<Long> ids);
     int findMaxTodayOrderByIdIn(List<Long> ids);
     Page<Todo> findByUserIdAndTypeAndTodayStatus(Long userId, Type type, TodayStatus todayStatus, Pageable pageable);
+    List<Todo> findByTypeAndTodayStatus(Type today, TodayStatus incomplete);
+    Integer findMinBacklogOrderByUserIdOrZero(Long userId);
 }
