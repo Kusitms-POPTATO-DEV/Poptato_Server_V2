@@ -109,4 +109,11 @@ public class TodoController {
         todoService.updateContent(userId, todoId, requestDto.getContent());
         return new BaseResponse<>();
     }
+
+    @PatchMapping("/todo/{todoId}/achieve")
+    public BaseResponse updateIsCompleted(@UserId Long userId,
+                                          @PathVariable Long todoId){
+        todoService.updateIsCompleted(userId, todoId);
+        return new BaseResponse<>();
+    }
 }

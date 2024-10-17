@@ -18,6 +18,7 @@ import server.poptato.user.exception.errorcode.UserExceptionErrorCode;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.Stack;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -410,5 +411,50 @@ class TodoServiceTest {
 
         //then
         assertThat(findTodo.getContent()).isEqualTo(updateContent);
+    }
+
+    @DisplayName("투데이 달성여부 변경 시 성공한다.")
+    @Test
+    void 투데이_달성여부_변경_성공(){
+        //given
+        Long userId = 1L;
+        Long todoId = 1L;
+
+        //when
+        todoService.updateIsCompleted(userId,todoId);
+        Todo findTodo = todoRepository.findById(todoId).get();
+
+        //then
+        assertThat(findTodo.getTodayStatus()).isEqualTo(TodayStatus.COMPLETED);
+        assertThat(findTodo.getCompletedDateTime()).isNotNull();
+    }
+
+    @DisplayName("어제한일 달성여부 변경 시 성공한다.")
+    @Test
+    void 어제한일_달성여부_변경_성공(){
+        //given
+        Long userId = 1L;
+        Long todoId = 35L;
+
+        //when
+        todoService.updateIsCompleted(userId,todoId);
+        Todo findTodo = todoRepository.findById(todoId).get();
+
+        //then
+        assertThat(findTodo.getTodayStatus()).isEqualTo(TodayStatus.COMPLETED);
+        assertThat(findTodo.getCompletedDateTime()).isNotNull();
+    }
+
+    @DisplayName("백로그 달성여부 변경 시 예외가 발생한다.")
+    @Test
+    void 백로그_달성여부_변경_예외(){
+        //given
+        Long userId = 1L;
+        Long todoId = 20L;
+
+        //when & then
+        assertThatThrownBy(()-> todoService.updateIsCompleted(userId,todoId))
+                .isInstanceOf(TodoException.class)
+                .hasMessage(TodoExceptionErrorCode.BACKLOG_CANT_COMPLETE.getMessage());
     }
 }
