@@ -38,4 +38,8 @@ public class User {
     @LastModifiedDate  // 엔티티가 수정될 때 시간 자동 저장
     private LocalDateTime modifyDate;
 
+    // name 변경 메서드
+    public void changeName(String newName) {
+        this.name = newName;
+    }
 }

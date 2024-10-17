@@ -40,4 +40,13 @@ public class UserService {
         entityManager.clear();  // 영속성 컨텍스트 초기화
         return userRepository.findByKakaoId(kakaoId);
     }
+    @Transactional
+    public void updateUserName(Long userId, String newName) {
+        // 사용자 조회
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(UserExceptionErrorCode.USER_NOT_EXIST));
+
+        // name 업데이트
+        user.changeName(newName);
+    }
 }
