@@ -13,6 +13,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import server.poptato.auth.application.service.JwtService;
+import server.poptato.todo.api.request.BacklogCreateRequestDto;
 import server.poptato.todo.api.request.DragAndDropRequestDto;
 import server.poptato.todo.api.request.SwipeRequestDto;
 import server.poptato.todo.application.TodoService;
@@ -264,6 +265,35 @@ public class TodoControllerTest {
         //when
         mockMvc.perform(patch("/dragAndDrop")
                         .content("{\"type\": \"TODAY\", \"todoIds\": [1, 2, 3, 4]}")
+                        .header("Authorization", "Bearer "+accessToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print());
+    }
+
+    @DisplayName("백로그 생성 요청 바디에 content가 없거나 비어있으면 Validator가 잡는다.")
+    @Test
+    void 백로그_생성_요청바디_예외(){
+        //given
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        validator = factory.getValidator();
+
+        BacklogCreateRequestDto request = BacklogCreateRequestDto.builder()
+                .content(" ")
+                .build();
+
+        //when
+        Set<ConstraintViolation<BacklogCreateRequestDto>> violations = validator.validate(request);
+        //then
+        Assertions.assertEquals(violations.size(), 1);
+    }
+
+    @DisplayName("백로그 생성 요청 시 성공한다.")
+    @Test
+    void 백로그_생성_성공_응답() throws Exception {
+        //when
+        mockMvc.perform(post("/backlog")
+                        .content("{\"content\": \"할일 내용 수정본\"}")
                         .header("Authorization", "Bearer "+accessToken)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())

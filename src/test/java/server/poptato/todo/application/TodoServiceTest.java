@@ -125,7 +125,7 @@ class TodoServiceTest {
     @Test
     public void shouldThrowException_WhenTodoNotFound_ForUser2() {
         //given
-        Long nonExistentTodoId = 30L;  // 존재하지 않는 투두 ID
+        Long nonExistentTodoId = 1000L;  // 존재하지 않는 투두 ID
 
         //when & then
         assertThrows(TodoException.class, () -> {
@@ -349,4 +349,6 @@ class TodoServiceTest {
         // 전체 페이지 수가 적절하게 계산되었는지 확인
         assertThat(result.getTotalPageCount()).isGreaterThan(0);
     }
+
+
 }
