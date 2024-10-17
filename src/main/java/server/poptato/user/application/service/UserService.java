@@ -48,7 +48,5 @@ public class UserService {
 
         // name 업데이트
         user.changeName(newName);
-
-        userRepository.save(user);
     }
 }
