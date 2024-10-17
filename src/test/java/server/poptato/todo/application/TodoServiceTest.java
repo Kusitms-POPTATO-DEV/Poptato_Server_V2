@@ -4,6 +4,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import server.poptato.todo.api.request.DragAndDropRequestDto;
 import server.poptato.todo.application.response.TodayListResponseDto;
 import server.poptato.todo.application.response.TodayResponseDto;
 import server.poptato.todo.domain.repository.TodoRepository;
@@ -15,6 +16,7 @@ import server.poptato.todo.exception.errorcode.TodoExceptionErrorCode;
 import server.poptato.user.exception.UserException;
 import server.poptato.user.exception.errorcode.UserExceptionErrorCode;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,7 +30,6 @@ class TodoServiceTest {
     private TodoService todoService;
     @Autowired
     private TodoRepository todoRepository;
-
 
     @DisplayName("존재하지 않는 유저일 경우 예외가 발생한다.")
     @Test
@@ -253,6 +254,4 @@ class TodoServiceTest {
             todoService.toggleIsBookmark(nonExistentTodoId);  // 예외가 발생해야 함
         });
     }
-
-
 }

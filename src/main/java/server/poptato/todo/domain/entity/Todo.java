@@ -69,4 +69,12 @@ public class Todo{
         this.todayStatus = null;
         this.todayDate = null;
     }
+
+    public void setTodayOrder(int order) {
+        this.todayOrder = order;
+    }
+
+    public void setBacklogOrder(int order) {
+        this.backlogOrder = order;
+    }
 }

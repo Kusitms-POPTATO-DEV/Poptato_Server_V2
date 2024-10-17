@@ -12,19 +12,17 @@ import java.util.Optional;
 
 public interface TodoRepository {
     void deleteAllByUserId(Long userId);
-    // 미완료된 할 일 조회
     List<Todo> findByUserIdAndTypeAndTodayDateAndTodayStatusOrderByTodayOrderDesc(
             Long userId, Type type, LocalDate todayDate, TodayStatus todayStatus);
-
-    // 완료된 할 일 조회
     List<Todo> findByUserIdAndTypeAndTodayDateAndTodayStatusOrderByCompletedDateTimeDesc(
             Long userId, Type type, LocalDate todayDate, TodayStatus todayStatus);
-
     Optional<Todo> findById(Long todoId);
     void delete(Todo todo);
-     Todo save(Todo todo);
-    // 백로그 목록 조회
+    Todo save(Todo todo);
     Page<Todo> findByUserIdAndTypeInOrderByBacklogOrderDesc(Long userId, List<Type> types, Pageable pageable);
     Integer findMaxBacklogOrderByUserIdOrZero(Long userId);
     Integer findMaxTodayOrderByUserIdOrZero(Long userId);
+    List<Todo> findByIdIn(List<Long> ids);
+    int findMinBacklogOrderByIdIn(List<Long> ids);
+    int findMinTodayOrderByIdIn(List<Long> ids);
 }

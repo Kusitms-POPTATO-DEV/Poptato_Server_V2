@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import server.poptato.todo.api.request.DragAndDropRequestDto;
 import server.poptato.todo.api.request.SwipeRequestDto;
 import org.springframework.transaction.annotation.Transactional;
 import server.poptato.global.response.BaseResponse;
@@ -21,6 +22,7 @@ import server.poptato.user.exception.errorcode.UserExceptionErrorCode;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -109,11 +111,6 @@ public class TodoService {
         }
     }
 
-    private void checkIsExistUser(long userId) {
-        userRepository.findById(userId).orElseThrow(()
-                -> new UserException(UserExceptionErrorCode.USER_NOT_EXIST));
-    }
-
     private void swipeBacklogToToday(Todo todo) {
         Integer maxTodayOrder = todoRepository.findMaxTodayOrderByUserIdOrZero(todo.getUserId());
         todo.changeToToday(maxTodayOrder);
@@ -126,4 +123,63 @@ public class TodoService {
         todo.changeToBacklog(maxBacklogOrder);
     }
 
+    public void dragAndDrop(Long userId, DragAndDropRequestDto requestDto) {
+        checkIsExistUser(userId);
+        List<Todo> todos = new ArrayList<>();
+        for(Long todoId: requestDto.getTodoIds()){
+            todos.add(todoRepository.findById(todoId).get());
+        }
+        checkIsValidToDragAndDrop(userId,todos,requestDto);
+        if (requestDto.getType().equals(Type.TODAY)) {
+            reassignTodayOrder(todos, requestDto.getTodoIds());
+        } else if (requestDto.getType().equals(Type.BACKLOG)) {
+            reassignBacklogOrder(todos, requestDto.getTodoIds());
+        }
+    }
+
+    private void checkIsValidToDragAndDrop(Long userId, List<Todo> todos, DragAndDropRequestDto requestDto) {
+        if (todos.size() != requestDto.getTodoIds().size()) {
+            throw new TodoException(TodoExceptionErrorCode.TODO_NOT_EXIST);
+        }
+        for (Todo todo : todos) {
+            if (!todo.getUserId().equals(userId)) {
+                throw new TodoException(TodoExceptionErrorCode.TODO_USER_NOT_MATCH);
+            }
+            if (requestDto.getType().equals(Type.TODAY) && todo.getTodayStatus() == TodayStatus.COMPLETED) {
+                throw new TodoException(TodoExceptionErrorCode.ALREADY_COMPLETED_TODO);
+            }
+            if (requestDto.getType().equals(Type.TODAY)) {
+                if (!todo.getType().equals(Type.TODAY)) {
+                    throw new TodoException(TodoExceptionErrorCode.TODO_TYPE_NOT_MATCH);
+                }
+            }
+            if (requestDto.getType().equals(Type.BACKLOG)) {
+                if (!(todo.getType().equals(Type.BACKLOG) || todo.getType().equals(Type.YESTERDAY))) {
+                    throw new TodoException(TodoExceptionErrorCode.TODO_TYPE_NOT_MATCH);
+                }
+            }
+        }
+    }
+
+    private void reassignTodayOrder(List<Todo> todos, List<Long> todoIds) {
+        int startingOrder = todoRepository.findMinTodayOrderByIdIn(todoIds);
+        for (Todo todo : todos) {
+            todo.setTodayOrder(startingOrder++);
+            //TODO: 왜 save를 호출해야지 반영이 되는지 알아야함
+            todoRepository.save(todo);
+        }
+    }
+
+    private void reassignBacklogOrder(List<Todo> todos, List<Long> todoIds) {
+        int startingOrder = todoRepository.findMinBacklogOrderByIdIn(todoIds);
+        for (Todo todo : todos) {
+            todo.setBacklogOrder(startingOrder++);
+            todoRepository.save(todo);
+        }
+    }
+
+    private void checkIsExistUser(Long userId) {
+        userRepository.findById(userId).orElseThrow(()
+                -> new UserException(UserExceptionErrorCode.USER_NOT_EXIST));
+    }
 }
