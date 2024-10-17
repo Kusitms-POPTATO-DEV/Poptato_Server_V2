@@ -11,6 +11,7 @@ import server.poptato.todo.application.TodoService;
 import server.poptato.todo.application.response.BacklogListResponseDto;
 import server.poptato.todo.application.response.PaginatedHistoryResponseDto;
 import server.poptato.todo.application.response.TodayListResponseDto;
+import server.poptato.todo.application.response.TodoDetailResponseDto;
 import server.poptato.user.resolver.UserId;
 
 import java.time.LocalDate;
@@ -73,9 +74,16 @@ public class TodoController {
     }
 
     @PostMapping("/backlog")
-    public BaseResponse generateBacklog(//@UserId Long userId,
+    public BaseResponse generateBacklog(@UserId Long userId,
                                         @Validated @RequestBody BacklogCreateRequestDto backlogCreateRequestDto){
-        todoService.generateBacklog(1L, backlogCreateRequestDto.getContent());
+        todoService.generateBacklog(userId, backlogCreateRequestDto.getContent());
         return new BaseResponse<>();
+    }
+
+    @GetMapping("/todo/{todoId}")
+    public BaseResponse<TodoDetailResponseDto> getTodoInfo(@UserId Long userId,
+                                                           @PathVariable Long todoId){
+        TodoDetailResponseDto response = todoService.getTodoInfo(userId, todoId);
+        return new BaseResponse<>(response);
     }
 }
