@@ -16,14 +16,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import server.poptato.auth.application.service.JwtService;
 import server.poptato.todo.application.TodoService;
-import server.poptato.todo.infra.repository.JpaTodoRepository;
 import server.poptato.user.api.request.UserChangeNameRequestDto;
 import server.poptato.user.application.service.UserService;
-import server.poptato.user.infra.repository.JpaUserRepository;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.times;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
