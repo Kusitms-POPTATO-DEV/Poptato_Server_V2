@@ -9,6 +9,7 @@ import server.poptato.todo.api.request.SwipeRequestDto;
 import server.poptato.todo.application.TodoService;
 import server.poptato.todo.application.response.BacklogListResponseDto;
 import server.poptato.todo.application.response.PaginatedHistoryResponseDto;
+import server.poptato.todo.application.response.PaginatedYesterdayResponseDto;
 import server.poptato.todo.application.response.TodayListResponseDto;
 import server.poptato.user.resolver.UserId;
 
@@ -68,5 +69,14 @@ public class TodoController {
                                     @Validated @RequestBody DragAndDropRequestDto dragAndDropRequestDto){
         todoService.dragAndDrop(userId, dragAndDropRequestDto);
         return new BaseResponse<>();
+    }
+    @GetMapping("/yesterdays")
+    public BaseResponse<PaginatedYesterdayResponseDto> getYesterdays(
+            @UserId Long userId,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "15") int size) {
+
+        PaginatedYesterdayResponseDto response = todoService.getYesterdays(userId, page, size);
+        return new BaseResponse<>(response);
     }
 }

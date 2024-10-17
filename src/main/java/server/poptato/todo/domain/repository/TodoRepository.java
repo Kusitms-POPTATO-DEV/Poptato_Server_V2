@@ -2,7 +2,6 @@ package server.poptato.todo.domain.repository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.Query;
 import server.poptato.todo.domain.entity.Todo;
 import server.poptato.todo.domain.value.TodayStatus;
 import server.poptato.todo.domain.value.Type;
@@ -29,5 +28,5 @@ public interface TodoRepository {
     List<Todo> findByIdIn(List<Long> ids);
     int findMaxBacklogOrderByIdIn(List<Long> ids);
     int findMaxTodayOrderByIdIn(List<Long> ids);
-    Page<Todo> findByTypeAndTodayStatus(Type type, TodayStatus todayStatus, Pageable pageable);
+    Page<Todo> findByUserIdAndTypeAndTodayStatus(Type type, TodayStatus todayStatus, Pageable pageable);
 }

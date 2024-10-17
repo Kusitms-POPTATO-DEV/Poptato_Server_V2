@@ -10,10 +10,7 @@ import server.poptato.todo.api.request.DragAndDropRequestDto;
 import server.poptato.todo.api.request.SwipeRequestDto;
 import org.springframework.transaction.annotation.Transactional;
 import server.poptato.global.response.BaseResponse;
-import server.poptato.todo.application.response.BacklogListResponseDto;
-import server.poptato.todo.application.response.HistoryResponseDto;
-import server.poptato.todo.application.response.PaginatedHistoryResponseDto;
-import server.poptato.todo.application.response.TodayListResponseDto;
+import server.poptato.todo.application.response.*;
 import server.poptato.todo.domain.entity.Todo;
 import server.poptato.todo.domain.repository.TodoRepository;
 import server.poptato.todo.domain.value.TodayStatus;
@@ -131,6 +128,29 @@ public class TodoService {
             swipeBacklogToToday(todo);
         }
     }
+    public void dragAndDrop(Long userId, DragAndDropRequestDto requestDto) {
+        checkIsExistUser(userId);
+        List<Todo> todos = getTodos(requestDto);
+        checkIsValidToDragAndDrop(userId,todos,requestDto);
+        if (requestDto.getType().equals(Type.TODAY)) {
+            reassignTodayOrder(todos, requestDto.getTodoIds());
+        } else if (requestDto.getType().equals(Type.BACKLOG)) {
+            reassignBacklogOrder(todos, requestDto.getTodoIds());
+        }
+    }
+    public PaginatedYesterdayResponseDto getYesterdays(Long userId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Todo> todosPage = todoRepository.findByUserIdAndTypeAndTodayStatus(Type.YESTERDAY, TodayStatus.INCOMPLETE, pageable);
+
+        List<YesterdayResponseDto> yesterdays = todosPage.getContent().stream()
+                .map(todo -> new YesterdayResponseDto(
+                        todo.getId(),
+                        todo.getContent()
+                ))
+                .collect(Collectors.toList());
+
+        return new PaginatedYesterdayResponseDto(yesterdays, todosPage.getTotalPages());
+    }
 
     private void swipeBacklogToToday(Todo todo) {
         Integer maxTodayOrder = todoRepository.findMaxTodayOrderByUserIdOrZero(todo.getUserId());
@@ -142,17 +162,6 @@ public class TodoService {
             throw new TodoException(TodoExceptionErrorCode.ALREADY_COMPLETED_TODO);
         Integer maxBacklogOrder = todoRepository.findMaxBacklogOrderByUserIdOrZero(todo.getUserId());
         todo.changeToBacklog(maxBacklogOrder);
-    }
-
-    public void dragAndDrop(Long userId, DragAndDropRequestDto requestDto) {
-        checkIsExistUser(userId);
-        List<Todo> todos = getTodos(requestDto);
-        checkIsValidToDragAndDrop(userId,todos,requestDto);
-        if (requestDto.getType().equals(Type.TODAY)) {
-            reassignTodayOrder(todos, requestDto.getTodoIds());
-        } else if (requestDto.getType().equals(Type.BACKLOG)) {
-            reassignBacklogOrder(todos, requestDto.getTodoIds());
-        }
     }
 
     private List<Todo> getTodos(DragAndDropRequestDto requestDto) {
