@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import server.poptato.todo.api.request.BacklogCreateRequestDto;
 import server.poptato.todo.api.request.DragAndDropRequestDto;
 import server.poptato.todo.api.request.SwipeRequestDto;
 import org.springframework.transaction.annotation.Transactional;
@@ -186,5 +187,13 @@ public class TodoService {
     private void checkIsExistUser(Long userId) {
         userRepository.findById(userId).orElseThrow(()
                 -> new UserException(UserExceptionErrorCode.USER_NOT_EXIST));
+    }
+
+    public Long generateBacklog(Long userId, String content) {
+        checkIsExistUser(userId);
+        Integer maxBacklogOrder = todoRepository.findMaxBacklogOrderByUserIdOrZero(userId);
+        Todo backlog = Todo.createBacklog(userId, content, maxBacklogOrder+1);
+        Todo newBacklog = todoRepository.save(backlog);
+        return newBacklog.getId();
     }
 }

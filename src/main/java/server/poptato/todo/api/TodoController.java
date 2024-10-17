@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import server.poptato.global.response.BaseResponse;
+import server.poptato.todo.api.request.BacklogCreateRequestDto;
 import server.poptato.todo.api.request.DragAndDropRequestDto;
 import server.poptato.todo.api.request.SwipeRequestDto;
 import server.poptato.todo.application.TodoService;
@@ -58,6 +59,13 @@ public class TodoController {
     public BaseResponse dragAndDrop(@UserId Long userId,
                                     @Validated @RequestBody DragAndDropRequestDto dragAndDropRequestDto){
         todoService.dragAndDrop(userId, dragAndDropRequestDto);
+        return new BaseResponse<>();
+    }
+
+    @PostMapping("/backlog")
+    public BaseResponse generateBacklog(//@UserId Long userId,
+                                        @Validated @RequestBody BacklogCreateRequestDto backlogCreateRequestDto){
+        todoService.generateBacklog(1L, backlogCreateRequestDto.getContent());
         return new BaseResponse<>();
     }
 }

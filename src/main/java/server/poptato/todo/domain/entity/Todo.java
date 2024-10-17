@@ -50,6 +50,17 @@ public class Todo{
     @LastModifiedDate
     private LocalDateTime modifyDate;
     // isBookmark 값을 토글하는 도메인 메서드
+
+    public static Todo createBacklog(Long userId, String content, Integer backlogOrder) {
+        return Todo.builder()
+                .userId(userId)
+                .content(content)
+                .backlogOrder(backlogOrder)
+                .isBookmark(false)
+                .type(Type.BACKLOG)
+                .build();
+    }
+
     public void toggleBookmark() {
         this.isBookmark = !this.isBookmark;
     }
