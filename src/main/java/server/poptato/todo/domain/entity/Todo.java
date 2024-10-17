@@ -107,4 +107,12 @@ public class Todo{
         this.completedDateTime = LocalDateTime.now();
         this.todayOrder = null;
     }
+
+    public void setType(Type type) {
+        this.type = type;
+    }
+
+    public void setTodayStatus(TodayStatus todayStatus) {
+        this.todayStatus = todayStatus;
+    }
 }

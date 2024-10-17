@@ -13,7 +13,6 @@ import java.util.List;
 public interface JpaTodoRepository extends TodoRepository, JpaRepository<Todo,Long> {
     @Query("SELECT t FROM Todo t WHERE t.userId = :userId AND t.completedDateTime IS NOT NULL")
     Page<Todo> findByUserIdAndCompletedDateTimeIsNotNull(Long userId, Pageable pageable);
-
     @Query("SELECT COALESCE(MAX(t.backlogOrder), 0) FROM Todo t WHERE t.userId = :userId AND t.backlogOrder IS NOT NULL")
     Integer findMaxBacklogOrderByUserIdOrZero(Long userId);
     @Query("SELECT COALESCE(MAX(t.todayOrder), 0) FROM Todo t WHERE t.userId = :userId AND t.todayOrder IS NOT NULL")
@@ -22,4 +21,6 @@ public interface JpaTodoRepository extends TodoRepository, JpaRepository<Todo,Lo
     int findMaxTodayOrderByIdIn(@Param("ids") List<Long> ids);
     @Query("SELECT MAX(t.backlogOrder) FROM Todo t WHERE t.id IN :ids")
     int findMaxBacklogOrderByIdIn(@Param("ids") List<Long> ids);
+    @Query("SELECT COALESCE(MIN(t.backlogOrder), 0) FROM Todo t WHERE t.userId = :userId")
+    Integer findMinBacklogOrderByUserIdOrZero(@Param("userId") Long userId);
 }
