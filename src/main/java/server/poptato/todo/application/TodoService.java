@@ -140,7 +140,7 @@ public class TodoService {
     }
     public PaginatedYesterdayResponseDto getYesterdays(Long userId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Todo> todosPage = todoRepository.findByUserIdAndTypeAndTodayStatus(Type.YESTERDAY, TodayStatus.INCOMPLETE, pageable);
+        Page<Todo> todosPage = todoRepository.findByUserIdAndTypeAndTodayStatus(userId, Type.YESTERDAY, TodayStatus.INCOMPLETE, pageable);
 
         List<YesterdayResponseDto> yesterdays = todosPage.getContent().stream()
                 .map(todo -> new YesterdayResponseDto(
