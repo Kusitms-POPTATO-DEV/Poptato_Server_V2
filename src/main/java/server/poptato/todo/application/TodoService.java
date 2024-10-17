@@ -130,6 +130,29 @@ public class TodoService {
             swipeBacklogToToday(todo);
         }
     }
+    public void dragAndDrop(Long userId, DragAndDropRequestDto requestDto) {
+        checkIsExistUser(userId);
+        List<Todo> todos = getTodos(requestDto);
+        checkIsValidToDragAndDrop(userId,todos,requestDto);
+        if (requestDto.getType().equals(Type.TODAY)) {
+            reassignTodayOrder(todos, requestDto.getTodoIds());
+        } else if (requestDto.getType().equals(Type.BACKLOG)) {
+            reassignBacklogOrder(todos, requestDto.getTodoIds());
+        }
+    }
+    public PaginatedYesterdayResponseDto getYesterdays(Long userId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Todo> todosPage = todoRepository.findByUserIdAndTypeAndTodayStatus(userId, Type.YESTERDAY, TodayStatus.INCOMPLETE, pageable);
+
+        List<YesterdayResponseDto> yesterdays = todosPage.getContent().stream()
+                .map(todo -> new YesterdayResponseDto(
+                        todo.getId(),
+                        todo.getContent()
+                ))
+                .collect(Collectors.toList());
+
+        return new PaginatedYesterdayResponseDto(yesterdays, todosPage.getTotalPages());
+    }
 
     private void swipeBacklogToToday(Todo todo) {
         Integer maxTodayOrder = todoRepository.findMaxTodayOrderByUserIdOrZero(todo.getUserId());
@@ -141,17 +164,6 @@ public class TodoService {
             throw new TodoException(TodoExceptionErrorCode.ALREADY_COMPLETED_TODO);
         Integer maxBacklogOrder = todoRepository.findMaxBacklogOrderByUserIdOrZero(todo.getUserId());
         todo.changeToBacklog(maxBacklogOrder);
-    }
-
-    public void dragAndDrop(Long userId, DragAndDropRequestDto requestDto) {
-        checkIsExistUser(userId);
-        List<Todo> todos = getTodos(requestDto);
-        checkIsValidToDragAndDrop(userId,todos,requestDto);
-        if (requestDto.getType().equals(Type.TODAY)) {
-            reassignTodayOrder(todos, requestDto.getTodoIds());
-        } else if (requestDto.getType().equals(Type.BACKLOG)) {
-            reassignBacklogOrder(todos, requestDto.getTodoIds());
-        }
     }
 
     private List<Todo> getTodos(DragAndDropRequestDto requestDto) {

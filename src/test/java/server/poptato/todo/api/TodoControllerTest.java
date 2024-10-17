@@ -270,7 +270,6 @@ public class TodoControllerTest {
                 .andExpect(status().isOk())
                 .andDo(print());
     }
-
     @DisplayName("백로그 생성 요청 바디에 content가 없거나 비어있으면 Validator가 잡는다.")
     @Test
     void 백로그_생성_요청바디_예외(){
@@ -312,5 +311,26 @@ public class TodoControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print());
+    }
+
+    @DisplayName("어제 한 일 조회 시 Query String에 기본값이 적용되고, JWT로 사용자 아이디를 조회한다.")
+    @Test
+    void 어제한일_쿼리스트링_기본값() throws Exception {
+        // when
+        mockMvc.perform(get("/yesterdays")
+                        .header("Authorization", "Bearer "+accessToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print());
+    }
+    @DisplayName("어제 한 일 조회 시 헤더에 JWT가 없으면 예외가 발생한다.")
+    @Test
+    void 어제한일_JWT_예외() throws Exception {
+        // when
+        mockMvc.perform(get("/yesterdays")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())  // JWT가 없으므로 400 Bad Request 응답
+                .andDo(print());
+
     }
 }

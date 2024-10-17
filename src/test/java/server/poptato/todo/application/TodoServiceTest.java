@@ -5,12 +5,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import server.poptato.todo.api.request.DragAndDropRequestDto;
-import server.poptato.todo.application.response.PaginatedHistoryResponseDto;
-import server.poptato.todo.application.response.TodayListResponseDto;
-import server.poptato.todo.application.response.TodayResponseDto;
-import server.poptato.todo.application.response.TodoDetailResponseDto;
-import server.poptato.todo.domain.repository.TodoRepository;
+import server.poptato.todo.application.response.*;
 import server.poptato.todo.domain.entity.Todo;
+import server.poptato.todo.domain.repository.TodoRepository;
 import server.poptato.todo.domain.value.TodayStatus;
 import server.poptato.todo.domain.value.Type;
 import server.poptato.todo.exception.TodoException;
@@ -349,6 +346,25 @@ class TodoServiceTest {
 
         // 전체 페이지 수가 적절하게 계산되었는지 확인
         assertThat(result.getTotalPageCount()).isGreaterThan(0);
+    }
+
+    @Test
+    @DisplayName("YESTERDAY 타입과 INCOMPLETE 상태인 todo 목록을 페이징 처리하여 가져온다")
+    void getYesterdays_ShouldReturnPagedResult() {
+        // given
+        Long userId = 1L;
+        int page = 0;
+        int size = 5; // 한번에 5개의 todo 가져오기
+
+
+        // when
+        PaginatedYesterdayResponseDto result = todoService.getYesterdays(userId, page, size);
+
+        // then
+        assertThat(result.getYesterdays()).hasSizeLessThanOrEqualTo(size); // 페이징 크기만큼 가져옴
+        assertThat(result.getTotalPageCount()).isGreaterThan(0);  // 총 페이지 수가 0보다 큼
+        assertThat(result.getYesterdays().get(0).getTodoId()).isNotNull(); // 첫 번째 todo의 ID가 null이 아님
+        assertThat(result.getYesterdays().get(0).getContent()).isNotNull(); // 첫 번째 todo의 내용이 null이 아님
     }
 
     @DisplayName("할 일 상세조회 시 성공한다.")
