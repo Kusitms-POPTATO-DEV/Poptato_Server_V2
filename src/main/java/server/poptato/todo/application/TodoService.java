@@ -241,4 +241,26 @@ public class TodoService {
                     .deadline(findTodo.getDeadline())
                     .build();
     }
+
+    public void updateDeadline(Long userId, Long todoId, LocalDate deadline) {
+        checkIsExistUser(userId);
+        Todo findTodo = todoRepository.findById(todoId)
+                .orElseThrow(() -> new TodoException(TODO_NOT_EXIST));
+        if(findTodo.getUserId()!=userId)
+            throw new TodoException(TodoExceptionErrorCode.TODO_USER_NOT_MATCH);
+        findTodo.updateDeadline(deadline);
+        //TODO: 여기도 왜 SAVE가 필수인지 몰겟담
+        todoRepository.save(findTodo);
+    }
+
+    public void updateContent(Long userId, Long todoId, String content) {
+        checkIsExistUser(userId);
+        Todo findTodo = todoRepository.findById(todoId)
+                .orElseThrow(() -> new TodoException(TODO_NOT_EXIST));
+        if(findTodo.getUserId()!=userId)
+            throw new TodoException(TodoExceptionErrorCode.TODO_USER_NOT_MATCH);
+        findTodo.updateContent(content);
+        //TODO: 여기도 왜 SAVE가 필수인지 몰겟담
+        todoRepository.save(findTodo);
+    }
 }
