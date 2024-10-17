@@ -14,8 +14,8 @@ public interface JpaTodoRepository extends TodoRepository, JpaRepository<Todo,Lo
     Integer findMaxBacklogOrderByUserIdOrZero(Long userId);
     @Query("SELECT COALESCE(MAX(t.todayOrder), 0) FROM Todo t WHERE t.userId = :userId AND t.todayOrder IS NOT NULL")
     Integer findMaxTodayOrderByUserIdOrZero(Long userId);
-    @Query("SELECT MIN(t.todayOrder) FROM Todo t WHERE t.id IN :ids")
-    int findMinTodayOrderByIdIn(@Param("ids") List<Long> ids);
-    @Query("SELECT MIN(t.backlogOrder) FROM Todo t WHERE t.id IN :ids")
-    int findMinBacklogOrderByIdIn(@Param("ids") List<Long> ids);
+    @Query("SELECT MAX(t.todayOrder) FROM Todo t WHERE t.id IN :ids")
+    int findMaxTodayOrderByIdIn(@Param("ids") List<Long> ids);
+    @Query("SELECT MAX(t.backlogOrder) FROM Todo t WHERE t.id IN :ids")
+    int findMaxBacklogOrderByIdIn(@Param("ids") List<Long> ids);
 }
