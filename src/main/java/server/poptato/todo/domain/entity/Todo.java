@@ -92,4 +92,8 @@ public class Todo{
     public void updateDeadline(LocalDate deadline) {
         this.deadline = deadline;
     }
+
+    public void updateContent(String content) {
+        this.content = content;
+    }
 }
