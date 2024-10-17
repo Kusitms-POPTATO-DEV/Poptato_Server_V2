@@ -1,6 +1,7 @@
 package server.poptato.todo.application;
 
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -36,10 +37,9 @@ import static server.poptato.todo.exception.errorcode.TodoExceptionErrorCode.TOD
 public class TodoService {
     private final UserRepository userRepository;
     private final TodoRepository todoRepository;
-    public TodayListResponseDto getTodayList(long userId, int page, int size) {
+    public TodayListResponseDto getTodayList(long userId, int page, int size, LocalDate todayDate) {
         checkIsExistUser(userId);
 
-        LocalDate todayDate = LocalDate.now();
         List<Todo> todays = new ArrayList<>();
 
         // 미완료된 할 일 먼저 조회
@@ -146,16 +146,21 @@ public class TodoService {
 
     public void dragAndDrop(Long userId, DragAndDropRequestDto requestDto) {
         checkIsExistUser(userId);
-        List<Todo> todos = new ArrayList<>();
-        for(Long todoId: requestDto.getTodoIds()){
-            todos.add(todoRepository.findById(todoId).get());
-        }
+        List<Todo> todos = getTodos(requestDto);
         checkIsValidToDragAndDrop(userId,todos,requestDto);
         if (requestDto.getType().equals(Type.TODAY)) {
             reassignTodayOrder(todos, requestDto.getTodoIds());
         } else if (requestDto.getType().equals(Type.BACKLOG)) {
             reassignBacklogOrder(todos, requestDto.getTodoIds());
         }
+    }
+
+    private List<Todo> getTodos(DragAndDropRequestDto requestDto) {
+        List<Todo> todos = new ArrayList<>();
+        for(Long todoId: requestDto.getTodoIds()){
+            todos.add(todoRepository.findById(todoId).get());
+        }
+        return todos;
     }
 
     private void checkIsValidToDragAndDrop(Long userId, List<Todo> todos, DragAndDropRequestDto requestDto) {
@@ -183,18 +188,18 @@ public class TodoService {
     }
 
     private void reassignTodayOrder(List<Todo> todos, List<Long> todoIds) {
-        int startingOrder = todoRepository.findMinTodayOrderByIdIn(todoIds);
+        int startingOrder = todoRepository.findMaxTodayOrderByIdIn(todoIds);
         for (Todo todo : todos) {
-            todo.setTodayOrder(startingOrder++);
+            todo.setTodayOrder(startingOrder--);
             //TODO: 왜 save를 호출해야지 반영이 되는지 알아야함
             todoRepository.save(todo);
         }
     }
 
     private void reassignBacklogOrder(List<Todo> todos, List<Long> todoIds) {
-        int startingOrder = todoRepository.findMinBacklogOrderByIdIn(todoIds);
+        int startingOrder = todoRepository.findMaxBacklogOrderByIdIn(todoIds);
         for (Todo todo : todos) {
-            todo.setBacklogOrder(startingOrder++);
+            todo.setBacklogOrder(startingOrder--);
             todoRepository.save(todo);
         }
     }

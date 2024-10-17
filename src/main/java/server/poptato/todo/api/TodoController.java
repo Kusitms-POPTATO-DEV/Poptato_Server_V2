@@ -12,6 +12,8 @@ import server.poptato.todo.application.response.PaginatedHistoryResponseDto;
 import server.poptato.todo.application.response.TodayListResponseDto;
 import server.poptato.user.resolver.UserId;
 
+import java.time.LocalDate;
+
 @RestController
 @RequiredArgsConstructor
 public class TodoController {
@@ -21,7 +23,8 @@ public class TodoController {
             @UserId Long userId,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "8") int size){
-        TodayListResponseDto todayListResponse = todoService.getTodayList(userId, page, size);
+        LocalDate todayDate = LocalDate.now();
+        TodayListResponseDto todayListResponse = todoService.getTodayList(userId, page, size, todayDate);
         return new BaseResponse<>(todayListResponse);
     }
 
