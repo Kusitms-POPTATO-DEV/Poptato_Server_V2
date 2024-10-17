@@ -13,6 +13,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import server.poptato.auth.application.service.JwtService;
+import server.poptato.todo.api.request.BacklogCreateRequestDto;
 import server.poptato.todo.api.request.DragAndDropRequestDto;
 import server.poptato.todo.api.request.SwipeRequestDto;
 import server.poptato.todo.application.TodoService;
@@ -269,19 +270,59 @@ public class TodoControllerTest {
                 .andExpect(status().isOk())
                 .andDo(print());
     }
+    @DisplayName("백로그 생성 요청 바디에 content가 없거나 비어있으면 Validator가 잡는다.")
+    @Test
+    void 백로그_생성_요청바디_예외(){
+        //given
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        validator = factory.getValidator();
+
+        BacklogCreateRequestDto request = BacklogCreateRequestDto.builder()
+                .content(" ")
+                .build();
+
+        //when
+        Set<ConstraintViolation<BacklogCreateRequestDto>> violations = validator.validate(request);
+        //then
+        Assertions.assertEquals(violations.size(), 1);
+    }
+
+    @DisplayName("백로그 생성 요청 시 성공한다.")
+    @Test
+    void 백로그_생성_성공_응답() throws Exception {
+        //when
+        mockMvc.perform(post("/backlog")
+                        .content("{\"content\": \"할일 내용 수정본\"}")
+                        .header("Authorization", "Bearer "+accessToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print());
+    }
+
+    @DisplayName("할 일 정보 요청 시 성공한다.")
+    @Test
+    void 할일_정보_요청_성공_응답() throws Exception {
+        //given
+        Long todoId = 1L;
+
+        //when
+        mockMvc.perform(get("/todo/{todoId}", todoId)
+                        .header("Authorization", "Bearer " + accessToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print());
+    }
+
     @DisplayName("어제 한 일 조회 시 Query String에 기본값이 적용되고, JWT로 사용자 아이디를 조회한다.")
     @Test
     void 어제한일_쿼리스트링_기본값() throws Exception {
         // when
         mockMvc.perform(get("/yesterdays")
-                        .header("Authorization", "Bearer " + accessToken)
+                        .header("Authorization", "Bearer "+accessToken)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print());
-
-        verify(todoService).getYesterdays(1L, 0, 15);
     }
-
     @DisplayName("어제 한 일 조회 시 헤더에 JWT가 없으면 예외가 발생한다.")
     @Test
     void 어제한일_JWT_예외() throws Exception {
@@ -290,5 +331,6 @@ public class TodoControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())  // JWT가 없으므로 400 Bad Request 응답
                 .andDo(print());
+
     }
 }

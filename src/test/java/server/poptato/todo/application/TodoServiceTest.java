@@ -4,14 +4,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Pageable;
 import server.poptato.todo.api.request.DragAndDropRequestDto;
-import server.poptato.todo.application.response.PaginatedHistoryResponseDto;
-import server.poptato.todo.application.response.PaginatedYesterdayResponseDto;
-import server.poptato.todo.application.response.TodayListResponseDto;
-import server.poptato.todo.application.response.TodayResponseDto;
-import server.poptato.todo.domain.repository.TodoRepository;
+import server.poptato.todo.application.response.*;
 import server.poptato.todo.domain.entity.Todo;
+import server.poptato.todo.domain.repository.TodoRepository;
 import server.poptato.todo.domain.value.TodayStatus;
 import server.poptato.todo.domain.value.Type;
 import server.poptato.todo.exception.TodoException;
@@ -127,7 +123,7 @@ class TodoServiceTest {
     @Test
     public void shouldThrowException_WhenTodoNotFound_ForUser2() {
         //given
-        Long nonExistentTodoId = 30L;  // 존재하지 않는 투두 ID
+        Long nonExistentTodoId = 1000L;  // 존재하지 않는 투두 ID
 
         //when & then
         assertThrows(TodoException.class, () -> {
@@ -351,6 +347,7 @@ class TodoServiceTest {
         // 전체 페이지 수가 적절하게 계산되었는지 확인
         assertThat(result.getTotalPageCount()).isGreaterThan(0);
     }
+
     @Test
     @DisplayName("YESTERDAY 타입과 INCOMPLETE 상태인 todo 목록을 페이징 처리하여 가져온다")
     void getYesterdays_ShouldReturnPagedResult() {
@@ -368,5 +365,19 @@ class TodoServiceTest {
         assertThat(result.getTotalPageCount()).isGreaterThan(0);  // 총 페이지 수가 0보다 큼
         assertThat(result.getYesterdays().get(0).getTodoId()).isNotNull(); // 첫 번째 todo의 ID가 null이 아님
         assertThat(result.getYesterdays().get(0).getContent()).isNotNull(); // 첫 번째 todo의 내용이 null이 아님
+    }
+
+    @DisplayName("할 일 상세조회 시 성공한다.")
+    @Test
+    void 할일_상세조회_성공(){
+        //given
+        Long userId = 1L;
+        Long todoId = 10L;
+        //when
+        TodoDetailResponseDto todoInfo = todoService.getTodoInfo(userId, todoId);
+        //then
+        assertThat(todoInfo.getContent()).isEqualTo("할 일 10");
+        assertThat(todoInfo.getDeadline()).isEqualTo(LocalDate.of(2024,10,26));
+        assertThat(todoInfo.getIsBookmark()).isTrue();
     }
 }

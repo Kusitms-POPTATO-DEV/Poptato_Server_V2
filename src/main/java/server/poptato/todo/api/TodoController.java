@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import server.poptato.global.response.BaseResponse;
+import server.poptato.todo.api.request.BacklogCreateRequestDto;
 import server.poptato.todo.api.request.DragAndDropRequestDto;
 import server.poptato.todo.api.request.SwipeRequestDto;
 import server.poptato.todo.application.TodoService;
@@ -11,6 +12,7 @@ import server.poptato.todo.application.response.BacklogListResponseDto;
 import server.poptato.todo.application.response.PaginatedHistoryResponseDto;
 import server.poptato.todo.application.response.PaginatedYesterdayResponseDto;
 import server.poptato.todo.application.response.TodayListResponseDto;
+import server.poptato.todo.application.response.TodoDetailResponseDto;
 import server.poptato.user.resolver.UserId;
 
 import java.time.LocalDate;
@@ -77,6 +79,20 @@ public class TodoController {
             @RequestParam(value = "size", defaultValue = "15") int size) {
 
         PaginatedYesterdayResponseDto response = todoService.getYesterdays(userId, page, size);
+        return new BaseResponse<>(response);
+    }
+
+    @PostMapping("/backlog")
+    public BaseResponse generateBacklog(@UserId Long userId,
+                                        @Validated @RequestBody BacklogCreateRequestDto backlogCreateRequestDto){
+        todoService.generateBacklog(userId, backlogCreateRequestDto.getContent());
+        return new BaseResponse<>();
+    }
+
+    @GetMapping("/todo/{todoId}")
+    public BaseResponse<TodoDetailResponseDto> getTodoInfo(@UserId Long userId,
+                                                           @PathVariable Long todoId){
+        TodoDetailResponseDto response = todoService.getTodoInfo(userId, todoId);
         return new BaseResponse<>(response);
     }
 }
