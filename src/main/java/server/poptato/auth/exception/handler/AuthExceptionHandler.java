@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import server.poptato.auth.exception.AuthException;
 import server.poptato.global.response.BaseErrorResponse;
-import server.poptato.user.exception.UserException;
 
 @Slf4j
 @Order(0)
@@ -16,7 +15,7 @@ import server.poptato.user.exception.UserException;
 public class AuthExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(AuthException.class)
-    public BaseErrorResponse handleUserException(AuthException e) {
+    public BaseErrorResponse handleAuthException(AuthException e) {
         log.error("[UserException: handle_UserException 호출]", e);
         return new BaseErrorResponse(e.getExceptionStatus(), e.getMessage());
     }
