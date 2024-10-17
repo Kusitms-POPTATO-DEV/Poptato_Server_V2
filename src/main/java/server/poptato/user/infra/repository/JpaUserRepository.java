@@ -1,19 +1,14 @@
 package server.poptato.user.infra.repository;
 
+import feign.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import server.poptato.user.domain.entity.User;
 import server.poptato.user.domain.repository.UserRepository;
 
 import java.util.Optional;
 
 public interface JpaUserRepository extends UserRepository, JpaRepository<User, Long> {
-    @Override
-    Optional<User> findByKakaoId(String kakaoId);
-    @Override
-    Optional<User> findById(Long userId);
-
-    @Override
-    void delete(User user);
-    @Override
-    User save(User user);
+    @Query("SELECT u FROM User u WHERE u.kakaoId = :kakaoId")
+    Optional<User> findByKakaoId(@Param("kakaoId") String kakaoId);
 }

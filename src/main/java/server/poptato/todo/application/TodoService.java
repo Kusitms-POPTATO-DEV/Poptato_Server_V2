@@ -97,6 +97,7 @@ public class TodoService {
     }
 
     public PaginatedHistoryResponseDto getHistories(Long userId, int page, int size) {
+        checkIsExistUser(userId);
         Pageable pageable = PageRequest.of(page, size);
         //유정 아이디와 completedDate가 null 이 아닌것들을 가져옴
         Page<Todo> todosPage = todoRepository.findByUserIdAndCompletedDateTimeIsNotNull(userId, pageable);

@@ -5,8 +5,8 @@ import org.springframework.web.bind.annotation.*;
 import server.poptato.global.response.BaseResponse;
 import server.poptato.todo.application.TodoService;
 import server.poptato.todo.application.response.BacklogListResponseDto;
+import server.poptato.todo.application.response.PaginatedHistoryResponseDto;
 import server.poptato.todo.application.response.TodayListResponseDto;
-import server.poptato.todo.domain.entity.Todo;
 import server.poptato.user.resolver.UserId;
 
 @RestController
@@ -40,5 +40,15 @@ public class TodoController {
     public BaseResponse toggleIsBookmark(@PathVariable Long todoId) {
         todoService.toggleIsBookmark(todoId);
         return new BaseResponse<>();
+    }
+    @GetMapping("/histories")
+    public BaseResponse<PaginatedHistoryResponseDto> getHistories(
+            @UserId Long userId,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "15") int size) {
+        System.out.println(userId);
+        PaginatedHistoryResponseDto response= todoService.getHistories(userId, page, size);
+
+        return new BaseResponse<>(response);
     }
 }
