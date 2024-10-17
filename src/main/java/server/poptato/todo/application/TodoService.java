@@ -11,10 +11,7 @@ import server.poptato.todo.api.request.DragAndDropRequestDto;
 import server.poptato.todo.api.request.SwipeRequestDto;
 import org.springframework.transaction.annotation.Transactional;
 import server.poptato.global.response.BaseResponse;
-import server.poptato.todo.application.response.BacklogListResponseDto;
-import server.poptato.todo.application.response.HistoryResponseDto;
-import server.poptato.todo.application.response.PaginatedHistoryResponseDto;
-import server.poptato.todo.application.response.TodayListResponseDto;
+import server.poptato.todo.application.response.*;
 import server.poptato.todo.domain.entity.Todo;
 import server.poptato.todo.domain.repository.TodoRepository;
 import server.poptato.todo.domain.value.TodayStatus;
@@ -29,6 +26,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static server.poptato.todo.exception.errorcode.TodoExceptionErrorCode.TODO_NOT_EXIST;
@@ -216,5 +214,19 @@ public class TodoService {
         Todo backlog = Todo.createBacklog(userId, content, maxBacklogOrder+1);
         Todo newBacklog = todoRepository.save(backlog);
         return newBacklog.getId();
+    }
+
+    public TodoDetailResponseDto getTodoInfo(Long userId, Long todoId) {
+        checkIsExistUser(userId);
+        Todo findTodo = todoRepository.findById(todoId)
+                .orElseThrow(() -> new TodoException(TODO_NOT_EXIST));
+        if(findTodo.getUserId()!=userId)
+            throw new TodoException(TodoExceptionErrorCode.TODO_USER_NOT_MATCH);
+
+        return TodoDetailResponseDto.builder()
+                    .content(findTodo.getContent())
+                    .isBookmark(findTodo.isBookmark())
+                    .deadline(findTodo.getDeadline())
+                    .build();
     }
 }
