@@ -29,4 +29,5 @@ public interface TodoRepository {
     List<Todo> findByIdIn(List<Long> ids);
     int findMaxBacklogOrderByIdIn(List<Long> ids);
     int findMaxTodayOrderByIdIn(List<Long> ids);
+    Page<Todo> findByTypeAndTodayStatus(Type type, TodayStatus todayStatus, Pageable pageable);
 }

@@ -59,7 +59,6 @@ public class TodoController {
             @UserId Long userId,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "15") int size) {
-        System.out.println(userId);
         PaginatedHistoryResponseDto response = todoService.getHistories(userId, page, size);
 
         return new BaseResponse<>(response);
