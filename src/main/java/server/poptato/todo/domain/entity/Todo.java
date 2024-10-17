@@ -96,4 +96,15 @@ public class Todo{
     public void updateContent(String content) {
         this.content = content;
     }
+
+    public void updateTodayStatusToInComplete() {
+        this.todayStatus = TodayStatus.INCOMPLETE;
+        this.completedDateTime = null;
+    }
+
+    public void updateTodayStatusToCompleted() {
+        this.todayStatus = TodayStatus.COMPLETED;
+        this.completedDateTime = LocalDateTime.now();
+        this.todayOrder = null;
+    }
 }

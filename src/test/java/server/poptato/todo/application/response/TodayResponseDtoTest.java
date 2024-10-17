@@ -15,7 +15,7 @@ class TodayResponseDtoTest {
     void 마감기한이_정상적으로_계산된다() {
         //given
         Todo todo = Todo.builder()
-                .id(1L)
+                .id(1000L)
                 .content("Test Todo")
                 .todayStatus(TodayStatus.COMPLETED)
                 .isBookmark(false)
@@ -27,7 +27,7 @@ class TodayResponseDtoTest {
         TodayResponseDto responseDto = new TodayResponseDto(todo);
 
         //then
-        assertThat(responseDto.getDeadline()).isEqualTo(4);
+        assertThat(responseDto.getDDay()).isEqualTo(4);
     }
 
     @DisplayName("마감이 설정안되어있는 경우 NULL로 정상 응답된다.")

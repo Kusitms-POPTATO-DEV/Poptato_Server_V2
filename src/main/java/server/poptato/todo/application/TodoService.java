@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 
 import static server.poptato.todo.exception.errorcode.TodoExceptionErrorCode.TODO_NOT_EXIST;
 
+@Transactional
 @RequiredArgsConstructor
 @Service
 public class TodoService {
@@ -81,13 +82,12 @@ public class TodoService {
                .build();
     }
 
-    @Transactional
     public void deleteTodoById(Long todoId) {
         Todo todo = todoRepository.findById(todoId)
                 .orElseThrow(() -> new TodoException(TODO_NOT_EXIST));
         todoRepository.delete(todo);
     }
-    @Transactional
+
     public void toggleIsBookmark(Long todoId) {
         // 해당 Todo를 조회
         Todo todo = todoRepository.findById(todoId)
@@ -115,7 +115,6 @@ public class TodoService {
         return new PaginatedHistoryResponseDto(histories, todosPage.getTotalPages());
     }
 
-    @Transactional
     public void swipe(Long userId, Long todoId) {
         checkIsExistUser(userId);
         Todo todo = todoRepository.findById(todoId)
@@ -220,6 +219,7 @@ public class TodoService {
                 -> new UserException(UserExceptionErrorCode.USER_NOT_EXIST));
     }
 
+
     public Long generateBacklog(Long userId, String content) {
         checkIsExistUser(userId);
         Integer maxBacklogOrder = todoRepository.findMaxBacklogOrderByUserIdOrZero(userId);
@@ -262,5 +262,27 @@ public class TodoService {
         findTodo.updateContent(content);
         //TODO: 여기도 왜 SAVE가 필수인지 몰겟담
         todoRepository.save(findTodo);
+    }
+
+    public void updateIsCompleted(Long userId, Long todoId) {
+        checkIsExistUser(userId);
+        Todo findTodo = todoRepository.findById(todoId)
+                .orElseThrow(() -> new TodoException(TODO_NOT_EXIST));
+        checkIsValidToUpdateIsCompleted(userId,findTodo);
+
+        if(findTodo.getTodayStatus().equals(TodayStatus.COMPLETED)){
+            findTodo.updateTodayStatusToInComplete();
+        }else {
+            findTodo.updateTodayStatusToCompleted();
+        }
+    }
+
+    private void checkIsValidToUpdateIsCompleted(Long userId, Todo todo) {
+        if(todo.getUserId()!=userId)
+            throw new TodoException(TodoExceptionErrorCode.TODO_USER_NOT_MATCH);
+        if(todo.getType().equals(Type.BACKLOG))
+            throw new TodoException(TodoExceptionErrorCode.BACKLOG_CANT_COMPLETE);
+        if(todo.getType().equals(Type.YESTERDAY) && todo.getTodayStatus().equals(TodayStatus.COMPLETED))
+            throw new TodoException(TodoExceptionErrorCode.YESTERDAY_CANT_COMPLETE);
     }
 }
