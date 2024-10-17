@@ -12,7 +12,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import server.poptato.auth.application.service.JwtService;
 import server.poptato.todo.api.request.BacklogCreateRequestDto;
 import server.poptato.todo.api.request.DragAndDropRequestDto;
@@ -22,6 +21,9 @@ import server.poptato.todo.exception.TodoException;
 import server.poptato.user.application.service.UserService;
 
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -63,7 +65,7 @@ public class TodoControllerTest {
     @Test
     void 투데이_목록조회_성공응답() throws Exception {
         //when
-        mockMvc.perform(MockMvcRequestBuilders.get("/todays")
+        mockMvc.perform(get("/todays")
                         .param("page","0")
                         .param("size","8")
                         .header("Authorization", "Bearer "+accessToken)
@@ -76,7 +78,7 @@ public class TodoControllerTest {
     @Test
     void 투데이_목록조회_쿼리스트링_기본값() throws Exception {
         //when
-        mockMvc.perform(MockMvcRequestBuilders.get("/todays")
+        mockMvc.perform(get("/todays")
                         .header("Authorization", "Bearer "+accessToken)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -90,7 +92,7 @@ public class TodoControllerTest {
     @Test
     void 투데이_목록조회_JWT_예외() throws Exception {
         //when
-        mockMvc.perform(MockMvcRequestBuilders.get("/todays")
+        mockMvc.perform(get("/todays")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andDo(print());
@@ -128,7 +130,7 @@ public class TodoControllerTest {
     @Test
     void 백로그_목록조회_성공응답() throws Exception {
         //when
-        mockMvc.perform(MockMvcRequestBuilders.get("/backlogs")
+        mockMvc.perform(get("/backlogs")
                         .param("page","0")
                         .param("size","8")
                         .header("Authorization", "Bearer "+accessToken)
@@ -141,7 +143,7 @@ public class TodoControllerTest {
     @Test
     void 백로그_목록조회_쿼리스트링_기본값() throws Exception {
         //when
-        mockMvc.perform(MockMvcRequestBuilders.get("/backlogs")
+        mockMvc.perform(get("/backlogs")
                         .header("Authorization", "Bearer "+accessToken)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -154,7 +156,7 @@ public class TodoControllerTest {
     @Test
     void 백로그_목록조회_JWT_예외() throws Exception {
         //when
-        mockMvc.perform(MockMvcRequestBuilders.get("/backlogs")
+        mockMvc.perform(get("/backlogs")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andDo(print());
@@ -174,6 +176,19 @@ public class TodoControllerTest {
 
         // todoService의 toggleIsBookmark 메서드가 한 번 호출되었는지 확인
         verify(todoService, times(1)).toggleIsBookmark(todoId);
+    }
+
+    @DisplayName("히스토리 목록 조회 시 page와 size를 query string으로 받고 헤더에 accessToken을 담아 요청한다.")
+    @Test
+    void 히스토리_목록조회_성공응답() throws Exception {
+        // when
+        mockMvc.perform(get("/histories")
+                        .param("page", "0")
+                        .param("size", "15")
+                        .header("Authorization", "Bearer " + accessToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
     }
 
     @DisplayName("스와이프 시 요청 바디에 todoId가 없으면 Validator가 잡는다.")
@@ -204,6 +219,29 @@ public class TodoControllerTest {
                 .andDo(print());
     }
 
+    @DisplayName("히스토리 목록 조회 시 Query String에 기본값이 적용되고, JWT로 사용자 아이디를 조회한다.")
+    @Test
+    void 히스토리_목록조회_쿼리스트링_기본값() throws Exception {
+        // when
+        mockMvc.perform(get("/histories")
+                        .header("Authorization", "Bearer " + accessToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print());
+
+        // 기본값이 적용된 서비스 메서드 호출 확인 (userId = 1L, page = 0, size = 15)
+        verify(todoService).getHistories(1L, 0, 15);
+    }
+
+    @DisplayName("히스토리 목록 조회 시 헤더에 JWT가 없으면 예외가 발생한다.")
+    @Test
+    void 히스토리_목록조회_JWT_예외() throws Exception {
+        // when
+        mockMvc.perform(get("/histories")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())  // JWT가 없으므로 400 Bad Request 응답
+                .andDo(print());
+    }
     @DisplayName("드래그앤드롭 시 요청 바디에 type이나 list가 없으면 Validator가 잡는다.")
     @Test
     void 드래그앤드롭_요청바디_예외(){

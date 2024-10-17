@@ -9,6 +9,7 @@ import server.poptato.todo.api.request.DragAndDropRequestDto;
 import server.poptato.todo.api.request.SwipeRequestDto;
 import server.poptato.todo.application.TodoService;
 import server.poptato.todo.application.response.BacklogListResponseDto;
+import server.poptato.todo.application.response.PaginatedHistoryResponseDto;
 import server.poptato.todo.application.response.TodayListResponseDto;
 import server.poptato.user.resolver.UserId;
 
@@ -54,7 +55,16 @@ public class TodoController {
         todoService.toggleIsBookmark(todoId);
         return new BaseResponse<>();
     }
+    @GetMapping("/histories")
+    public BaseResponse<PaginatedHistoryResponseDto> getHistories(
+            @UserId Long userId,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "15") int size) {
+        System.out.println(userId);
+        PaginatedHistoryResponseDto response = todoService.getHistories(userId, page, size);
 
+        return new BaseResponse<>(response);
+    }
     @PatchMapping("/dragAndDrop")
     public BaseResponse dragAndDrop(@UserId Long userId,
                                     @Validated @RequestBody DragAndDropRequestDto dragAndDropRequestDto){
