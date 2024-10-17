@@ -380,4 +380,20 @@ class TodoServiceTest {
         assertThat(todoInfo.getDeadline()).isEqualTo(LocalDate.of(2024,10,26));
         assertThat(todoInfo.getIsBookmark()).isTrue();
     }
+
+    @DisplayName("마감기한 수정 시 성공한다.")
+    @Test
+    void 마감기한_수정_성공(){
+        //given
+        Long userId = 1L;
+        Long todoId = 10L;
+        LocalDate updateDate = LocalDate.of(2024,12,25);
+
+        //when
+        todoService.updateDeadline(userId,todoId,updateDate);
+        Todo findTodo = todoRepository.findById(todoId).get();
+
+        //then
+        assertThat(findTodo.getDeadline()).isEqualTo(updateDate);
+    }
 }
