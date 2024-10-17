@@ -386,7 +386,7 @@ class TodoServiceTest {
     void 마감기한_수정_성공(){
         //given
         Long userId = 1L;
-        Long todoId = 10L;
+        Long todoId = 11L;
         LocalDate updateDate = LocalDate.of(2024,12,25);
 
         //when
