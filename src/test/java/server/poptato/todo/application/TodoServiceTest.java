@@ -356,7 +356,6 @@ class TodoServiceTest {
         int page = 0;
         int size = 5; // 한번에 5개의 todo 가져오기
 
-
         // when
         PaginatedYesterdayResponseDto result = todoService.getYesterdays(userId, page, size);
 
