@@ -1,8 +1,11 @@
 package server.poptato.todo.api;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import server.poptato.global.response.BaseResponse;
+import server.poptato.todo.api.request.DragAndDropRequestDto;
+import server.poptato.todo.api.request.SwipeRequestDto;
 import server.poptato.todo.application.TodoService;
 import server.poptato.todo.application.response.BacklogListResponseDto;
 import server.poptato.todo.application.response.PaginatedHistoryResponseDto;
@@ -36,6 +39,13 @@ public class TodoController {
         BacklogListResponseDto backlogListResponse = todoService.getBacklogList(userId, page, size);
         return new BaseResponse<>(backlogListResponse);
     }
+
+    @PatchMapping("/swipe")
+    public BaseResponse swipe(@UserId Long userId,
+                              @Validated @RequestBody SwipeRequestDto swipeRequestDto){
+        todoService.swipe(userId, swipeRequestDto.getTodoId());
+        return new BaseResponse<>();
+    }
     @PatchMapping("/todo/{todoId}/bookmark")
     public BaseResponse toggleIsBookmark(@PathVariable Long todoId) {
         todoService.toggleIsBookmark(todoId);
@@ -47,8 +57,14 @@ public class TodoController {
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "15") int size) {
         System.out.println(userId);
-        PaginatedHistoryResponseDto response= todoService.getHistories(userId, page, size);
+        PaginatedHistoryResponseDto response = todoService.getHistories(userId, page, size);
 
         return new BaseResponse<>(response);
+    }
+    @PatchMapping("/dragAndDrop")
+    public BaseResponse dragAndDrop(@UserId Long userId,
+                                    @Validated @RequestBody DragAndDropRequestDto dragAndDropRequestDto){
+        todoService.dragAndDrop(userId, dragAndDropRequestDto);
+        return new BaseResponse<>();
     }
 }

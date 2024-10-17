@@ -57,7 +57,7 @@ class TodoRepositoryTest {
         LocalDate todayDate = LocalDate.of(2024, 10, 16);
 
         //when
-        List<Todo> todos = todoRepository.findByUserIdAndTypeAndTodayDateAndTodayStatusOrderByTodayOrderAsc(
+        List<Todo> todos = todoRepository.findByUserIdAndTypeAndTodayDateAndTodayStatusOrderByTodayOrderDesc(
                 userId, Type.TODAY, todayDate, TodayStatus.INCOMPLETE);
 
         assertThat(todos).isNotEmpty();
@@ -73,7 +73,7 @@ class TodoRepositoryTest {
 
         // 미완료된 할 일은 todayOrder가 오름차순으로 정렬되어야 함
         for (int i = 0; i < todos.size() - 1; i++) {
-            assertThat(todos.get(i).getTodayOrder()).isLessThanOrEqualTo(todos.get(i + 1).getTodayOrder());
+            assertThat(todos.get(i).getTodayOrder()).isGreaterThan(todos.get(i + 1).getTodayOrder());
         }
     }
 
@@ -86,7 +86,7 @@ class TodoRepositoryTest {
         PageRequest pageRequest = PageRequest.of(0, 8);
 
         //when
-        Page<Todo> backlogs = todoRepository.findByUserIdAndTypeInOrderByBacklogOrderAsc(
+        Page<Todo> backlogs = todoRepository.findByUserIdAndTypeInOrderByBacklogOrderDesc(
                 userId, types, pageRequest);
 
         assertThat(backlogs.getContent()).isNotEmpty();
@@ -99,7 +99,7 @@ class TodoRepositoryTest {
 
         // backlogOrder가 오름차순으로 정렬되어야 함
         for (int i = 0; i < backlogs.getContent().size() - 1; i++) {
-            assertThat(backlogs.getContent().get(i).getBacklogOrder()).isLessThanOrEqualTo(backlogs.getContent().get(i + 1).getBacklogOrder());
+            assertThat(backlogs.getContent().get(i).getBacklogOrder()).isGreaterThan(backlogs.getContent().get(i + 1).getBacklogOrder());
         }
     }
 }

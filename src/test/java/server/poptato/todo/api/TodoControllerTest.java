@@ -1,9 +1,10 @@
 package server.poptato.todo.api;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -12,12 +13,21 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import server.poptato.auth.application.service.JwtService;
+import server.poptato.todo.api.request.DragAndDropRequestDto;
+import server.poptato.todo.api.request.SwipeRequestDto;
 import server.poptato.todo.application.TodoService;
 import server.poptato.todo.exception.TodoException;
 import server.poptato.user.application.service.UserService;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+
+import java.util.ArrayList;
+import java.util.Set;
+
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static server.poptato.todo.exception.errorcode.TodoExceptionErrorCode.TODO_NOT_EXIST;
@@ -35,6 +45,7 @@ public class TodoControllerTest {
     private JwtService jwtService;
     @MockBean
     private RedisTemplate<String, String> redisTemplate;
+    private Validator validator;
     private String accessToken;
     private final String userId = "1";
 
@@ -162,6 +173,7 @@ public class TodoControllerTest {
         // todoService의 toggleIsBookmark 메서드가 한 번 호출되었는지 확인
         verify(todoService, times(1)).toggleIsBookmark(todoId);
     }
+
     @DisplayName("히스토리 목록 조회 시 page와 size를 query string으로 받고 헤더에 accessToken을 담아 요청한다.")
     @Test
     void 히스토리_목록조회_성공응답() throws Exception {
@@ -170,6 +182,34 @@ public class TodoControllerTest {
                         .param("page", "0")
                         .param("size", "15")
                         .header("Authorization", "Bearer " + accessToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+
+    }
+
+    @DisplayName("스와이프 시 요청 바디에 todoId가 없으면 Validator가 잡는다.")
+    @Test
+    void 스와이프_요청바디_예외(){
+        //given
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        validator = factory.getValidator();
+
+        SwipeRequestDto request = SwipeRequestDto.builder()
+                        .todoId(null).build();
+
+        //when
+        Set<ConstraintViolation<SwipeRequestDto>> violations = validator.validate(request);
+        //then
+        Assertions.assertEquals(violations.size(), 1);
+    }
+
+    @DisplayName("스와이프 요청 시 성공한다.")
+    @Test
+    void 스와이프_성공_응답() throws Exception {
+        //when
+        mockMvc.perform(patch("/swipe")
+                        .content("{\"todoId\": 1}")
+                        .header("Authorization", "Bearer "+accessToken)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print());
@@ -196,6 +236,35 @@ public class TodoControllerTest {
         mockMvc.perform(get("/histories")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())  // JWT가 없으므로 400 Bad Request 응답
+                .andDo(print());
+    }
+    @DisplayName("드래그앤드롭 시 요청 바디에 type이나 list가 없으면 Validator가 잡는다.")
+    @Test
+    void 드래그앤드롭_요청바디_예외(){
+        //given
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        validator = factory.getValidator();
+
+        DragAndDropRequestDto request = DragAndDropRequestDto.builder()
+                .type(null)
+                .todoIds(new ArrayList<>())
+                .build();
+
+        //when
+        Set<ConstraintViolation<DragAndDropRequestDto>> violations = validator.validate(request);
+        //then
+        Assertions.assertEquals(violations.size(), 2);
+    }
+
+    @DisplayName("드래그앤드롭 요청 시 성공한다.")
+    @Test
+    void 드래그앤드롭_성공_응답() throws Exception {
+        //when
+        mockMvc.perform(patch("/dragAndDrop")
+                        .content("{\"type\": \"TODAY\", \"todoIds\": [1, 2, 3, 4]}")
+                        .header("Authorization", "Bearer "+accessToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
                 .andDo(print());
     }
 }

@@ -53,4 +53,28 @@ public class Todo{
     public void toggleBookmark() {
         this.isBookmark = !this.isBookmark;
     }
+
+    public void changeToToday(Integer maxTodayOrder) {
+        this.type = Type.TODAY;
+        this.backlogOrder = null;
+        this.todayOrder = maxTodayOrder + 1;
+        this.todayStatus = TodayStatus.INCOMPLETE;
+        this.todayDate = LocalDate.now();
+    }
+
+    public void changeToBacklog(Integer maxBacklogOrder) {
+        this.type = Type.BACKLOG;
+        this.backlogOrder = maxBacklogOrder + 1;
+        this.todayOrder = null;
+        this.todayStatus = null;
+        this.todayDate = null;
+    }
+
+    public void setTodayOrder(int order) {
+        this.todayOrder = order;
+    }
+
+    public void setBacklogOrder(int order) {
+        this.backlogOrder = order;
+    }
 }
