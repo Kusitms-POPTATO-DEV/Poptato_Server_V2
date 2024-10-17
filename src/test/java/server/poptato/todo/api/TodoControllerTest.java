@@ -24,6 +24,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Set;
 
@@ -80,8 +81,9 @@ public class TodoControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print());
+        LocalDate todayDate = LocalDate.now();
 
-        verify(todoService).getTodayList(1,0, 8);
+        verify(todoService).getTodayList(1,0, 8,todayDate);
     }
 
     @DisplayName("투데이 목록 조회 시 헤더에 JWT가 없으면 예외가 발생한다.")
