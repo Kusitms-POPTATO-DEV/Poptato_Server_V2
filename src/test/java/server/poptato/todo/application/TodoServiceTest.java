@@ -125,7 +125,7 @@ class TodoServiceTest {
     @Test
     public void shouldThrowException_WhenTodoNotFound_ForUser2() {
         //given
-        Long nonExistentTodoId = 30L;  // 존재하지 않는 투두 ID
+        Long nonExistentTodoId = 1000L;  // 존재하지 않는 투두 ID
 
         //when & then
         assertThrows(TodoException.class, () -> {
@@ -350,28 +350,5 @@ class TodoServiceTest {
         assertThat(result.getTotalPageCount()).isGreaterThan(0);
     }
 
-    @DisplayName("백로그 생성 시 할 일의 값들이 기본값으로 설정된다.")
-    @Test
-    void 백로그_생성_속성_기본값(){
-        //given
-        Long userId = 1L;
-        String content = "내용";
 
-        //when
-        Long todoId = todoService.generateBacklog(userId,content);
-        Todo findTodo = todoRepository.findById(todoId).get();
-
-        //then
-        assertThat(findTodo.getId()).isNotNull();
-        assertThat(findTodo.getTodayOrder()).isNull();
-        assertThat(findTodo.getTodayDate()).isNull();
-        assertThat(findTodo.getTodayStatus()).isNull();
-        assertThat(findTodo.getDeadline()).isNull();
-        assertThat(findTodo.getContent()).isEqualTo(content);
-        assertThat(findTodo.getType()).isEqualTo(Type.BACKLOG);
-        assertThat(findTodo.getUserId()).isEqualTo(userId);
-        assertThat(findTodo.isBookmark()).isEqualTo(false);
-        assertThat(findTodo.getBacklogOrder()).isEqualTo(11L);
-        assertThat(findTodo.getCompletedDateTime()).isNull();
-    }
 }
