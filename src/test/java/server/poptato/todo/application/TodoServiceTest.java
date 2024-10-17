@@ -356,7 +356,6 @@ class TodoServiceTest {
         int page = 0;
         int size = 5; // 한번에 5개의 todo 가져오기
 
-
         // when
         PaginatedYesterdayResponseDto result = todoService.getYesterdays(userId, page, size);
 
@@ -379,5 +378,21 @@ class TodoServiceTest {
         assertThat(todoInfo.getContent()).isEqualTo("할 일 10");
         assertThat(todoInfo.getDeadline()).isEqualTo(LocalDate.of(2024,10,26));
         assertThat(todoInfo.getIsBookmark()).isTrue();
+    }
+
+    @DisplayName("마감기한 수정 시 성공한다.")
+    @Test
+    void 마감기한_수정_성공(){
+        //given
+        Long userId = 1L;
+        Long todoId = 11L;
+        LocalDate updateDate = LocalDate.of(2024,12,25);
+
+        //when
+        todoService.updateDeadline(userId,todoId,updateDate);
+        Todo findTodo = todoRepository.findById(todoId).get();
+
+        //then
+        assertThat(findTodo.getDeadline()).isEqualTo(updateDate);
     }
 }

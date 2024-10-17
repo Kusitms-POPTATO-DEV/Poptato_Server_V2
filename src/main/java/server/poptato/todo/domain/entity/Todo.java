@@ -88,4 +88,8 @@ public class Todo{
     public void setBacklogOrder(int order) {
         this.backlogOrder = order;
     }
+
+    public void updateDeadline(LocalDate deadline) {
+        this.deadline = deadline;
+    }
 }

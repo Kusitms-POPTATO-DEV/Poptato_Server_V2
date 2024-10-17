@@ -333,4 +333,19 @@ public class TodoControllerTest {
                 .andDo(print());
 
     }
+
+    @DisplayName("마감기한 수정 요청 시 성공한다.")
+    @Test
+    void 마감기한_수정_요청_성공_응답() throws Exception {
+        //given
+        Long todoId = 1L;
+
+        //when
+        mockMvc.perform(patch("/todo/{todoId}/deadline", todoId)
+                        .header("Authorization", "Bearer " + accessToken)
+                        .content("{\"deadline\": \"2024-12-25\"}")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print());
+    }
 }
