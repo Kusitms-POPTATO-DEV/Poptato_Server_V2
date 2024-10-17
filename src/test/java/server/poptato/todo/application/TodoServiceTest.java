@@ -395,4 +395,20 @@ class TodoServiceTest {
         //then
         assertThat(findTodo.getDeadline()).isEqualTo(updateDate);
     }
+
+    @DisplayName("할일 내용 수정 시 성공한다.")
+    @Test
+    void 할일_내용_수정_성공(){
+        //given
+        Long userId = 1L;
+        Long todoId = 11L;
+        String updateContent = "할일 내용 수정";
+
+        //when
+        todoService.updateContent(userId,todoId,updateContent);
+        Todo findTodo = todoRepository.findById(todoId).get();
+
+        //then
+        assertThat(findTodo.getContent()).isEqualTo(updateContent);
+    }
 }
