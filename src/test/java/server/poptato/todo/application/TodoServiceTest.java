@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import server.poptato.todo.api.request.DragAndDropRequestDto;
+import server.poptato.todo.application.response.PaginatedHistoryResponseDto;
 import server.poptato.todo.application.response.TodayListResponseDto;
 import server.poptato.todo.application.response.TodayResponseDto;
 import server.poptato.todo.domain.repository.TodoRepository;
@@ -326,5 +327,26 @@ class TodoServiceTest {
         assertThat(TodoId5.getTodayOrder()).isEqualTo(4L);
         assertThat(TodoId2.getTodayOrder()).isEqualTo(3L);
         assertThat(TodoId4.getTodayOrder()).isEqualTo(2L);
+    }
+    @Test
+    @DisplayName("Histories 페이징 테스트")
+    void getHistories_ShouldReturnPagedResult() {
+        // given
+        Long userId = 1L;
+        int page = 0;
+        int size = 5;
+
+        // when
+        PaginatedHistoryResponseDto result = todoService.getHistories(userId, page, size);
+
+        // then
+        // result의 histories 리스트의 실제 크기
+        int actualSize = result.getHistories().size();
+
+        // 페이지당 반환되는 항목의 수가 size 이하인지 확인 (마지막 페이지일 경우 적을 수 있음)
+        assertThat(actualSize).isLessThanOrEqualTo(size);
+
+        // 전체 페이지 수가 적절하게 계산되었는지 확인
+        assertThat(result.getTotalPageCount()).isGreaterThan(0);
     }
 }

@@ -2,6 +2,7 @@ package server.poptato.todo.domain.repository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Query;
 import server.poptato.todo.domain.entity.Todo;
 import server.poptato.todo.domain.value.TodayStatus;
 import server.poptato.todo.domain.value.Type;
@@ -18,6 +19,9 @@ public interface TodoRepository {
             Long userId, Type type, LocalDate todayDate, TodayStatus todayStatus);
     Optional<Todo> findById(Long todoId);
     void delete(Todo todo);
+    // 백로그 목록 조회
+    Page<Todo> findByUserIdAndTypeInOrderByBacklogOrderAsc(Long userId, List<Type> types, Pageable pageable);
+    Page<Todo> findByUserIdAndCompletedDateTimeIsNotNull(Long userId, Pageable pageable);
     Todo save(Todo todo);
     Page<Todo> findByUserIdAndTypeInOrderByBacklogOrderDesc(Long userId, List<Type> types, Pageable pageable);
     Integer findMaxBacklogOrderByUserIdOrZero(Long userId);
