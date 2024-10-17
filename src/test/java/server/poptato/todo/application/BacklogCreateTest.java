@@ -38,7 +38,7 @@ public class BacklogCreateTest {
         assertThat(findTodo.getType()).isEqualTo(Type.BACKLOG);
         assertThat(findTodo.getUserId()).isEqualTo(userId);
         assertThat(findTodo.isBookmark()).isEqualTo(false);
-        assertThat(findTodo.getBacklogOrder()).isEqualTo(11L);
+        assertThat(findTodo.getBacklogOrder()).isEqualTo(21L);
         assertThat(findTodo.getCompletedDateTime()).isNull();
     }
 }
