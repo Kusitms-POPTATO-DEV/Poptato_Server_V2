@@ -16,6 +16,7 @@ import server.poptato.todo.exception.errorcode.TodoExceptionErrorCode;
 import server.poptato.user.exception.UserException;
 import server.poptato.user.exception.errorcode.UserExceptionErrorCode;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,8 +39,9 @@ class TodoServiceTest {
         Long notExistUserId = 100L;
         int page = 0;
         int size = 8;
+        LocalDate todayDate = LocalDate.now();
         //when & then
-        assertThatThrownBy(()-> todoService.getTodayList(notExistUserId,page,size))
+        assertThatThrownBy(()-> todoService.getTodayList(notExistUserId,page,size,todayDate))
                 .isInstanceOf(UserException.class)
                 .hasMessage(UserExceptionErrorCode.USER_NOT_EXIST.getMessage());
     }
@@ -50,8 +52,9 @@ class TodoServiceTest {
         Long userId = 1L;
         int page = 0;
         int size = 8;
+        LocalDate todayDate = LocalDate.of(2024,10,16);
         //when & then
-        assertThat(todoService.getTodayList(userId,page,size).getTodays().size()).isEqualTo(size);
+        assertThat(todoService.getTodayList(userId,page,size,todayDate).getTodays().size()).isEqualTo(size);
     }
 
     @DisplayName("유효하지 않는 페이지 수일 경우 예외가 발생한다.")
@@ -61,8 +64,9 @@ class TodoServiceTest {
         Long userId = 1L;
         int page = 2;
         int size = 8;
+        LocalDate todayDate = LocalDate.now();
         //when & then
-        assertThatThrownBy(()-> todoService.getTodayList(userId,page,size))
+        assertThatThrownBy(()-> todoService.getTodayList(userId,page,size,todayDate))
                 .isInstanceOf(TodoException.class)
                 .hasMessage(TodoExceptionErrorCode.INVALID_PAGE.getMessage());
     }
@@ -74,9 +78,10 @@ class TodoServiceTest {
         Long userId = 1L;
         int page = 0;
         int size = 8;
+        LocalDate todayDate = LocalDate.now();
 
         //when
-        TodayListResponseDto todayList = todoService.getTodayList(userId, page, size);
+        TodayListResponseDto todayList = todoService.getTodayList(userId, page, size, todayDate);
 
         //then
         boolean foundCompleted = false;
@@ -253,5 +258,73 @@ class TodoServiceTest {
         assertThrows(TodoException.class, () -> {
             todoService.toggleIsBookmark(nonExistentTodoId);  // 예외가 발생해야 함
         });
+    }
+    @DisplayName("드래그앤드롭 시 사용자의 할일이 아니면 예외가 발생한다.")
+    @Test
+    void 드래그앤드롭_사용자의_할일이_아닌_예외(){
+        //given
+        Long userId = 50L;
+        DragAndDropRequestDto request = DragAndDropRequestDto.builder()
+                .type(Type.TODAY)
+                .todoIds(List.of(1L))
+                .build();
+
+        //when & then
+        assertThatThrownBy(()-> todoService.dragAndDrop(userId,request))
+                .isInstanceOf(TodoException.class)
+                .hasMessage(TodoExceptionErrorCode.TODO_USER_NOT_MATCH.getMessage());
+    }
+
+    @DisplayName("드래그앤드롭 시 할 일이 Type과 맞지 않으면 예외가 발생한다.")
+    @Test
+    void 드래그앤드롭_타입이_맞지_않는_예외(){
+        //given
+        Long userId = 1L;
+        DragAndDropRequestDto request = DragAndDropRequestDto.builder()
+                .type(Type.BACKLOG)
+                .todoIds(List.of(1L))
+                .build();
+        //when & then
+        assertThatThrownBy(()-> todoService.dragAndDrop(userId,request))
+                .isInstanceOf(TodoException.class)
+                .hasMessage(TodoExceptionErrorCode.TODO_TYPE_NOT_MATCH.getMessage());
+    }
+
+    @DisplayName("드래그앤드롭 시 이미 달성한 TODAY 포함 시 예외가 발생한다.")
+    @Test
+    void 드래그앤드롭_이미_달성한_투데이_예외(){
+        //given
+        Long userId = 1L;
+        DragAndDropRequestDto request = DragAndDropRequestDto.builder()
+                .type(Type.TODAY)
+                .todoIds(List.of(3L))
+                .build();
+        //when & then
+        assertThatThrownBy(()-> todoService.dragAndDrop(userId,request))
+                .isInstanceOf(TodoException.class)
+                .hasMessage(TodoExceptionErrorCode.ALREADY_COMPLETED_TODO.getMessage());
+    }
+
+    @DisplayName("드래그앤드롭 시 할 일들의 Order를 재정렬한다.")
+    @Test
+    void 드래그앤드롭_순서_재정렬(){
+        //given
+        Long userId = 1L;
+        DragAndDropRequestDto request = DragAndDropRequestDto.builder()
+                .type(Type.TODAY)
+                .todoIds(List.of(1L,5L,2L,4L))
+                .build();
+        //when
+        todoService.dragAndDrop(userId,request);
+        //then
+        Todo TodoId1 = todoRepository.findById(1L).get();
+        Todo TodoId5 = todoRepository.findById(5L).get();
+        Todo TodoId2 = todoRepository.findById(2L).get();
+        Todo TodoId4 = todoRepository.findById(4L).get();
+
+        assertThat(TodoId1.getTodayOrder()).isEqualTo(5L);
+        assertThat(TodoId5.getTodayOrder()).isEqualTo(4L);
+        assertThat(TodoId2.getTodayOrder()).isEqualTo(3L);
+        assertThat(TodoId4.getTodayOrder()).isEqualTo(2L);
     }
 }
