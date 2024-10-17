@@ -8,6 +8,7 @@ import server.poptato.todo.api.request.DragAndDropRequestDto;
 import server.poptato.todo.application.response.PaginatedHistoryResponseDto;
 import server.poptato.todo.application.response.TodayListResponseDto;
 import server.poptato.todo.application.response.TodayResponseDto;
+import server.poptato.todo.application.response.TodoDetailResponseDto;
 import server.poptato.todo.domain.repository.TodoRepository;
 import server.poptato.todo.domain.entity.Todo;
 import server.poptato.todo.domain.value.TodayStatus;
@@ -350,5 +351,17 @@ class TodoServiceTest {
         assertThat(result.getTotalPageCount()).isGreaterThan(0);
     }
 
-
+    @DisplayName("할 일 상세조회 시 성공한다.")
+    @Test
+    void 할일_상세조회_성공(){
+        //given
+        Long userId = 1L;
+        Long todoId = 10L;
+        //when
+        TodoDetailResponseDto todoInfo = todoService.getTodoInfo(userId, todoId);
+        //then
+        assertThat(todoInfo.getContent()).isEqualTo("할 일 10");
+        assertThat(todoInfo.getDeadline()).isEqualTo(LocalDate.of(2024,10,26));
+        assertThat(todoInfo.getIsBookmark()).isTrue();
+    }
 }

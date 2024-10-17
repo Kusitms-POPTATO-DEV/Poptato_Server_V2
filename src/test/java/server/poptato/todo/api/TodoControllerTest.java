@@ -299,4 +299,18 @@ public class TodoControllerTest {
                 .andExpect(status().isOk())
                 .andDo(print());
     }
+
+    @DisplayName("할 일 정보 요청 시 성공한다.")
+    @Test
+    void 할일_정보_요청_성공_응답() throws Exception {
+        //given
+        Long todoId = 1L;
+
+        //when
+        mockMvc.perform(get("/todo/{todoId}", todoId)
+                        .header("Authorization", "Bearer " + accessToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print());
+    }
 }
