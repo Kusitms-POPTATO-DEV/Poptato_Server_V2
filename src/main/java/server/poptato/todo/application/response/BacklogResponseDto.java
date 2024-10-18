@@ -19,12 +19,9 @@ public class BacklogResponseDto {
         this.content = todo.getContent();
         this.isBookmark = todo.isBookmark();
         this.deadline = todo.getDeadline();
-
-        if (todo.getDeadline() != null && todo.getTodayDate() != null) {
-            this.dDay = (int) ChronoUnit.DAYS.between(todo.getTodayDate(), todo.getDeadline());
-        } else {
-            // 마감 기한을 계산할 수 없는 경우 NULL
-            this.deadline = null;
-        }
+        LocalDate todayDate = LocalDate.now();
+        if (this.deadline==null)
+            this.dDay = null;
+        else this.dDay = (int) ChronoUnit.DAYS.between(todayDate, todo.getDeadline());
     }
 }
