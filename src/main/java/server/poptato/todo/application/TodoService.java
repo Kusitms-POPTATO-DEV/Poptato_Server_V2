@@ -100,15 +100,16 @@ public class TodoService {
     public PaginatedHistoryResponseDto getHistories(Long userId, int page, int size) {
         checkIsExistUser(userId);
         Pageable pageable = PageRequest.of(page, size);
-        //유저 아이디와 completedDate가 null 이 아닌것들을 가져옴
+
+        // 유저 아이디와 completedDate가 null이 아닌 것들을 가져옴
         Page<Todo> todosPage = todoRepository.findByUserIdAndCompletedDateTimeIsNotNull(userId, pageable);
 
         List<HistoryResponseDto> histories = todosPage.getContent().stream()
-                .sorted(Comparator.comparing(todo -> todo.getCompletedDateTime().toLocalDate()))  // 날짜 오름차순 정렬
+                .sorted(Comparator.comparing((Todo todo) -> todo.getCompletedDateTime().toLocalDate()).reversed())  // 날짜 내림차순 정렬
                 .map(todo -> new HistoryResponseDto(
                         todo.getId(),
                         todo.getContent(),
-                        todo.getCompletedDateTime().toLocalDate()  // 날짜를 localdate로 변환
+                        todo.getCompletedDateTime().toLocalDate()  // 날짜를 LocalDate로 변환
                 ))
                 .collect(Collectors.toList());
 
