@@ -5,6 +5,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import server.poptato.global.response.BaseResponse;
 import server.poptato.user.api.request.UserChangeNameRequestDto;
+import server.poptato.user.application.response.UserResponseDto;
 import server.poptato.user.application.service.UserService;
 import server.poptato.user.resolver.UserId;
 
@@ -26,5 +27,10 @@ public class UserController {
     public BaseResponse updateUserName(@UserId Long userId, @Validated @RequestBody UserChangeNameRequestDto request) {
         userService.updateUserName(userId, request.getNewName());
         return new BaseResponse();
+    }
+    @GetMapping("/mypage")
+    public BaseResponse getUserNameAndEmail(@UserId Long userId) {
+        UserResponseDto response = userService.getUserNameAndEmailById(userId);
+        return new BaseResponse(response);
     }
 }

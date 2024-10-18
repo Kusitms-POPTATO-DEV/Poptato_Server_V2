@@ -21,6 +21,7 @@ import server.poptato.user.application.service.UserService;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -52,6 +53,26 @@ class UserControllerTest {
     @AfterEach
     void 액세스토큰_비활성화() {
         jwtService.deleteRefreshToken(userId);
+    }
+
+    @Test
+    @DisplayName("프로필 조회 성공 테스트")
+    void getUserNameAndEmail() throws Exception {
+        mockMvc.perform(get("/user/mypage")
+                        .header("Authorization", "Bearer "+accessToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print());
+    }
+    @Test
+    @DisplayName("프로필 조회 실패 테스트 - invalid token")
+    void getUserNameAndEmailFailedInvalidToken() throws Exception {
+        String invalidToken = "invalidToken";
+        mockMvc.perform(get("/user/mypage")
+                        .header("Authorization", "Bearer "+invalidToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andDo(print());
     }
     @Test
     @DisplayName("사용자 이름 변경 성공 테스트")
