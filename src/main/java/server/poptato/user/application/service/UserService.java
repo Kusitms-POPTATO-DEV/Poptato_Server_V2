@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import server.poptato.auth.application.service.JwtService;
 import server.poptato.todo.domain.repository.TodoRepository;
+import server.poptato.user.application.response.UserResponseDto;
 import server.poptato.user.domain.entity.User;
 import server.poptato.user.domain.repository.UserRepository;
 import server.poptato.user.exception.UserException;
@@ -35,18 +36,18 @@ public class UserService {
         entityManager.flush();
     }
     @Transactional
-    @CacheEvict(value = "users", key = "#kakaoId")
-    public Optional<User> findUserByKakaoId(String kakaoId) {
-        entityManager.clear();  // 영속성 컨텍스트 초기화
-        return userRepository.findByKakaoId(kakaoId);
-    }
-    @Transactional
     public void updateUserName(Long userId, String newName) {
-        // 사용자 조회
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(UserExceptionErrorCode.USER_NOT_EXIST));
 
         // name 업데이트
         user.changeName(newName);
+    }
+    @Transactional(readOnly = true)
+    public UserResponseDto getUserNameAndEmailById(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(UserExceptionErrorCode.USER_NOT_EXIST));
+
+        return new UserResponseDto(user.getName(), user.getEmail());
     }
 }
