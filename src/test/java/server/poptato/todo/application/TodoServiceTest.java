@@ -327,8 +327,8 @@ class TodoServiceTest {
         assertThat(TodoId4.getTodayOrder()).isEqualTo(2L);
     }
     @Test
-    @DisplayName("Histories 페이징 테스트")
-    void getHistories_ShouldReturnPagedResult() {
+    @DisplayName("Histories 페이징 및 정렬 테스트")
+    void getHistories_ShouldReturnPagedAndSortedResult() {
         // given
         Long userId = 1L;
         int page = 0;
@@ -346,7 +346,18 @@ class TodoServiceTest {
 
         // 전체 페이지 수가 적절하게 계산되었는지 확인
         assertThat(result.getTotalPageCount()).isGreaterThan(0);
+
+        // 내림차순 정렬이 올바르게 되었는지 확인
+        List<HistoryResponseDto> histories = result.getHistories();
+        for (int i = 0; i < histories.size() - 1; i++) {
+            LocalDate current = histories.get(i).getDate();
+            LocalDate next = histories.get(i + 1).getDate();
+
+            // 현재 항목의 날짜가 다음 항목의 날짜보다 같거나 이후인지(내림차순인지) 확인
+            assertThat(current).isAfterOrEqualTo(next);
+        }
     }
+
 
     @Test
     @DisplayName("YESTERDAY 타입과 INCOMPLETE 상태인 todo 목록을 페이징 처리하여 가져온다")
