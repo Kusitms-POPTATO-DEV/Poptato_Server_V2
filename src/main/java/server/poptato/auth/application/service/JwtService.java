@@ -1,7 +1,6 @@
 package server.poptato.auth.application.service;
 
 
-
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Header;
@@ -12,8 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import server.poptato.auth.exception.AuthException;
 import server.poptato.global.dto.TokenPair;
-import server.poptato.global.exception.BaseException;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
@@ -21,7 +20,7 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-import static server.poptato.global.exception.errorcode.BaseExceptionErrorCode.TOKEN_TIME_EXPIRED_EXCEPTION;
+import static server.poptato.auth.exception.errorcode.AuthExceptionErrorCode.TOKEN_TIME_EXPIRED;
 
 
 @Service
@@ -34,7 +33,7 @@ public class JwtService {
     private static final String REFRESH_TOKEN = "REFRESH_TOKEN";
     public static final int MINUTE_IN_MILLISECONDS = 60 * 1000;
     public static final long DAYS_IN_MILLISECONDS = 24 * 60 * 60 * 1000L;
-    public static final int ACCESS_TOKEN_EXPIRATION_MINUTE = 10;
+    public static final int ACCESS_TOKEN_EXPIRATION_MINUTE = 20;
     public static final int REFRESH_TOKEN_EXPIRATION_DAYS = 14;
     private final RedisTemplate<String, String> redisTemplate;
 
@@ -64,7 +63,7 @@ public class JwtService {
             return true;
         } catch (RuntimeException e) {
             if (e instanceof ExpiredJwtException) {
-                throw new BaseException(TOKEN_TIME_EXPIRED_EXCEPTION);
+                throw new AuthException(TOKEN_TIME_EXPIRED);
             }
             return false;
         }
