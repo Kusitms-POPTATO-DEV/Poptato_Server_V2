@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import server.poptato.auth.api.request.TokenRequestDto;
 import server.poptato.auth.application.response.LoginResponseDto;
+import server.poptato.auth.exception.AuthException;
 import server.poptato.external.kakao.dto.response.KakaoUserInfo;
 import server.poptato.external.kakao.service.KakaoSocialService;
 import server.poptato.global.dto.TokenPair;
@@ -13,7 +14,7 @@ import server.poptato.user.domain.repository.UserRepository;
 
 import java.util.Optional;
 
-import static server.poptato.global.exception.errorcode.BaseExceptionErrorCode.TOKEN_TIME_EXPIRED_EXCEPTION;
+import static server.poptato.auth.exception.errorcode.AuthExceptionErrorCode.TOKEN_TIME_EXPIRED;
 import static server.poptato.global.exception.errorcode.BaseExceptionErrorCode.USER_NOT_FOUND_EXCEPTION;
 
 @Service
@@ -43,13 +44,13 @@ public class AuthService {
 
     public TokenPair refresh(final TokenRequestDto tokenRequestDto) {
         if (!jwtService.verifyToken(tokenRequestDto.refreshToken()))
-            throw new BaseException(TOKEN_TIME_EXPIRED_EXCEPTION);
+            throw new AuthException(TOKEN_TIME_EXPIRED);
 
         final String userId = jwtService.getUserIdInToken(tokenRequestDto.refreshToken());
         final User user = userRepository.findById(Long.parseLong(userId)).orElseThrow(() -> new BaseException(USER_NOT_FOUND_EXCEPTION));
 
         if (!jwtService.compareRefreshToken(userId, tokenRequestDto.refreshToken()))
-            throw new BaseException(TOKEN_TIME_EXPIRED_EXCEPTION);
+            throw new AuthException(TOKEN_TIME_EXPIRED);
 
         final TokenPair tokenPair = jwtService.generateTokenPair(userId);
         jwtService.saveRefreshToken(userId, tokenPair.refreshToken());

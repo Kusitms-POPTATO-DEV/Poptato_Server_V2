@@ -11,12 +11,8 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 import server.poptato.auth.application.service.JwtService;
 import server.poptato.auth.exception.AuthException;
-import server.poptato.global.exception.BaseException;
-import server.poptato.global.response.BaseErrorResponse;
-import server.poptato.user.resolver.UserId;
 
 import static server.poptato.auth.exception.errorcode.AuthExceptionErrorCode.*;
-import static server.poptato.global.exception.errorcode.BaseExceptionErrorCode.*;
 
 
 @Component

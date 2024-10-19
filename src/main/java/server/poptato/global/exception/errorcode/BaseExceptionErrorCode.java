@@ -24,12 +24,7 @@ public enum BaseExceptionErrorCode implements ResponseStatus {
     INAPPROPRIATE_DATA(2003, HttpStatus.BAD_REQUEST.value(), "입력한 정보가 올바르지 않습니다."),
     NO_COOKIE(2004,HttpStatus.BAD_REQUEST.value(),"쿠키가 존재하지 않습니다."),
     NO_REQUEST_PARAMETER(2005,HttpStatus.BAD_REQUEST.value(),"요청 파라미터는 필수로 입력해야합니다."),
-    TOKEN_NOT_CONTAINED_EXCEPTION(2006,HttpStatus.BAD_REQUEST.value(),"토큰은 필수로 입력해야합니다."),
-    TOKEN_TIME_EXPIRED_EXCEPTION(2007,HttpStatus.BAD_REQUEST.value(),"토큰 시간이 만료되었습니다."),
-    INVALID_TOKEN_EXCEPTION(2008,HttpStatus.BAD_REQUEST.value(),"토큰이 유효하지 않습니다."),
-    EMPTY_KAKAO_CODE_EXCEPTION(2009,HttpStatus.BAD_REQUEST.value(),"카카오 코드를 입력해야 합니다"),
-    ORIGIN_HEADER_MISSING_EXCEPTION(2010,HttpStatus.BAD_REQUEST.value(),"origin 헤더가  필요합니다"),
-    USER_NOT_FOUND_EXCEPTION(2011,HttpStatus.NOT_FOUND.value(),"유저가 존재하지 않습니다"),
+    USER_NOT_FOUND_EXCEPTION(2006,HttpStatus.NOT_FOUND.value(),"유저가 존재하지 않습니다"),
 
 
     /**
