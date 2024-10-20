@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import server.poptato.todo.api.request.BacklogCreateRequestDto;
 import server.poptato.todo.api.request.DragAndDropRequestDto;
@@ -99,13 +100,12 @@ public class TodoService {
 
     public PaginatedHistoryResponseDto getHistories(Long userId, int page, int size) {
         checkIsExistUser(userId);
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "completedDateTime"));
 
         // 유저 아이디와 completedDate가 null이 아닌 것들을 가져옴
         Page<Todo> todosPage = todoRepository.findByUserIdAndCompletedDateTimeIsNotNull(userId, pageable);
 
         List<HistoryResponseDto> histories = todosPage.getContent().stream()
-                .sorted(Comparator.comparing((Todo todo) -> todo.getCompletedDateTime().toLocalDate()).reversed())  // 날짜 내림차순 정렬
                 .map(todo -> new HistoryResponseDto(
                         todo.getId(),
                         todo.getContent(),
