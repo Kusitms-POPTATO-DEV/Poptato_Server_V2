@@ -56,21 +56,21 @@ class TodoServiceTest {
         assertThat(todoService.getTodayList(userId,page,size,todayDate).getTodays().size()).isEqualTo(size);
     }
 
-    @DisplayName("유효하지 않는 페이지 수일 경우 예외가 발생한다.")
+    @DisplayName("유효하지 않는 페이지 수일 경우 빈 리스트를 반환한다.")
     @Test
-    void 유효하지_않은_페이지_수_예외(){
+    void 유효하지_않은_페이지_수_응답(){
         //given
         Long userId = 1L;
         int page = 2;
         int size = 8;
         LocalDate todayDate = LocalDate.of(2024,10,16);
-        //when & then
-        assertThatThrownBy(()-> todoService.getTodayList(userId,page,size,todayDate))
-                .isInstanceOf(TodoException.class)
-                .hasMessage(TodoExceptionErrorCode.INVALID_PAGE.getMessage());
+        //when
+        TodayListResponseDto todayList = todoService.getTodayList(userId, page, size, todayDate);
+        //then
+        assertThat(todayList.getTodays()).isEmpty();
     }
 
-    @DisplayName("투데이_데이터가 없는 경우 null을 반환한다.")
+    @DisplayName("투데이_데이터가 없는 경우 빈 리스트를 반환한다.")
     @Test
     void 투데이_데이터_수_0개_응답(){
         //given
@@ -85,7 +85,7 @@ class TodoServiceTest {
         assertThat(todayList.getTotalPageCount()).isEqualTo(0);
     }
 
-    @DisplayName("백로그_데이터가 없는 경우 null을 반환한다.")
+    @DisplayName("백로그_데이터가 없는 경우 빈 리스트를 반환한다.")
     @Test
     void 백로그_데이터_수_0개_응답(){
         //given
