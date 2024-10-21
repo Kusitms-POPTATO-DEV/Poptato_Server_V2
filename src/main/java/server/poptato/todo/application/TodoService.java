@@ -53,14 +53,22 @@ public class TodoService {
                     userId, Type.TODAY, todayDate, TodayStatus.COMPLETED);
         todays.addAll(completedTodos);
 
-        // 전체 리스트에서 페이징
-        int start = (page) * size;
-        int end = Math.min(start + size, todays.size());
-        if (start >= end) throw new TodoException(TodoExceptionErrorCode.INVALID_PAGE);
+        List<Todo> todaySubList;
+        int totalPageCount;
 
-        List<Todo> todaySubList = todays.subList(start, end);
-        int totalPageCount = (int) Math.ceil((double) todays.size() / size);
+        if(todays.size()==0) {
+            totalPageCount = 0;
+            todaySubList = new ArrayList<>();
+        }
+        else{
+            // 전체 리스트에서 페이징
+            int start = (page) * size;
+            int end = Math.min(start + size, todays.size());
+            if (start >= end) throw new TodoException(TodoExceptionErrorCode.INVALID_PAGE);
 
+            todaySubList = todays.subList(start, end);
+            totalPageCount = (int) Math.ceil((double) todays.size() / size);
+        }
         return TodayListResponseDto.builder()
                 .date(todayDate)
                 .todays(todaySubList)

@@ -63,11 +63,40 @@ class TodoServiceTest {
         Long userId = 1L;
         int page = 2;
         int size = 8;
-        LocalDate todayDate = LocalDate.now();
+        LocalDate todayDate = LocalDate.of(2024,10,16);
         //when & then
         assertThatThrownBy(()-> todoService.getTodayList(userId,page,size,todayDate))
                 .isInstanceOf(TodoException.class)
                 .hasMessage(TodoExceptionErrorCode.INVALID_PAGE.getMessage());
+    }
+
+    @DisplayName("투데이_데이터가 없는 경우 null을 반환한다.")
+    @Test
+    void 투데이_데이터_수_0개_응답(){
+        //given
+        Long userId = 50L;
+        int page = 0;
+        int size = 8;
+        LocalDate todayDate = LocalDate.now();
+        //when 
+        TodayListResponseDto todayList = todoService.getTodayList(userId, page, size, todayDate);
+        //then
+        assertThat(todayList.getTodays()).isEmpty();
+        assertThat(todayList.getTotalPageCount()).isEqualTo(0);
+    }
+
+    @DisplayName("백로그_데이터가 없는 경우 null을 반환한다.")
+    @Test
+    void 백로그_데이터_수_0개_응답(){
+        //given
+        Long userId = 50L;
+        int page = 0;
+        int size = 8;
+        //when
+        BacklogListResponseDto backlogList = todoService.getBacklogList(userId, page, size);
+        //then
+        assertThat(backlogList.getBacklogs()).isEmpty();
+        assertThat(backlogList.getTotalPageCount()).isEqualTo(0);
     }
 
     @DisplayName("투데이 목록 조회 시, 미달성 투데이가 먼저 조회되고, 그 다음 달성 투데이가 조회된다.")
