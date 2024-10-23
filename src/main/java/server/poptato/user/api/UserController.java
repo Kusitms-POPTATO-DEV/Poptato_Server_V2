@@ -23,11 +23,6 @@ public class UserController {
         userService.deleteUser(userId);
         return new BaseResponse();
     }
-    @PatchMapping("/mypage")
-    public BaseResponse updateUserName(@UserId Long userId, @Validated @RequestBody UserChangeNameRequestDto request) {
-        userService.updateUserName(userId, request.getNewName());
-        return new BaseResponse();
-    }
     @GetMapping("/mypage")
     public BaseResponse getUserNameAndEmail(@UserId Long userId) {
         UserResponseDto response = userService.getUserNameAndEmailById(userId);

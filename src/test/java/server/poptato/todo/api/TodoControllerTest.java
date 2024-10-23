@@ -93,7 +93,7 @@ public class TodoControllerTest {
         //when
         mockMvc.perform(get("/todays")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isUnauthorized())
                 .andDo(print());
     }
     @Test
@@ -157,7 +157,7 @@ public class TodoControllerTest {
         //when
         mockMvc.perform(get("/backlogs")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isUnauthorized())
                 .andDo(print());
     }
 
@@ -238,7 +238,7 @@ public class TodoControllerTest {
         // when
         mockMvc.perform(get("/histories")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())  // JWT가 없으므로 400 Bad Request 응답
+                .andExpect(status().isUnauthorized())  // JWT가 없으므로 401 응답
                 .andDo(print());
     }
     @DisplayName("드래그앤드롭 시 요청 바디에 type이나 list가 없으면 Validator가 잡는다.")
@@ -329,7 +329,7 @@ public class TodoControllerTest {
         // when
         mockMvc.perform(get("/yesterdays")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())  // JWT가 없으므로 400 Bad Request 응답
+                .andExpect(status().isUnauthorized())  // JWT가 없으므로 401 응답
                 .andDo(print());
 
     }
