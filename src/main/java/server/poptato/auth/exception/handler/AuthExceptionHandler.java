@@ -13,10 +13,10 @@ import server.poptato.global.response.BaseErrorResponse;
 @Order(0)
 @RestControllerAdvice
 public class AuthExceptionHandler {
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(AuthException.class)
     public BaseErrorResponse handleAuthException(AuthException e) {
-        log.error("[UserException: handle_UserException 호출]", e);
+        log.error("[AuthException: handle_UserException 호출]", e);
         return new BaseErrorResponse(e.getExceptionStatus(), e.getMessage());
     }
 }
