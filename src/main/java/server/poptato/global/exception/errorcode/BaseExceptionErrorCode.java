@@ -11,9 +11,6 @@ public enum BaseExceptionErrorCode implements ResponseStatus {
      * 1000: 요청 성공 (OK)
      */
     SUCCESS(1000, HttpStatus.OK.value(), "요청에 성공하였습니다."),
-    SUCCESS_LOGIN(1001, HttpStatus.OK.value(), "로그인에 성공하였습니다."),
-    SUCCESS_REGISTER(1002, HttpStatus.OK.value(), "회원가입에 성공하였습니다."),
-
 
     /**
      * 2000: Request 오류 (BAD_REQUEST)
