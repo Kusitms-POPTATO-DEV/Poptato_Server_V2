@@ -222,12 +222,14 @@ public class TodoService {
     }
 
 
-    public Long generateBacklog(Long userId, String content) {
+    public BacklogCreateResponseDto generateBacklog(Long userId, String content) {
         checkIsExistUser(userId);
         Integer maxBacklogOrder = todoRepository.findMaxBacklogOrderByUserIdOrZero(userId);
         Todo backlog = Todo.createBacklog(userId, content, maxBacklogOrder+1);
         Todo newBacklog = todoRepository.save(backlog);
-        return newBacklog.getId();
+        return BacklogCreateResponseDto.builder()
+                .todoId(newBacklog.getId())
+                .build();
     }
 
     public TodoDetailResponseDto getTodoInfo(Long userId, Long todoId) {

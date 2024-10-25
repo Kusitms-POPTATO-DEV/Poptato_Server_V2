@@ -25,7 +25,7 @@ public class BacklogCreateTest {
         String content = "내용";
 
         //when
-        Long todoId = todoService.generateBacklog(userId,content);
+        Long todoId = todoService.generateBacklog(userId,content).getTodoId();
         Todo findTodo = todoRepository.findById(todoId).get();
 
         //then
