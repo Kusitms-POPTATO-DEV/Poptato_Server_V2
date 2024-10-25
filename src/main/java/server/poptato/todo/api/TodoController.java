@@ -6,11 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import server.poptato.global.response.BaseResponse;
 import server.poptato.todo.api.request.*;
 import server.poptato.todo.application.TodoService;
-import server.poptato.todo.application.response.BacklogListResponseDto;
-import server.poptato.todo.application.response.PaginatedHistoryResponseDto;
-import server.poptato.todo.application.response.PaginatedYesterdayResponseDto;
-import server.poptato.todo.application.response.TodayListResponseDto;
-import server.poptato.todo.application.response.TodoDetailResponseDto;
+import server.poptato.todo.application.response.*;
 import server.poptato.user.resolver.UserId;
 
 import java.time.LocalDate;
@@ -81,10 +77,10 @@ public class TodoController {
     }
 
     @PostMapping("/backlog")
-    public BaseResponse generateBacklog(@UserId Long userId,
+    public BaseResponse<BacklogCreateResponseDto> generateBacklog(//@UserId Long userId,
                                         @Validated @RequestBody BacklogCreateRequestDto backlogCreateRequestDto){
-        todoService.generateBacklog(userId, backlogCreateRequestDto.getContent());
-        return new BaseResponse<>();
+        BacklogCreateResponseDto response = todoService.generateBacklog(1L, backlogCreateRequestDto.getContent());
+        return new BaseResponse<>(response);
     }
 
     @GetMapping("/todo/{todoId}")
