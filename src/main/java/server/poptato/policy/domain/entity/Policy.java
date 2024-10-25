@@ -18,9 +18,10 @@ public class Policy {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Lob
+    @Column(columnDefinition = "LONGTEXT")
     private String content;
 
     @CreatedDate
     @Column(updatable = false)
-    private LocalDateTime createDate;
+    private LocalDateTime createdAt;
 }
