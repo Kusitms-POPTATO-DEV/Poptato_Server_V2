@@ -54,4 +54,4 @@ jobs:
 
             sudo fuser -k -n tcp "${{ secrets.SERVER_PORT }}" || true
 
-            nohup java -jar build/libs/*SNAPSHOT.jar > ./output.log 2>&1 &
+            nohup java -Duser.timezone=Asia/Seoul -jar build/libs/*SNAPSHOT.jar > ./output.log 2>&1 &
