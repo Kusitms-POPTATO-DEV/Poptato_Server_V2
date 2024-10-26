@@ -77,9 +77,9 @@ public class TodoController {
     }
 
     @PostMapping("/backlog")
-    public BaseResponse<BacklogCreateResponseDto> generateBacklog(//@UserId Long userId,
+    public BaseResponse<BacklogCreateResponseDto> generateBacklog(@UserId Long userId,
                                         @Validated @RequestBody BacklogCreateRequestDto backlogCreateRequestDto){
-        BacklogCreateResponseDto response = todoService.generateBacklog(1L, backlogCreateRequestDto.getContent());
+        BacklogCreateResponseDto response = todoService.generateBacklog(userId, backlogCreateRequestDto.getContent());
         return new BaseResponse<>(response);
     }
 
