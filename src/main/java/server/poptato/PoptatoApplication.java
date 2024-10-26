@@ -14,6 +14,7 @@ public class PoptatoApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(PoptatoApplication.class, args);
+        System.out.println("Default Time Zone: " + java.util.TimeZone.getDefault().getID());
         System.out.println("Hello Poptato Server Team !!");
     }
 
