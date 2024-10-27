@@ -124,11 +124,11 @@ class TodoServiceTest {
         }
     }
     // 새로운 유저로 삭제 테스트
-    @DisplayName("투두가 있을 때 유저 2의 투두를 삭제한다.")
+    @DisplayName("투두가 있을 때 유저 1의 투두를 삭제한다.")
     @Test
-    public void shouldDeleteTodoById_WhenTodoExists_ForUser2() {
+    public void shouldDeleteTodoById_WhenTodoExists_ForUser1() {
         //given
-        Long userId = 2L;
+        Long userId = 1L;
         Todo todo = Todo.builder()
                 .userId(userId)
                 .content("Test Todo")
@@ -138,10 +138,11 @@ class TodoServiceTest {
 
         // 실제로 Todo 저장
         Todo savedTodo = todoRepository.save(todo);
-        Long todoId = savedTodo.getId();
+        Long todoId = savedTodo.getId(); // 저장된 Todo ID 가져오기
+        System.out.println(todoId);
 
         //when
-        todoService.deleteTodoById(todoId);
+        todoService.deleteTodoById(userId, todoId);
 
         //then
         Optional<Todo> deletedTodo = todoRepository.findById(todoId);
@@ -153,10 +154,11 @@ class TodoServiceTest {
     public void shouldThrowException_WhenTodoNotFound_ForUser2() {
         //given
         Long nonExistentTodoId = 1000L;  // 존재하지 않는 투두 ID
+        Long userId = 1L;
 
         //when & then
         assertThrows(TodoException.class, () -> {
-            todoService.deleteTodoById(nonExistentTodoId);  // 투두가 없을 때 예외 발생 검증
+            todoService.deleteTodoById(userId, nonExistentTodoId);  // 투두가 없을 때 예외 발생 검증
         });
     }
     @DisplayName("size=8을 요청하면, 백로그 목록 조회 시 8개의 데이터만 응답된다.")

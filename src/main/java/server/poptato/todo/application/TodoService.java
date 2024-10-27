@@ -78,9 +78,11 @@ public class TodoService {
                .build();
     }
 
-    public void deleteTodoById(Long todoId) {
-        Todo todo = todoRepository.findById(todoId)
+    public void deleteTodoById(Long userId, Long todoId) {
+        checkIsExistUser(userId);
+        Todo todo = todoRepository.findByIdAndUserId(todoId, userId)
                 .orElseThrow(() -> new TodoException(TODO_NOT_EXIST));
+
         todoRepository.delete(todo);
     }
 

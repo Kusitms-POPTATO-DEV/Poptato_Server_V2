@@ -99,30 +99,32 @@ public class TodoControllerTest {
     @Test
     public void shouldReturnNoContent_WhenTodoIsDeleted() throws Exception { //투두 있을 때
         Long todoId = 1L;
+        Long userId = 1L;
 
         // todoService의 deleteTodoById 메서드가 호출될 때 예외가 발생하지 않도록 설정
-        doNothing().when(todoService).deleteTodoById(todoId);
+        doNothing().when(todoService).deleteTodoById(userId, todoId);
 
         mockMvc.perform(delete("/todo/{todoId}", todoId)
                         .header("Authorization", "Bearer " + accessToken))
                 .andExpect(status().isOk());
 
-        verify(todoService, times(1)).deleteTodoById(todoId);
+        verify(todoService, times(1)).deleteTodoById(userId, todoId);
     }
 
     @Test
     public void shouldReturnNotFound_WhenTodoDoesNotExist() throws Exception { //투두 없을 때
-        Long todoId = 1L;
+        Long todoId = 144L;
+        Long userId = 1L;
 
         // todoService의 deleteTodoById가 호출될 때 exception  발생하도록 설정
         doThrow(new TodoException(TODO_NOT_EXIST))
-                .when(todoService).deleteTodoById(todoId);
+                .when(todoService).deleteTodoById(userId, todoId);
 
         mockMvc.perform(delete("/todo/{todoId}", todoId)
                         .header("Authorization", "Bearer " + accessToken))
                 .andExpect(status().isBadRequest());
 
-        verify(todoService, times(1)).deleteTodoById(todoId);
+        verify(todoService, times(1)).deleteTodoById(userId, todoId);
     }
 
     @DisplayName("백로그 목록 조회 시 page와 size를 query string으로 받고 헤더에 accessToken을 담아 요청한다.")

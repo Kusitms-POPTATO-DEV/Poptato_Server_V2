@@ -26,8 +26,8 @@ public class TodoController {
     }
 
     @DeleteMapping("/todo/{todoId}")
-    public BaseResponse deleteTodoById(@PathVariable Long todoId) {
-        todoService.deleteTodoById(todoId);
+    public BaseResponse deleteTodoById(@UserId Long userId, @PathVariable Long todoId) {
+        todoService.deleteTodoById(userId, todoId);
         return new BaseResponse<>();
     }
 
