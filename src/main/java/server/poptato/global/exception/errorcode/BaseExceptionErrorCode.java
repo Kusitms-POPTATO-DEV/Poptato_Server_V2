@@ -21,7 +21,6 @@ public enum BaseExceptionErrorCode implements ResponseStatus {
     INAPPROPRIATE_DATA(2003, HttpStatus.BAD_REQUEST.value(), "입력한 정보가 올바르지 않습니다."),
     NO_COOKIE(2004,HttpStatus.BAD_REQUEST.value(),"쿠키가 존재하지 않습니다."),
     NO_REQUEST_PARAMETER(2005,HttpStatus.BAD_REQUEST.value(),"요청 파라미터는 필수로 입력해야합니다."),
-    USER_NOT_FOUND_EXCEPTION(2006,HttpStatus.NOT_FOUND.value(),"유저가 존재하지 않습니다"),
 
 
     /**

@@ -1,17 +1,13 @@
 package server.poptato.todo.application;
 
 import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import server.poptato.todo.api.request.BacklogCreateRequestDto;
-import server.poptato.todo.api.request.DragAndDropRequestDto;
-import server.poptato.todo.api.request.SwipeRequestDto;
 import org.springframework.transaction.annotation.Transactional;
-import server.poptato.global.response.BaseResponse;
+import server.poptato.todo.api.request.DragAndDropRequestDto;
 import server.poptato.todo.application.response.*;
 import server.poptato.todo.domain.entity.Todo;
 import server.poptato.todo.domain.repository.TodoRepository;
@@ -25,9 +21,7 @@ import server.poptato.user.exception.errorcode.UserExceptionErrorCode;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static server.poptato.todo.exception.errorcode.TodoExceptionErrorCode.TODO_NOT_EXIST;
