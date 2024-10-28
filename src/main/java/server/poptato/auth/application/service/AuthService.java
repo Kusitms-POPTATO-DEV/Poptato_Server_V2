@@ -8,14 +8,14 @@ import server.poptato.auth.exception.AuthException;
 import server.poptato.external.kakao.dto.response.KakaoUserInfo;
 import server.poptato.external.kakao.service.KakaoSocialService;
 import server.poptato.global.dto.TokenPair;
-import server.poptato.global.exception.BaseException;
 import server.poptato.user.domain.entity.User;
 import server.poptato.user.domain.repository.UserRepository;
+import server.poptato.user.exception.UserException;
 
 import java.util.Optional;
 
 import static server.poptato.auth.exception.errorcode.AuthExceptionErrorCode.TOKEN_TIME_EXPIRED;
-import static server.poptato.global.exception.errorcode.BaseExceptionErrorCode.USER_NOT_FOUND_EXCEPTION;
+import static server.poptato.user.exception.errorcode.UserExceptionErrorCode.USER_NOT_EXIST;
 
 @Service
 @RequiredArgsConstructor
@@ -38,7 +38,7 @@ public class AuthService {
     }
 
     public void logout(final Long userId) {
-        final User user = userRepository.findById(userId).orElseThrow(() -> new BaseException(USER_NOT_FOUND_EXCEPTION));
+        final User user = userRepository.findById(userId).orElseThrow(() -> new UserException(USER_NOT_EXIST));
         jwtService.deleteRefreshToken(String.valueOf(userId));
     }
 
@@ -47,7 +47,7 @@ public class AuthService {
             throw new AuthException(TOKEN_TIME_EXPIRED);
 
         final String userId = jwtService.getUserIdInToken(tokenRequestDto.refreshToken());
-        final User user = userRepository.findById(Long.parseLong(userId)).orElseThrow(() -> new BaseException(USER_NOT_FOUND_EXCEPTION));
+        final User user = userRepository.findById(Long.parseLong(userId)).orElseThrow(() -> new UserException(USER_NOT_EXIST));
 
         if (!jwtService.compareRefreshToken(userId, tokenRequestDto.refreshToken()))
             throw new AuthException(TOKEN_TIME_EXPIRED);

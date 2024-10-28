@@ -26,8 +26,8 @@ public class TodoController {
     }
 
     @DeleteMapping("/todo/{todoId}")
-    public BaseResponse deleteTodoById(@PathVariable Long todoId) {
-        todoService.deleteTodoById(todoId);
+    public BaseResponse deleteTodoById(@UserId Long userId, @PathVariable Long todoId) {
+        todoService.deleteTodoById(userId, todoId);
         return new BaseResponse<>();
     }
 
@@ -47,8 +47,8 @@ public class TodoController {
         return new BaseResponse<>();
     }
     @PatchMapping("/todo/{todoId}/bookmark")
-    public BaseResponse toggleIsBookmark(@PathVariable Long todoId) {
-        todoService.toggleIsBookmark(todoId);
+    public BaseResponse toggleIsBookmark(@UserId Long userId, @PathVariable Long todoId) {
+        todoService.toggleIsBookmark(userId, todoId);
         return new BaseResponse<>();
     }
     @GetMapping("/histories")

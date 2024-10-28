@@ -17,6 +17,7 @@ public interface TodoRepository {
     List<Todo> findByUserIdAndTypeAndTodayDateAndTodayStatusOrderByCompletedDateTimeDesc(
             Long userId, Type type, LocalDate todayDate, TodayStatus todayStatus);
     Optional<Todo> findById(Long todoId);
+    Optional<Todo> findByIdAndUserId(Long todoId, Long userId);
     void delete(Todo todo);
     Page<Todo> findByUserIdAndCompletedDateTimeIsNotNull(Long userId, Pageable pageable);
     Todo save(Todo todo);
