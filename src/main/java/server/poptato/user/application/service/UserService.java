@@ -31,12 +31,6 @@ public class UserService {
         userRepository.delete(user);
         entityManager.flush();
     }
-    @Transactional
-    public void updateUserName(Long userId, String newName) {
-        User user = checkIsExistUser(userId);
-        // name 업데이트
-        user.changeName(newName);
-    }
     @Transactional(readOnly = true)
     public UserResponseDto getUserNameAndEmailById(Long userId) {
         User user = checkIsExistUser(userId);
