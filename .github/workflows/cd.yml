@@ -1,9 +1,6 @@
 name: Java CD with Gradle
 
 on:
-  pull_request:
-    types: [ closed ]
-    branches: [ "dev","main" ]
   push:
     branches: [ "dev", "main" ]
 
