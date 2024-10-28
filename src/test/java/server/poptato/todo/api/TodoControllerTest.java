@@ -167,16 +167,17 @@ public class TodoControllerTest {
     @DisplayName("isBookmark 토글 시 응답이 정상적으로 반환되는지 확인")
     public void shouldReturnOk_WhenIsBookmarkToggled() throws Exception {
         Long todoId = 1L;
+        Long userId = 1L;
 
         // todoService의 toggleIsBookmark 메서드가 호출될 때 예외가 발생하지 않도록 설정
-        doNothing().when(todoService).toggleIsBookmark(todoId);
+        doNothing().when(todoService).toggleIsBookmark(userId, todoId);
 
         mockMvc.perform(patch("/todo/{todoId}/bookmark", todoId)
-                        .header("Authorization", "Bearer " + "someAccessToken")) // 헤더에 토큰 추가
+                        .header("Authorization", "Bearer " + accessToken))
                 .andExpect(status().isOk());
 
         // todoService의 toggleIsBookmark 메서드가 한 번 호출되었는지 확인
-        verify(todoService, times(1)).toggleIsBookmark(todoId);
+        verify(todoService, times(1)).toggleIsBookmark(userId, todoId);
     }
 
     @DisplayName("히스토리 목록 조회 시 page와 size를 query string으로 받고 헤더에 accessToken을 담아 요청한다.")

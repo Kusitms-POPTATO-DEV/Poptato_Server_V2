@@ -86,9 +86,9 @@ public class TodoService {
         todoRepository.delete(todo);
     }
 
-    public void toggleIsBookmark(Long todoId) {
+    public void toggleIsBookmark(Long userId, Long todoId) {
         // 해당 Todo를 조회
-        Todo todo = todoRepository.findById(todoId)
+        Todo todo = todoRepository.findByIdAndUserId(todoId, userId)
                 .orElseThrow(() -> new TodoException(TODO_NOT_EXIST));
 
         // isBookmark 값을 토글하는 메서드 호출

@@ -247,11 +247,11 @@ class TodoServiceTest {
         Todo savedTodo = todoRepository.save(todo);
         Long todoId = savedTodo.getId();
 
-        // when: toggleIsBookmark 호출 (void 메서드)
-        todoService.toggleIsBookmark(todoId);
+        // when: toggleIsBookmark 호출
+        todoService.toggleIsBookmark(1L,todoId);
 
         // then: DB에서 Todo를 다시 가져와서 확인
-        Todo updatedTodo = todoRepository.findById(todoId).orElseThrow(() -> new TodoException(TODO_NOT_EXIST));
+        Todo updatedTodo = todoRepository.findByIdAndUserId(todoId, 1L).orElseThrow(() -> new TodoException(TODO_NOT_EXIST));
         assertThat(updatedTodo.isBookmark()).isFalse();  // isBookmark가 false로 변경되었는지 확인
     }
 
@@ -271,7 +271,7 @@ class TodoServiceTest {
         Long todoId = savedTodo.getId();
 
         // when: toggleIsBookmark 호출 (void 메서드)
-        todoService.toggleIsBookmark(todoId);
+        todoService.toggleIsBookmark(1L,todoId);
 
         // then: DB에서 Todo를 다시 가져와서 확인
         Todo updatedTodo = todoRepository.findById(todoId).orElseThrow(() -> new TodoException(TODO_NOT_EXIST));
@@ -286,7 +286,7 @@ class TodoServiceTest {
 
         // when & then
         assertThrows(TodoException.class, () -> {
-            todoService.toggleIsBookmark(nonExistentTodoId);  // 예외가 발생해야 함
+            todoService.toggleIsBookmark(1L, nonExistentTodoId);  // 예외가 발생해야 함
         });
     }
     @DisplayName("드래그앤드롭 시 사용자의 할일이 아니면 예외가 발생한다.")
