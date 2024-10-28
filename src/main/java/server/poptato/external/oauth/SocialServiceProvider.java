@@ -1,12 +1,10 @@
-package server.poptato.external.kakao;
-
+package server.poptato.external.oauth;
 
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import server.poptato.external.kakao.service.KakaoSocialService;
-import server.poptato.external.kakao.service.SocialService;
+import server.poptato.external.oauth.kakao.service.KakaoSocialService;
 
 import java.util.HashMap;
 import java.util.Map;

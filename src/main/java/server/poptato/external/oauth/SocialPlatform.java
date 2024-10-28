@@ -1,4 +1,4 @@
-package server.poptato.external.kakao;
+package server.poptato.external.oauth;
 
 import lombok.AccessLevel;
 import lombok.Getter;

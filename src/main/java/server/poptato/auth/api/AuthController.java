@@ -9,10 +9,12 @@ import server.poptato.auth.api.request.KakaoLoginRequestDto;
 import server.poptato.auth.api.request.TokenRequestDto;
 import server.poptato.auth.application.response.LoginResponseDto;
 import server.poptato.auth.application.service.AuthService;
+import server.poptato.external.oauth.SocialPlatform;
 import server.poptato.global.dto.TokenPair;
 import server.poptato.global.response.BaseResponse;
 import server.poptato.user.resolver.UserId;
 
+import static server.poptato.external.oauth.SocialPlatform.KAKAO;
 import static server.poptato.global.exception.errorcode.BaseExceptionErrorCode.SUCCESS;
 
 @RestController
@@ -24,8 +26,9 @@ public class AuthController {
 
     @PostMapping("/login")
     public BaseResponse<LoginResponseDto> login(@RequestBody KakaoLoginRequestDto kakaoLoginRequestDto) {
-        String kakaoCode = kakaoLoginRequestDto.kakaoCode();
-        LoginResponseDto response = authService.login(kakaoCode);
+        String accessToken = kakaoLoginRequestDto.kakaoCode();
+        SocialPlatform socialPlatform = KAKAO;
+        LoginResponseDto response = authService.login(accessToken, socialPlatform);
         return new BaseResponse<>(response);
     }
 

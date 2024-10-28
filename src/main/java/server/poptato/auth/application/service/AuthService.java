@@ -5,8 +5,10 @@ import org.springframework.stereotype.Service;
 import server.poptato.auth.api.request.TokenRequestDto;
 import server.poptato.auth.application.response.LoginResponseDto;
 import server.poptato.auth.exception.AuthException;
-import server.poptato.external.kakao.dto.response.KakaoUserInfo;
-import server.poptato.external.kakao.service.KakaoSocialService;
+import server.poptato.external.oauth.SocialPlatform;
+import server.poptato.external.oauth.SocialService;
+import server.poptato.external.oauth.SocialServiceProvider;
+import server.poptato.external.oauth.SocialUserInfo;
 import server.poptato.global.dto.TokenPair;
 import server.poptato.user.domain.entity.User;
 import server.poptato.user.domain.repository.UserRepository;
@@ -21,20 +23,17 @@ import static server.poptato.user.exception.errorcode.UserExceptionErrorCode.USE
 @RequiredArgsConstructor
 public class AuthService {
     private final JwtService jwtService;
-    private final KakaoSocialService kakaoSocialService;
+    private final SocialServiceProvider socialServiceProvider;
     private final UserRepository userRepository;
 
-    public LoginResponseDto login(final String accessToken) {
-        KakaoUserInfo info  = kakaoSocialService.getIdAndNickNameAndEmailFromKakao(accessToken);
-        String kakaoId = info.kakaoId();
-        String name = info.nickname();
-        String email = info.email();
-        Optional<User> user = userRepository.findByKakaoId(kakaoId);
+    public LoginResponseDto login(final String accessToken, final SocialPlatform socialPlatform) {
+        SocialService socialService = socialServiceProvider.getSocialService(socialPlatform);
+        SocialUserInfo userInfo = socialService.getUserData(accessToken);
+        Optional<User> user = userRepository.findByKakaoId(userInfo.socialId());
         if (user.isEmpty()) {
-            return createNewUserResponse(kakaoId, name, email);
+            return createNewUserResponse(userInfo);
         }
-        TokenPair tokenPair = jwtService.generateTokenPair(String.valueOf(user.get().getId()));
-        return new LoginResponseDto(tokenPair.accessToken(), tokenPair.refreshToken(), false, user.get().getId());
+        return createOldUserResponse(user.get());
     }
 
     public void logout(final Long userId) {
@@ -57,16 +56,23 @@ public class AuthService {
         return tokenPair;
     }
 
-    private LoginResponseDto createNewUserResponse(String kakaoId, String name, String email) {
+    private LoginResponseDto createNewUserResponse(SocialUserInfo userInfo) {
         User newUser = User.builder()
-                .kakaoId(kakaoId)
-                .name(name)
-                .email(email)
+                .kakaoId(userInfo.socialId())
+                .name(userInfo.nickname())
+                .email(userInfo.email())
                 .build();
         userRepository.save(newUser);
 
-        // 토큰 발급 및 응답 객체 생성
-        TokenPair tokenPair = jwtService.generateTokenPair(String.valueOf(newUser.getId()));
-        return new LoginResponseDto(tokenPair.accessToken(), tokenPair.refreshToken(), true, newUser.getId());
+        return createLoginResponse(newUser, true);
+    }
+
+    private LoginResponseDto createOldUserResponse(User user) {
+        return createLoginResponse(user, false);
+    }
+
+    private LoginResponseDto createLoginResponse(User user, boolean isNewUser) {
+        TokenPair tokenPair = jwtService.generateTokenPair(String.valueOf(user.getId()));
+        return new LoginResponseDto(tokenPair.accessToken(), tokenPair.refreshToken(), isNewUser, user.getId());
     }
 }
