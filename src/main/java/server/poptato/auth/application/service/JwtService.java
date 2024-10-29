@@ -1,11 +1,9 @@
 package server.poptato.auth.application.service;
 
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Header;
-import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,6 +18,7 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
+import static server.poptato.auth.exception.errorcode.AuthExceptionErrorCode.INVALID_TOKEN;
 import static server.poptato.auth.exception.errorcode.AuthExceptionErrorCode.TOKEN_TIME_EXPIRED;
 
 
@@ -57,15 +56,15 @@ public class JwtService {
         return createToken(claims);
     }
 
-    public boolean verifyToken(final String token) {
+    public void verifyToken(final String token) {
         try {
             final Claims claims = getBody(token);
-            return true;
+        } catch (ExpiredJwtException e) {
+            throw new AuthException(TOKEN_TIME_EXPIRED);
+        } catch (UnsupportedJwtException | SignatureException | MalformedJwtException  e){
+            throw new AuthException(INVALID_TOKEN);
         } catch (RuntimeException e) {
-            if (e instanceof ExpiredJwtException) {
-                throw new AuthException(TOKEN_TIME_EXPIRED);
-            }
-            return false;
+            throw e;
         }
     }
 
@@ -81,10 +80,10 @@ public class JwtService {
         return new TokenPair(accessToken, refreshToken);
     }
 
-    public boolean compareRefreshToken(final String userId, final String refreshToken) {
+    public void compareRefreshToken(final String userId, final String refreshToken) {
         final String storedRefreshToken = redisTemplate.opsForValue().get(userId);
-        if (storedRefreshToken == null) return false;
-        return storedRefreshToken.equals(refreshToken);
+        if (storedRefreshToken == null || !storedRefreshToken.equals(refreshToken))
+            throw new AuthException(INVALID_TOKEN);
     }
 
     public void saveRefreshToken(final String userId, final String refreshToken) {

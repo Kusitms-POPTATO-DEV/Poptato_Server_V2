@@ -33,9 +33,7 @@ public class UserResolver implements HandlerMethodArgumentResolver {
             throw new AuthException(TOKEN_NOT_EXIST);
         }
         final String encodedUserId = token.substring("Bearer ".length());
-        if (!jwtService.verifyToken(encodedUserId)) {
-            throw new AuthException(TOKEN_TIME_EXPIRED);
-        }
+        jwtService.verifyToken(token);
         final String decodedUserId = jwtService.getUserIdInToken(encodedUserId);
         try {
             return Long.parseLong(decodedUserId);

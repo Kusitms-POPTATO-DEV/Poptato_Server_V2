@@ -4,7 +4,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import server.poptato.user.application.response.UserResponseDto;
+import server.poptato.user.application.response.UserInfoResponseDto;
 import server.poptato.user.application.service.UserService;
 import server.poptato.user.domain.repository.UserRepository;
 import server.poptato.user.exception.UserException;
@@ -26,7 +26,7 @@ class UserServiceTest {
         Long userId = 1L;
 
         // When
-        UserResponseDto responseDto = userService.getUserNameAndEmailById(userId);
+        UserInfoResponseDto responseDto = userService.getUserInfo(userId);
 
         // Then
         assertThat(responseDto.getName()).isEqualTo("Poptato");
@@ -41,7 +41,7 @@ class UserServiceTest {
 
         // When & Then
         org.junit.jupiter.api.Assertions.assertThrows(UserException.class,
-                () -> userService.getUserNameAndEmailById(invalidUserId));
+                () -> userService.getUserInfo(invalidUserId));
     }
 }
 
