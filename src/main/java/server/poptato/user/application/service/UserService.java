@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import server.poptato.auth.application.service.JwtService;
 import server.poptato.todo.domain.repository.TodoRepository;
 import server.poptato.user.application.response.UserInfoResponseDto;
+import server.poptato.user.converter.UserDtoConverter;
 import server.poptato.user.domain.entity.User;
 import server.poptato.user.domain.repository.UserRepository;
 import server.poptato.user.validator.UserValidator;
@@ -29,6 +30,6 @@ public class UserService {
     @Transactional(readOnly = true)
     public UserInfoResponseDto getUserInfo(Long userId) {
         User user = userValidator.checkIsExistAndReturnUser(userId);
-        return new UserInfoResponseDto(user.getName(), user.getEmail());
+        return UserDtoConverter.toUserInfoDto(user);
     }
 }

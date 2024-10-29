@@ -16,7 +16,9 @@ import server.poptato.auth.application.service.JwtService;
 import server.poptato.todo.api.request.BacklogCreateRequestDto;
 import server.poptato.todo.api.request.DragAndDropRequestDto;
 import server.poptato.todo.api.request.SwipeRequestDto;
+import server.poptato.todo.application.TodoBacklogService;
 import server.poptato.todo.application.TodoService;
+import server.poptato.todo.application.TodoTodayService;
 import server.poptato.todo.exception.TodoException;
 import server.poptato.user.application.service.UserService;
 
@@ -41,6 +43,10 @@ public class TodoControllerTest {
     private MockMvc mockMvc;
     @MockBean
     private TodoService todoService;
+    @MockBean
+    private TodoBacklogService todoBacklogService;
+    @MockBean
+    private TodoTodayService todoTodayService;
     @MockBean
     private UserService userService;
     @Autowired
@@ -84,7 +90,7 @@ public class TodoControllerTest {
                 .andDo(print());
         LocalDate todayDate = LocalDate.now();
 
-        verify(todoService).getTodayList(1,0, 8,todayDate);
+        verify(todoTodayService).getTodayList(1,0, 8,todayDate);
     }
 
     @DisplayName("투데이 목록 조회 시 헤더에 JWT가 없으면 예외가 발생한다.")
@@ -150,7 +156,7 @@ public class TodoControllerTest {
                 .andExpect(status().isOk())
                 .andDo(print());
 
-        verify(todoService).getBacklogList(1L,0, 8);
+        verify(todoBacklogService).getBacklogList(1L,0, 8);
     }
 
     @DisplayName("백로그 목록 조회 시 헤더에 JWT가 없으면 예외가 발생한다.")
@@ -232,7 +238,7 @@ public class TodoControllerTest {
                 .andDo(print());
 
         // 기본값이 적용된 서비스 메서드 호출 확인 (userId = 1L, page = 0, size = 15)
-        verify(todoService).getHistories(1L, 0, 15);
+        verify(todoBacklogService).getHistories(1L, 0, 15);
     }
 
     @DisplayName("히스토리 목록 조회 시 헤더에 JWT가 없으면 예외가 발생한다.")

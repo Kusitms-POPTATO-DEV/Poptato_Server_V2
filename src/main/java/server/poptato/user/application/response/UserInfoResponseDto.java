@@ -1,11 +1,7 @@
 package server.poptato.user.application.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Builder;
 
-@Getter
-@AllArgsConstructor
-public class UserInfoResponseDto {
-    private String name;
-    private String email;
+@Builder
+public record UserInfoResponseDto(String name, String email){
 }

@@ -6,10 +6,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Builder
 @Getter
-@AllArgsConstructor
 @NoArgsConstructor
+@Builder
+@AllArgsConstructor
 public class BacklogCreateRequestDto {
     @NotBlank(message = "백로그 생성 시 내용은 필수입니다.")
     String content;

@@ -1,15 +1,8 @@
 package server.poptato.todo.application.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
+import lombok.Builder;
 import java.time.LocalDate;
 
-
-@Getter
-@AllArgsConstructor
-public class HistoryResponseDto {
-    private Long todoId;
-    private String content;
-    private LocalDate date;
+@Builder
+public record HistoryResponseDto(Long todoId, String content,LocalDate date) {
 }

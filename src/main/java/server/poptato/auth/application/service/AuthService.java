@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import server.poptato.auth.api.request.KakaoLoginRequestDto;
 import server.poptato.auth.api.request.ReissueTokenRequestDto;
 import server.poptato.auth.application.response.LoginResponseDto;
+import server.poptato.auth.converter.AuthDtoConverter;
 import server.poptato.external.oauth.SocialPlatform;
 import server.poptato.external.oauth.SocialService;
 import server.poptato.external.oauth.SocialServiceProvider;
@@ -28,7 +29,7 @@ public class AuthService {
 
     public LoginResponseDto login(final KakaoLoginRequestDto loginRequestDto) {
         //TODO: 나중에 없앨 코드
-        String accessToken = loginRequestDto.kakaoCode();
+        String accessToken = loginRequestDto.getKakaoCode();
         SocialPlatform socialPlatform = KAKAO;
 
         SocialService socialService = socialServiceProvider.getSocialService(socialPlatform);
@@ -46,9 +47,9 @@ public class AuthService {
     }
 
     public TokenPair refresh(final ReissueTokenRequestDto reissueTokenRequestDto) {
-        checkIsValidToken(reissueTokenRequestDto.refreshToken());
+        checkIsValidToken(reissueTokenRequestDto.getRefreshToken());
 
-        final String userId = jwtService.getUserIdInToken(reissueTokenRequestDto.refreshToken());
+        final String userId = jwtService.getUserIdInToken(reissueTokenRequestDto.getRefreshToken());
         userValidator.checkIsExistUser(Long.parseLong(userId));
 
         final TokenPair tokenPair = jwtService.generateTokenPair(userId);
@@ -83,6 +84,6 @@ public class AuthService {
 
     private LoginResponseDto createLoginResponse(User user, boolean isNewUser) {
         TokenPair tokenPair = jwtService.generateTokenPair(String.valueOf(user.getId()));
-        return new LoginResponseDto(tokenPair.accessToken(), tokenPair.refreshToken(), isNewUser, user.getId());
+        return AuthDtoConverter.toLoginDto(tokenPair, user, isNewUser);
     }
 }

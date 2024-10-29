@@ -29,4 +29,18 @@ public interface TodoRepository {
     Page<Todo> findByUserIdAndTypeAndTodayStatus(Long userId, Type type, TodayStatus todayStatus, Pageable pageable);
     List<Todo> findByTypeAndTodayStatus(Type today, TodayStatus incomplete);
     Integer findMinBacklogOrderByUserIdOrZero(Long userId);
+
+    default List<Todo> findIncompleteTodays(Long userId, Type type, LocalDate todayDate, TodayStatus todayStatus){
+        return findByUserIdAndTypeAndTodayDateAndTodayStatusOrderByTodayOrderDesc(
+                userId, type, todayDate, todayStatus);
+    }
+    default List<Todo> findCompletedTodays(Long userId, Type type, LocalDate todayDate, TodayStatus todayStatus){
+        return findByUserIdAndTypeAndTodayDateAndTodayStatusOrderByCompletedDateTimeDesc(
+                userId, type, todayDate, todayStatus);
+    }
+
+    default Page<Todo> findBacklogsByUserId(Long userId, List<Type> types, Pageable pageable){
+        return findByUserIdAndTypeInOrderByBacklogOrderDesc(
+                userId, types, pageable);
+    }
 }
