@@ -19,11 +19,12 @@ public interface TodoRepository {
     Optional<Todo> findById(Long todoId);
     Optional<Todo> findByIdAndUserId(Long todoId, Long userId);
     void delete(Todo todo);
-    Page<Todo> findByUserIdAndCompletedDateTimeIsNotNull(Long userId, Pageable pageable);
+    Page<Todo> findByUserIdAndCompletedDateTimeIsNotNullAndTypeIn(Long userId, List<Type> types, Pageable pageable);
     Todo save(Todo todo);
     Page<Todo> findByUserIdAndTypeInOrderByBacklogOrderDesc(Long userId, List<Type> types, Pageable pageable);
     Integer findMaxBacklogOrderByUserIdOrZero(Long userId);
     Integer findMaxTodayOrderByUserIdOrZero(Long userId);
+    Integer findMinTodayOrderByUserIdOrZero(Long userId);
     int findMaxBacklogOrderByIdIn(List<Long> ids);
     int findMaxTodayOrderByIdIn(List<Long> ids);
     Page<Todo> findByUserIdAndTypeAndTodayStatus(Long userId, Type type, TodayStatus todayStatus, Pageable pageable);
@@ -42,5 +43,8 @@ public interface TodoRepository {
     default Page<Todo> findBacklogsByUserId(Long userId, List<Type> types, Pageable pageable){
         return findByUserIdAndTypeInOrderByBacklogOrderDesc(
                 userId, types, pageable);
+    }
+    default Page<Todo> findHistories(Long userId, List<Type> types, Pageable pageable) {
+        return findByUserIdAndTypeInOrderByBacklogOrderDesc(userId, types, pageable);
     }
 }

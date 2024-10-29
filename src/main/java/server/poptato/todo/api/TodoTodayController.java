@@ -22,7 +22,7 @@ public class TodoTodayController {
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "8") int size){
         LocalDate todayDate = LocalDate.now();
-        TodayListResponseDto todayListResponse = todoTodayService.getTodayList(userId, page, size, todayDate);
-        return new BaseResponse<>(todayListResponse);
+        TodayListResponseDto response = todoTodayService.getTodayList(userId, page, size, todayDate);
+        return new BaseResponse<>(response);
     }
 }

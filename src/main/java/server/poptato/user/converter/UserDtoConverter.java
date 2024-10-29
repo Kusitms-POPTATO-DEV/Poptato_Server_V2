@@ -12,7 +12,6 @@ public class UserDtoConverter {
                 .name(user.getName())
                 .email(user.getEmail())
                 .build();
-
     }
 
     private UserDtoConverter() {

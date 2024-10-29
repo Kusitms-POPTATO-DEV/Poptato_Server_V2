@@ -22,14 +22,14 @@ public class TodoBacklogController {
             @UserId Long userId,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "8") int size) {
-        BacklogListResponseDto backlogListResponse = todoBacklogService.getBacklogList(userId, page, size);
-        return new BaseResponse<>(backlogListResponse);
+        BacklogListResponseDto response = todoBacklogService.getBacklogList(userId, page, size);
+        return new BaseResponse<>(response);
     }
 
     @PostMapping("/backlog")
     public BaseResponse<BacklogCreateResponseDto> generateBacklog(@UserId Long userId,
                                                                   @Validated @RequestBody BacklogCreateRequestDto backlogCreateRequestDto) {
-        BacklogCreateResponseDto response = todoBacklogService.generateBacklog(userId, backlogCreateRequestDto.getContent());
+        BacklogCreateResponseDto response = todoBacklogService.generateBacklog(userId, backlogCreateRequestDto);
         return new BaseResponse<>(response);
     }
 
@@ -39,7 +39,6 @@ public class TodoBacklogController {
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "15") int size) {
         PaginatedHistoryResponseDto response = todoBacklogService.getHistories(userId, page, size);
-
         return new BaseResponse<>(response);
     }
 
@@ -48,7 +47,6 @@ public class TodoBacklogController {
             @UserId Long userId,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "15") int size) {
-
         PaginatedYesterdayResponseDto response = todoBacklogService.getYesterdays(userId, page, size);
         return new BaseResponse<>(response);
     }

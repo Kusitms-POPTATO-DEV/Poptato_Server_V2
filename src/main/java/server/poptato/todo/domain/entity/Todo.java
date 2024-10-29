@@ -97,8 +97,9 @@ public class Todo{
         this.content = content;
     }
 
-    public void updateTodayStatusToInComplete() {
+    public void updateTodayStatusToInComplete(int minTodayOrder) {
         this.todayStatus = TodayStatus.INCOMPLETE;
+        this.todayOrder = --minTodayOrder;
         this.completedDateTime = null;
     }
 

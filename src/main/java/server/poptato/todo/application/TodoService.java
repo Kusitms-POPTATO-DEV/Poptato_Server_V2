@@ -3,8 +3,12 @@ package server.poptato.todo.application;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import server.poptato.todo.api.request.ContentUpdateRequestDto;
+import server.poptato.todo.api.request.DeadlineUpdateRequestDto;
 import server.poptato.todo.api.request.DragAndDropRequestDto;
+import server.poptato.todo.api.request.SwipeRequestDto;
 import server.poptato.todo.application.response.TodoDetailResponseDto;
+import server.poptato.todo.converter.TodoDtoConverter;
 import server.poptato.todo.domain.entity.Todo;
 import server.poptato.todo.domain.repository.TodoRepository;
 import server.poptato.todo.domain.value.TodayStatus;
@@ -13,7 +17,6 @@ import server.poptato.todo.exception.TodoException;
 import server.poptato.todo.exception.errorcode.TodoExceptionErrorCode;
 import server.poptato.user.validator.UserValidator;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,95 +32,82 @@ public class TodoService {
 
     public void deleteTodoById(Long userId, Long todoId) {
         userValidator.checkIsExistUser(userId);
-        Todo todo = todoRepository.findByIdAndUserId(todoId, userId)
-                .orElseThrow(() -> new TodoException(TODO_NOT_EXIST));
-
-        todoRepository.delete(todo);
+        Todo findTodo = validateAndReturnTodo(userId, todoId);
+        todoRepository.delete(findTodo);
     }
 
     public void toggleIsBookmark(Long userId, Long todoId) {
-        // 해당 Todo를 조회
-        Todo todo = todoRepository.findByIdAndUserId(todoId, userId)
-                .orElseThrow(() -> new TodoException(TODO_NOT_EXIST));
-
-        // isBookmark 값을 토글하는 메서드 호출
+        Todo todo = validateAndReturnTodo(userId, todoId);
         todo.toggleBookmark();
     }
 
 
-
-    public void swipe(Long userId, Long todoId) {
+    public void swipe(Long userId, SwipeRequestDto swipeRequestDto) {
         userValidator.checkIsExistUser(userId);
-        Todo todo = todoRepository.findById(todoId)
-                .orElseThrow(() -> new TodoException(TODO_NOT_EXIST));
-        if (todo.getUserId() != userId)
-            throw new TodoException(TodoExceptionErrorCode.TODO_USER_NOT_MATCH);
-
-        if (todo.getType().equals(Type.TODAY)) {
-            swipeTodayToBacklog(todo);
-        } else if (todo.getType().equals(Type.YESTERDAY) || todo.getType().equals(Type.BACKLOG)) {
-            swipeBacklogToToday(todo);
+        Todo findTodo = validateAndReturnTodo(userId, swipeRequestDto.getTodoId());
+        if (isToday(findTodo)) {
+            swipeTodayToBacklog(findTodo);
+            return;
         }
+        swipeBacklogToToday(findTodo);
     }
 
     public void dragAndDrop(Long userId, DragAndDropRequestDto requestDto) {
         userValidator.checkIsExistUser(userId);
-        List<Todo> todos = getTodos(requestDto);
+        List<Todo> todos = getTodosByIds(requestDto.getTodoIds());
         checkIsValidToDragAndDrop(userId, todos, requestDto);
-        if (requestDto.getType().equals(Type.TODAY)) {
+        if (isTypeToday(requestDto.getType())) {
             reassignTodayOrder(todos, requestDto.getTodoIds());
-        } else if (requestDto.getType().equals(Type.BACKLOG)) {
-            reassignBacklogOrder(todos, requestDto.getTodoIds());
+            return;
         }
+        reassignBacklogOrder(todos, requestDto.getTodoIds());
     }
 
     public TodoDetailResponseDto getTodoInfo(Long userId, Long todoId) {
         userValidator.checkIsExistUser(userId);
-        Todo findTodo = todoRepository.findById(todoId)
-                .orElseThrow(() -> new TodoException(TODO_NOT_EXIST));
-        if (findTodo.getUserId() != userId)
-            throw new TodoException(TodoExceptionErrorCode.TODO_USER_NOT_MATCH);
-
-        return TodoDetailResponseDto.builder()
-                .content(findTodo.getContent())
-                .isBookmark(findTodo.isBookmark())
-                .deadline(findTodo.getDeadline())
-                .build();
+        Todo findTodo = validateAndReturnTodo(userId, todoId);
+        return TodoDtoConverter.toTodoDetailInfoDto(findTodo);
     }
 
-    public void updateDeadline(Long userId, Long todoId, LocalDate deadline) {
+    public void updateDeadline(Long userId, Long todoId, DeadlineUpdateRequestDto deadlineUpdateRequestDto) {
         userValidator.checkIsExistUser(userId);
-        Todo findTodo = todoRepository.findById(todoId)
-                .orElseThrow(() -> new TodoException(TODO_NOT_EXIST));
-        if (findTodo.getUserId() != userId)
-            throw new TodoException(TodoExceptionErrorCode.TODO_USER_NOT_MATCH);
-        findTodo.updateDeadline(deadline);
+        Todo findTodo = validateAndReturnTodo(userId, todoId);
+        findTodo.updateDeadline(deadlineUpdateRequestDto.getDeadline());
         //TODO: 여기도 왜 SAVE가 필수인지 몰겟담
         todoRepository.save(findTodo);
     }
 
-    public void updateContent(Long userId, Long todoId, String content) {
+    public void updateContent(Long userId, Long todoId, ContentUpdateRequestDto contentUpdateRequestDto) {
         userValidator.checkIsExistUser(userId);
-        Todo findTodo = todoRepository.findById(todoId)
-                .orElseThrow(() -> new TodoException(TODO_NOT_EXIST));
-        if (findTodo.getUserId() != userId)
-            throw new TodoException(TodoExceptionErrorCode.TODO_USER_NOT_MATCH);
-        findTodo.updateContent(content);
+        Todo findTodo = validateAndReturnTodo(userId, todoId);
+        findTodo.updateContent(contentUpdateRequestDto.getContent());
         //TODO: 여기도 왜 SAVE가 필수인지 몰겟담
         todoRepository.save(findTodo);
     }
 
     public void updateIsCompleted(Long userId, Long todoId) {
         userValidator.checkIsExistUser(userId);
+        Todo findTodo = validateAndReturnTodo(userId, todoId);
+        checkIsValidToUpdateIsCompleted(findTodo);
+
+        if (isStatusCompleted(findTodo)) {
+            Integer minTodayOrder = todoRepository.findMinTodayOrderByUserIdOrZero(userId);
+            findTodo.updateTodayStatusToInComplete(minTodayOrder);
+            return;
+        }
+        findTodo.updateTodayStatusToCompleted();
+    }
+
+    private boolean isStatusCompleted(Todo findTodo) {
+        return findTodo.getTodayStatus().equals(TodayStatus.COMPLETED);
+    }
+
+    private Todo validateAndReturnTodo(Long userId, Long todoId) {
         Todo findTodo = todoRepository.findById(todoId)
                 .orElseThrow(() -> new TodoException(TODO_NOT_EXIST));
-        checkIsValidToUpdateIsCompleted(userId, findTodo);
-
-        if (findTodo.getTodayStatus().equals(TodayStatus.COMPLETED)) {
-            findTodo.updateTodayStatusToInComplete();
-        } else {
-            findTodo.updateTodayStatusToCompleted();
-        }
+        if (findTodo.getUserId() != userId)
+            throw new TodoException(TodoExceptionErrorCode.TODO_USER_NOT_MATCH);
+        return findTodo;
     }
 
     private void swipeBacklogToToday(Todo todo) {
@@ -126,37 +116,41 @@ public class TodoService {
     }
 
     private void swipeTodayToBacklog(Todo todo) {
-        if (todo.getTodayStatus().equals(TodayStatus.COMPLETED))
+        if (isCompletedTodo(todo))
             throw new TodoException(TodoExceptionErrorCode.ALREADY_COMPLETED_TODO);
         Integer maxBacklogOrder = todoRepository.findMaxBacklogOrderByUserIdOrZero(todo.getUserId());
         todo.changeToBacklog(maxBacklogOrder);
     }
 
-    private List<Todo> getTodos(DragAndDropRequestDto requestDto) {
+    private boolean isCompletedTodo(Todo todo) {
+        return todo.getTodayStatus().equals(TodayStatus.COMPLETED);
+    }
+
+    private List<Todo> getTodosByIds(List<Long> todoIds) {
         List<Todo> todos = new ArrayList<>();
-        for (Long todoId : requestDto.getTodoIds()) {
+        for (Long todoId : todoIds) {
             todos.add(todoRepository.findById(todoId).get());
         }
         return todos;
     }
 
-    private void checkIsValidToDragAndDrop(Long userId, List<Todo> todos, DragAndDropRequestDto requestDto) {
-        if (todos.size() != requestDto.getTodoIds().size()) {
+    private void checkIsValidToDragAndDrop(Long userId, List<Todo> todos, DragAndDropRequestDto dragAndDropRequestDto) {
+        if (todos.size() != dragAndDropRequestDto.getTodoIds().size()) {
             throw new TodoException(TodoExceptionErrorCode.TODO_NOT_EXIST);
         }
         for (Todo todo : todos) {
             if (!todo.getUserId().equals(userId)) {
                 throw new TodoException(TodoExceptionErrorCode.TODO_USER_NOT_MATCH);
             }
-            if (requestDto.getType().equals(Type.TODAY) && todo.getTodayStatus() == TodayStatus.COMPLETED) {
+            if (dragAndDropRequestDto.getType().equals(Type.TODAY) && todo.getTodayStatus() == TodayStatus.COMPLETED) {
                 throw new TodoException(TodoExceptionErrorCode.ALREADY_COMPLETED_TODO);
             }
-            if (requestDto.getType().equals(Type.TODAY)) {
+            if (dragAndDropRequestDto.getType().equals(Type.TODAY)) {
                 if (!todo.getType().equals(Type.TODAY)) {
                     throw new TodoException(TodoExceptionErrorCode.TODO_TYPE_NOT_MATCH);
                 }
             }
-            if (requestDto.getType().equals(Type.BACKLOG)) {
+            if (dragAndDropRequestDto.getType().equals(Type.BACKLOG)) {
                 if (!(todo.getType().equals(Type.BACKLOG) || todo.getType().equals(Type.YESTERDAY))) {
                     throw new TodoException(TodoExceptionErrorCode.TODO_TYPE_NOT_MATCH);
                 }
@@ -182,13 +176,20 @@ public class TodoService {
     }
 
 
-
-    private void checkIsValidToUpdateIsCompleted(Long userId, Todo todo) {
-        if (todo.getUserId() != userId)
-            throw new TodoException(TodoExceptionErrorCode.TODO_USER_NOT_MATCH);
+    private void checkIsValidToUpdateIsCompleted(Todo todo) {
         if (todo.getType().equals(Type.BACKLOG))
             throw new TodoException(TodoExceptionErrorCode.BACKLOG_CANT_COMPLETE);
         if (todo.getType().equals(Type.YESTERDAY) && todo.getTodayStatus().equals(TodayStatus.COMPLETED))
             throw new TodoException(TodoExceptionErrorCode.YESTERDAY_CANT_COMPLETE);
+    }
+
+
+    private boolean isToday(Todo findTodo) {
+        return findTodo.getType().equals(Type.TODAY);
+    }
+
+
+    private boolean isTypeToday(Type type) {
+        return type.equals(Type.TODAY);
     }
 }

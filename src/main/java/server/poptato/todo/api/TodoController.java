@@ -18,7 +18,7 @@ public class TodoController {
     private final TodoService todoService;
 
     @DeleteMapping("/todo/{todoId}")
-    public BaseResponse deleteTodoById(@UserId Long userId, @PathVariable Long todoId) {
+    public BaseResponse deleteTodo(@UserId Long userId, @PathVariable Long todoId) {
         todoService.deleteTodoById(userId, todoId);
         return new BaseResponse<>();
     }
@@ -26,7 +26,7 @@ public class TodoController {
     @PatchMapping("/swipe")
     public BaseResponse swipe(@UserId Long userId,
                               @Validated @RequestBody SwipeRequestDto swipeRequestDto) {
-        todoService.swipe(userId, swipeRequestDto.getTodoId());
+        todoService.swipe(userId, swipeRequestDto);
         return new BaseResponse<>();
     }
 
@@ -54,16 +54,16 @@ public class TodoController {
     @PatchMapping("/todo/{todoId}/deadline")
     public BaseResponse updateDeadline(@UserId Long userId,
                                        @PathVariable Long todoId,
-                                       @Validated @RequestBody DeadlineUpdateRequestDto requestDto) {
-        todoService.updateDeadline(userId, todoId, requestDto.getDeadline());
+                                       @Validated @RequestBody DeadlineUpdateRequestDto deadlineUpdateRequestDto) {
+        todoService.updateDeadline(userId, todoId, deadlineUpdateRequestDto);
         return new BaseResponse<>();
     }
 
     @PatchMapping("/todo/{todoId}/content")
     public BaseResponse updateContent(@UserId Long userId,
                                       @PathVariable Long todoId,
-                                      @Validated @RequestBody ContentUpdateRequestDto requestDto) {
-        todoService.updateContent(userId, todoId, requestDto.getContent());
+                                      @Validated @RequestBody ContentUpdateRequestDto contentUpdateRequestDto) {
+        todoService.updateContent(userId, todoId, contentUpdateRequestDto);
         return new BaseResponse<>();
     }
 
