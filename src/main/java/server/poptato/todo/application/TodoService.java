@@ -43,7 +43,7 @@ public class TodoService {
         todays.addAll(incompleteTodos);
 
         // 완료된 할 일 조회
-        List<Todo> completedTodos = todoRepository.findByUserIdAndTypeAndTodayDateAndTodayStatusOrderByCompletedDateTimeDesc(
+        List<Todo> completedTodos = todoRepository.findByUserIdAndTypeAndTodayDateAndTodayStatusOrderByCompletedDateTimeAsc(
                     userId, Type.TODAY, todayDate, TodayStatus.COMPLETED);
         todays.addAll(completedTodos);
 
