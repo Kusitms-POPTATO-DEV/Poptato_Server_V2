@@ -1,5 +1,9 @@
 package server.poptato.auth.api;
 
+import com.github.dockerjava.api.model.ExposedPort;
+import com.github.dockerjava.api.model.HostConfig;
+import com.github.dockerjava.api.model.PortBinding;
+import com.github.dockerjava.api.model.Ports;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
@@ -11,6 +15,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
@@ -53,7 +59,18 @@ public class AuthControllerTest {
     private static final GenericContainer<?> redisContainer =
             new GenericContainer<>("redis:latest")
                     .withExposedPorts(6379)
-                    .waitingFor(Wait.forListeningPort());
+                    .waitingFor(Wait.forListeningPort())
+                    .withCreateContainerCmdModifier(cmd ->
+                            cmd.withHostConfig(new HostConfig().withPortBindings(
+                                    new PortBinding(Ports.Binding.bindPort(63799), new ExposedPort(6379))
+                            ))
+                    );
+
+    @DynamicPropertySource
+    static void configureRedisProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.redis.host", redisContainer::getHost);
+        registry.add("spring.redis.port", () -> redisContainer.getMappedPort(6379));
+    }
 
     @BeforeEach
     void createAccessToken_UserIdIsOne() {
