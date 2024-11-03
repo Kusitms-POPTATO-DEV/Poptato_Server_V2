@@ -8,13 +8,12 @@ import org.springframework.data.repository.query.Param;
 import server.poptato.todo.domain.entity.Todo;
 import server.poptato.todo.domain.repository.TodoRepository;
 import server.poptato.todo.domain.value.TodayStatus;
+import server.poptato.todo.domain.value.Type;
 
 import java.time.LocalDate;
 import java.util.List;
 
 public interface JpaTodoRepository extends TodoRepository, JpaRepository<Todo,Long> {
-    @Query("SELECT t FROM Todo t WHERE t.userId = :userId AND t.completedDateTime IS NOT NULL")
-    Page<Todo> findByUserIdAndCompletedDateTimeIsNotNull(Long userId, Pageable pageable);
     @Query("SELECT COALESCE(MAX(t.backlogOrder), 0) FROM Todo t WHERE t.userId = :userId AND t.backlogOrder IS NOT NULL")
     Integer findMaxBacklogOrderByUserIdOrZero(Long userId);
     @Query("SELECT COALESCE(MAX(t.todayOrder), 0) FROM Todo t WHERE t.userId = :userId AND t.todayOrder IS NOT NULL")
@@ -34,4 +33,11 @@ public interface JpaTodoRepository extends TodoRepository, JpaRepository<Todo,Lo
             @Param("todayDate") LocalDate todayDate,
             Pageable pageable
     );
+    @Query("SELECT t FROM Todo t WHERE t.userId = :userId AND (t.type IN :types AND (t.todayStatus NOT IN :statuses OR t.todayStatus IS NULL)) " +
+            "ORDER BY t.backlogOrder DESC")
+    Page<Todo> findBacklogsByUserId(
+            @Param("userId") Long userId,
+            @Param("types") List<Type> types,
+            @Param("statuses") List<TodayStatus> statuses,
+            Pageable pageable);
 }

@@ -47,9 +47,13 @@ class TodoBacklogServiceTest {
 
         //when
         BacklogListResponseDto backlogList = todoBacklogService.getBacklogList(userId, page, size);
+        for(BacklogResponseDto todo : backlogList.getBacklogs()){
+            Long todoId = todo.getTodoId();
+            System.out.println(todoId);
+        }
 
         //then
-        assertThat(backlogList.getBacklogs()).isEmpty();
+        assertThat(backlogList.getBacklogs().size()).isEqualTo(0);
         assertThat(backlogList.getTotalPageCount()).isEqualTo(0);
     }
 
