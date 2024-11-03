@@ -27,15 +27,11 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      # Redis 이미지 다운로드
-      - name: Pull Redis image
-        run: docker pull redis:latest
-
       # Redis 실행
-      - name: Run Redis container
-        run: |
-          docker run -d --name redis-server -p 6379:6379 redis:latest 
-          sleep 5
+      - name: Start Redis
+        uses: supercharge/redis-github-action@1.1.0
+        with:
+          redis-version: 6
 
       # main의 resources 디렉토리 생성
       - name: Create main resources directory
