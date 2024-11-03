@@ -1,5 +1,9 @@
 package server.poptato.auth.application;
 
+import com.github.dockerjava.api.model.ExposedPort;
+import com.github.dockerjava.api.model.HostConfig;
+import com.github.dockerjava.api.model.PortBinding;
+import com.github.dockerjava.api.model.Ports;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -7,6 +11,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
@@ -54,7 +60,18 @@ public class AuthServiceTest {
     private static final GenericContainer<?> redisContainer =
             new GenericContainer<>("redis:latest")
                     .withExposedPorts(6379)
-                    .waitingFor(Wait.forListeningPort());
+                    .waitingFor(Wait.forListeningPort())
+                    .withCreateContainerCmdModifier(cmd ->
+                            cmd.withHostConfig(new HostConfig().withPortBindings(
+                                    new PortBinding(Ports.Binding.bindPort(63799), new ExposedPort(6379))
+                            ))
+                    );
+
+    @DynamicPropertySource
+    static void configureRedisProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.redis.host", redisContainer::getHost);
+        registry.add("spring.redis.port", () -> redisContainer.getMappedPort(6379));
+    }
 
     @BeforeEach
     public void setup() {
