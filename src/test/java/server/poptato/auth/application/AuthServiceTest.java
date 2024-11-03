@@ -7,6 +7,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 import server.poptato.auth.api.request.ReissueTokenRequestDto;
 import server.poptato.auth.application.service.AuthService;
 import server.poptato.auth.application.service.JwtService;
@@ -23,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static server.poptato.auth.exception.errorcode.AuthExceptionErrorCode.INVALID_TOKEN;
 
+@Testcontainers
 @SpringBootTest
 public class AuthServiceTest {
     @Autowired
@@ -44,6 +49,12 @@ public class AuthServiceTest {
 
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
+
+    @Container
+    private static final GenericContainer<?> redisContainer =
+            new GenericContainer<>("redis:latest")
+                    .withExposedPorts(6379)
+                    .waitingFor(Wait.forListeningPort());
 
     @BeforeEach
     public void setup() {

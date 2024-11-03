@@ -12,6 +12,10 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 import server.poptato.auth.api.request.KakaoLoginRequestDto;
 import server.poptato.auth.application.service.AuthService;
 import server.poptato.auth.application.service.JwtService;
@@ -24,6 +28,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@Testcontainers
 @SpringBootTest
 @AutoConfigureMockMvc
 public class AuthControllerTest {
@@ -43,6 +48,12 @@ public class AuthControllerTest {
     private String accessToken;
     private String refreshToken;
     private final String userId = "1";
+
+    @Container
+    private static final GenericContainer<?> redisContainer =
+            new GenericContainer<>("redis:latest")
+                    .withExposedPorts(6379)
+                    .waitingFor(Wait.forListeningPort());
 
     @BeforeEach
     void createAccessToken_UserIdIsOne() {
