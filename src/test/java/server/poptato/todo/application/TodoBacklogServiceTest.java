@@ -47,9 +47,13 @@ class TodoBacklogServiceTest {
 
         //when
         BacklogListResponseDto backlogList = todoBacklogService.getBacklogList(userId, page, size);
+        for(BacklogResponseDto todo : backlogList.getBacklogs()){
+            Long todoId = todo.getTodoId();
+            System.out.println(todoId);
+        }
 
         //then
-        assertThat(backlogList.getBacklogs()).isEmpty();
+        assertThat(backlogList.getBacklogs().size()).isEqualTo(0);
         assertThat(backlogList.getTotalPageCount()).isEqualTo(0);
     }
 
@@ -111,7 +115,7 @@ class TodoBacklogServiceTest {
         // given
         Long userId = 1L;
         int page = 0;
-        int size = 5; // 한번에 5개의 todo 가져오기
+        int size = 5;
 
         // when
         PaginatedYesterdayResponseDto result = todoBacklogService.getYesterdays(userId, page, size);
