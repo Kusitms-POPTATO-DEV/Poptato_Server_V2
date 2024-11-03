@@ -20,7 +20,8 @@ public interface TodoRepository {
     void delete(Todo todo);
     Page<Todo> findByUserIdAndCompletedStatusAndDifferentTodayDate(Long userId, TodayStatus todayStatus, LocalDate today, Pageable pageable);
     Todo save(Todo todo);
-    Page<Todo> findByUserIdAndTypeInAndTodayStatusNotInOrderByBacklogOrderDesc(Long userId, List<Type> types, List<TodayStatus> excludedStatuses, Pageable pageable);
+    Page<Todo> findByUserIdAndTypeInAndTodayStatusNotInOrTodayStatusIsNullOrderByBacklogOrderDesc(
+            Long userId, List<Type> types, List<TodayStatus> statuses, Pageable pageable);
     Integer findMaxBacklogOrderByUserIdOrZero(Long userId);
     Integer findMaxTodayOrderByUserIdOrZero(Long userId);
     Integer findMinTodayOrderByUserIdOrZero(Long userId);
@@ -40,7 +41,7 @@ public interface TodoRepository {
     }
 
     default Page<Todo> findBacklogsByUserId(Long userId, List<Type> types, List<TodayStatus> statuses, Pageable pageable){
-        return findByUserIdAndTypeInAndTodayStatusNotInOrderByBacklogOrderDesc(
+        return findByUserIdAndTypeInAndTodayStatusNotInOrTodayStatusIsNullOrderByBacklogOrderDesc(
                 userId, types, statuses, pageable);
     }
     default Page<Todo> findHistories(Long userId, LocalDate today, Pageable pageable) {
