@@ -30,7 +30,8 @@ class TodoRepositoryTest {
         LocalDate todayDate = LocalDate.of(2024, 10, 16);
 
         //when
-        List<Todo> todos = todoRepository.findCompletedTodays(userId, Type.TODAY, todayDate, TodayStatus.COMPLETED);
+        List<Todo> todos = todoRepository.findByUserIdAndTypeAndTodayDateAndTodayStatusOrderByCompletedDateTimeAsc(
+                userId, Type.TODAY, todayDate, TodayStatus.COMPLETED);
 
         //then
         assertThat(todos).isNotEmpty();
@@ -38,7 +39,7 @@ class TodoRepositoryTest {
         assertThat(todos.stream().allMatch(todo -> todo.getType() == Type.TODAY)).isTrue();
         assertThat(todos.stream().allMatch(todo -> todo.getTodayDate().equals(todayDate))).isTrue();
         for (int i = 0; i < todos.size() - 1; i++) {
-            assertThat(todos.get(i).getCompletedDateTime()).isAfterOrEqualTo(todos.get(i + 1).getCompletedDateTime());
+            assertThat(todos.get(i).getCompletedDateTime()).isBeforeOrEqualTo(todos.get(i + 1).getCompletedDateTime());
         }
     }
 

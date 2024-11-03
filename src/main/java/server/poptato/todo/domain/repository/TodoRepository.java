@@ -14,7 +14,7 @@ public interface TodoRepository {
     void deleteAllByUserId(Long userId);
     List<Todo> findByUserIdAndTypeAndTodayDateAndTodayStatusOrderByTodayOrderDesc(
             Long userId, Type type, LocalDate todayDate, TodayStatus todayStatus);
-    List<Todo> findByUserIdAndTypeAndTodayDateAndTodayStatusOrderByCompletedDateTimeDesc(
+    List<Todo> findByUserIdAndTypeAndTodayDateAndTodayStatusOrderByCompletedDateTimeAsc(
             Long userId, Type type, LocalDate todayDate, TodayStatus todayStatus);
     Optional<Todo> findById(Long todoId);
     void delete(Todo todo);
@@ -35,7 +35,7 @@ public interface TodoRepository {
                 userId, type, todayDate, todayStatus);
     }
     default List<Todo> findCompletedTodays(Long userId, Type type, LocalDate todayDate, TodayStatus todayStatus){
-        return findByUserIdAndTypeAndTodayDateAndTodayStatusOrderByCompletedDateTimeDesc(
+        return findByUserIdAndTypeAndTodayDateAndTodayStatusOrderByCompletedDateTimeAsc(
                 userId, type, todayDate, todayStatus);
     }
 
