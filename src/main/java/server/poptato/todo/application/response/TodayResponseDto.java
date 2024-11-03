@@ -23,11 +23,14 @@ public class TodayResponseDto {
         this.isBookmark = todo.isBookmark();
         this.deadline = todo.getDeadline();
 
-        if (todo.getDeadline() != null && todo.getTodayDate() != null) {
+        if (hasDeadline(todo)) {
             this.dDay = (int) ChronoUnit.DAYS.between(todo.getTodayDate(), todo.getDeadline());
-        } else {
-            // 마감 기한을 계산할 수 없는 경우 NULL
-            this.dDay = null;
+            return;
         }
+        this.dDay = null;
+    }
+
+    private boolean hasDeadline(Todo todo) {
+        return todo.getDeadline() != null && todo.getTodayDate() != null;
     }
 }

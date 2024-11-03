@@ -1,66 +1,69 @@
 name: Java CI with Gradle
 
-#dev 브랜치로 pr할 때 CI 적용
+# dev 브랜치로 PR할 때 CI 적용
 on:
   pull_request:
     branches: [ "dev" ]
     types: [ opened, synchronize ]
-  push: # push 이벤트 발생 시
-    branches: # 타겟 브랜치
+  push:
+    branches:
       - dev
 
-#build 작업
+# build 작업
 jobs:
   build:
-    #작업이 실행될 환경 지정
     runs-on: ubuntu-latest
     permissions:
       contents: read
-    #각 단계가 순자적으로 진행
     steps:
-      - uses: actions/checkout@v4
-      #JDK 17 설치
+      # 코드 체크아웃
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # JDK 17 설치
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
 
+      # Redis 실행
+      - name: Start Redis
+        uses: supercharge/redis-github-action@1.1.0
+        with:
+          redis-version: 6
+
+      # main의 resources 디렉토리 생성
       - name: Create main resources directory
         run: mkdir -p src/main/resources
 
+      # test의 resources 디렉토리 생성
       - name: Create test resources directory
         run: mkdir -p src/test/resources
 
       # main의 application.yml 생성
       - name: Set Release YML File
         run: |
-          cd ./src/main/resources
-          touch ./application.yml
-          echo "${{ secrets.APPLICATION_YML }}" > ./application.yml
+          echo "${{ secrets.APPLICATION_YML }}" > src/main/resources/application.yml
 
       # test의 data.sql 생성
       - name: Set Test DATA SQL File
         run: |
-          cd ./src/test/resources
-          touch ./data.sql
-          echo "${{ secrets.TEST_DATA_SQL }}" > ./data.sql
+          echo "${{ secrets.TEST_DATA_SQL }}" > src/test/resources/data.sql
 
       # test의 application.yml 생성
       - name: Set Release Test YML File
         run: |
-          cd ./src/test/resources
-          touch ./application.yml
-          echo "${{ secrets.APPLICATION_TEST_YML }}" > ./application.yml
+          echo "${{ secrets.APPLICATION_TEST_YML }}" > src/test/resources/application.yml
 
-      #Gradle 설정 및 의존성 다운
+      # Gradle 설정 및 의존성 다운
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
+        uses: gradle/actions/setup-gradle@v3.1.0
 
-      #Permission Denied 해결
+      # gradlew 파일 실행 권한 부여
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
-      #빌드 작업 실행(테스트도 같이 진행)
+      # 빌드 작업 실행(테스트 포함)
       - name: Build with Gradle Wrapper
         run: ./gradlew build

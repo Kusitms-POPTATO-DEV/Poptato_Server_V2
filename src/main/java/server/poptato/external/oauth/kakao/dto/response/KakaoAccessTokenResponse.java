@@ -1,4 +1,4 @@
-package server.poptato.external.kakao.dto.response;
+package server.poptato.external.oauth.kakao.dto.response;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;

@@ -49,7 +49,6 @@ public class Todo{
     private LocalDateTime createDate;
     @LastModifiedDate
     private LocalDateTime modifyDate;
-    // isBookmark 값을 토글하는 도메인 메서드
 
     public static Todo createBacklog(Long userId, String content, Integer backlogOrder) {
         return Todo.builder()
@@ -97,8 +96,9 @@ public class Todo{
         this.content = content;
     }
 
-    public void updateTodayStatusToInComplete() {
+    public void updateTodayStatusToInComplete(int minTodayOrder) {
         this.todayStatus = TodayStatus.INCOMPLETE;
+        this.todayOrder = --minTodayOrder;
         this.completedDateTime = null;
     }
 
@@ -108,6 +108,12 @@ public class Todo{
         this.todayOrder = null;
     }
 
+    public void updateYesterdayStatusToCompleted() {
+        this.todayStatus = TodayStatus.COMPLETED;
+        this.completedDateTime = LocalDateTime.now();
+        this.backlogOrder = null;
+    }
+
     public void setType(Type type) {
         this.type = type;
     }
@@ -115,4 +121,5 @@ public class Todo{
     public void setTodayStatus(TodayStatus todayStatus) {
         this.todayStatus = todayStatus;
     }
+
 }

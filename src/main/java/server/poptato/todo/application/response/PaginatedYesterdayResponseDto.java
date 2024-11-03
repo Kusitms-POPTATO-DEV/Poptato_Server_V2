@@ -1,15 +1,26 @@
 package server.poptato.todo.application.response;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import org.springframework.data.domain.Page;
+import server.poptato.todo.domain.entity.Todo;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
-@Builder
-@AllArgsConstructor
 public class PaginatedYesterdayResponseDto {
-    private List<YesterdayResponseDto> yesterdays;
-    private int totalPageCount;
+    List<YesterdayResponseDto> yesterdays;
+    int totalPageCount;
+
+    @Builder
+    public PaginatedYesterdayResponseDto(Page<Todo> yesterdaysPage) {
+        this.yesterdays = yesterdaysPage.getContent().stream()
+                .map(todo -> new YesterdayResponseDto(
+                        todo.getId(),
+                        todo.getContent()
+                ))
+                .collect(Collectors.toList());
+        this.totalPageCount = yesterdaysPage.getTotalPages();
+    }
 }

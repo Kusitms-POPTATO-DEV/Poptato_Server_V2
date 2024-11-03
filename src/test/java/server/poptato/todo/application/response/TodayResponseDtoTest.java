@@ -7,12 +7,12 @@ import server.poptato.todo.domain.value.TodayStatus;
 
 import java.time.LocalDate;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class TodayResponseDtoTest {
     @DisplayName("오늘이 16일이고 마감이 20일이면 남은 일은 4일로 계산된다.")
     @Test
-    void 마감기한이_정상적으로_계산된다() {
+    void calculateDDay_Success() {
         //given
         Todo todo = Todo.builder()
                 .id(1000L)
@@ -30,9 +30,9 @@ class TodayResponseDtoTest {
         assertThat(responseDto.getDDay()).isEqualTo(4);
     }
 
-    @DisplayName("마감이 설정안되어있는 경우 NULL로 정상 응답된다.")
+    @DisplayName("마감이 설정 안되어있는 경우 NULL로 정상 응답된다.")
     @Test
-    void 마감기한_null_응답() {
+    void responseDDAYNull_Success() {
         //given
         Todo todo = Todo.builder()
                 .id(1L)

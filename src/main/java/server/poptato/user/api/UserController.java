@@ -1,15 +1,14 @@
 package server.poptato.user.api;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import server.poptato.global.response.BaseResponse;
-import server.poptato.user.api.request.UserChangeNameRequestDto;
-import server.poptato.user.application.response.UserResponseDto;
+import server.poptato.user.application.response.UserInfoResponseDto;
 import server.poptato.user.application.service.UserService;
 import server.poptato.user.resolver.UserId;
-
-import static server.poptato.global.exception.errorcode.BaseExceptionErrorCode.SUCCESS;
 
 @RestController
 @RequiredArgsConstructor
@@ -23,9 +22,10 @@ public class UserController {
         userService.deleteUser(userId);
         return new BaseResponse();
     }
+
     @GetMapping("/mypage")
-    public BaseResponse getUserNameAndEmail(@UserId Long userId) {
-        UserResponseDto response = userService.getUserNameAndEmailById(userId);
+    public BaseResponse getUserInfo(@UserId Long userId) {
+        UserInfoResponseDto response = userService.getUserInfo(userId);
         return new BaseResponse(response);
     }
 }

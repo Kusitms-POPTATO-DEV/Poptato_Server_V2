@@ -7,6 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import server.poptato.todo.domain.entity.Todo;
 import server.poptato.todo.domain.value.TodayStatus;
 import server.poptato.todo.domain.value.Type;
@@ -21,9 +22,9 @@ class TodoRepositoryTest {
     @Autowired
     private TodoRepository todoRepository;
 
-    @DisplayName("userId가 1이 등록한 달성된 투데이가 달성 시각 순서에 따라 성공적으로 정렬되어 조회된다.")
+    @DisplayName("달성된 투데이 조회 시, userId가 1이 등록한 달성된 투데이가 달성 시각 순서에 따라 성공적으로 정렬되어 조회된다.")
     @Test
-    void 투데이_달성_목록조회_성공응답() {
+    void findCompletedToday_Success() {
         //given
         Long userId = 1L;
         LocalDate todayDate = LocalDate.of(2024, 10, 16);
@@ -32,74 +33,70 @@ class TodoRepositoryTest {
         List<Todo> todos = todoRepository.findByUserIdAndTypeAndTodayDateAndTodayStatusOrderByCompletedDateTimeAsc(
                 userId, Type.TODAY, todayDate, TodayStatus.COMPLETED);
 
+        //then
         assertThat(todos).isNotEmpty();
-
-        // userId가 모두 1인지 확인
         assertThat(todos.stream().allMatch(todo -> todo.getUserId().equals(userId))).isTrue();
-
-        // type이 모두 TODAY인지 확인
         assertThat(todos.stream().allMatch(todo -> todo.getType() == Type.TODAY)).isTrue();
-
-        // todayDate가 모두 2024-10-16인지 확인
         assertThat(todos.stream().allMatch(todo -> todo.getTodayDate().equals(todayDate))).isTrue();
-
-        // 완료된 할 일은 completeDateTime이 내림차순으로 정렬되어야 함
         for (int i = 0; i < todos.size() - 1; i++) {
             assertThat(todos.get(i).getCompletedDateTime()).isBeforeOrEqualTo(todos.get(i + 1).getCompletedDateTime());
         }
     }
 
-    @DisplayName("userId가 1이 등록한 미달성 투데이가 순서에 따라 성공적으로 정렬되어 조회된다.")
+    @DisplayName("미달성된 투데이 조회 시, userId가 1이 등록한 미달성 투데이가 TodayOrder에 따라 성공적으로 내림차순 정렬되어 조회된다.")
     @Test
-    void 투데이_미달성_목록조회_성공응답() {
+    void findInCompleteToday_Success() {
         //given
         Long userId = 1L;
         LocalDate todayDate = LocalDate.of(2024, 10, 16);
 
         //when
-        List<Todo> todos = todoRepository.findByUserIdAndTypeAndTodayDateAndTodayStatusOrderByTodayOrderDesc(
-                userId, Type.TODAY, todayDate, TodayStatus.INCOMPLETE);
+        List<Todo> todos = todoRepository.findIncompleteTodays(userId, Type.TODAY, todayDate, TodayStatus.INCOMPLETE);
 
+        //then
         assertThat(todos).isNotEmpty();
-
-        // userId가 모두 1인지 확인
         assertThat(todos.stream().allMatch(todo -> todo.getUserId().equals(userId))).isTrue();
-
-        // type이 모두 TODAY인지 확인
         assertThat(todos.stream().allMatch(todo -> todo.getType() == Type.TODAY)).isTrue();
-
-        // todayDate가 모두 2024-10-16인지 확인
         assertThat(todos.stream().allMatch(todo -> todo.getTodayDate().equals(todayDate))).isTrue();
-
-        // 미완료된 할 일은 todayOrder가 오름차순으로 정렬되어야 함
         for (int i = 0; i < todos.size() - 1; i++) {
             assertThat(todos.get(i).getTodayOrder()).isGreaterThan(todos.get(i + 1).getTodayOrder());
         }
     }
 
-    @DisplayName("userId가 1이 등록한 백로그 리스트가 순서에 따라 성공적으로 정렬되어 조회된다.")
+    @DisplayName("백로그 목록 조회 시, userId가 1이 등록한 백로그 리스트가 BacklogOrder에 따라 성공적으로 내림차순 정렬되어 조회된다.")
     @Test
-    void 백로그_목록조회_성공응답() {
+    void findBacklogs_Success() {
         //given
         Long userId = 1L;
         List<Type> types = List.of(Type.BACKLOG, Type.YESTERDAY);
+        List<TodayStatus> statuses = List.of(TodayStatus.COMPLETED);
         PageRequest pageRequest = PageRequest.of(0, 8);
 
         //when
-        Page<Todo> backlogs = todoRepository.findByUserIdAndTypeInOrderByBacklogOrderDesc(
-                userId, types, pageRequest);
+        Page<Todo> backlogs = todoRepository.findBacklogsByUserId(userId, types, statuses, pageRequest);
 
+        //then
         assertThat(backlogs.getContent()).isNotEmpty();
-
-        // userId가 모두 1인지 확인
         assertThat(backlogs.getContent().stream().allMatch(backlog -> backlog.getUserId().equals(userId))).isTrue();
-
-        // type이 BACKLOG 혹은 YESTERDAY인지 확인
         assertThat(backlogs.getContent().stream().allMatch(backlog -> backlog.getType().equals(Type.BACKLOG)  || backlog.getType().equals(Type.YESTERDAY))).isTrue();
-
-        // backlogOrder가 오름차순으로 정렬되어야 함
         for (int i = 0; i < backlogs.getContent().size() - 1; i++) {
             assertThat(backlogs.getContent().get(i).getBacklogOrder()).isGreaterThan(backlogs.getContent().get(i + 1).getBacklogOrder());
         }
+    }
+
+    @DisplayName("히스토리 조회 시,userId가 1의 기록을 조회한다")
+    @Test
+    void findHistories_Success(){
+        //given
+        Long userId = 1L;
+        LocalDate today = LocalDate.of(2024,10,30);
+        Pageable pageable = PageRequest.of(0, 15, Sort.by(Sort.Direction.DESC, "completedDateTime"));
+
+        //when
+        Page<Todo> histories = todoRepository.findHistories(userId, today, pageable);
+
+        //then
+        assertThat(histories).isNotNull();
+        assertThat(histories.getContent().size()).isEqualTo(6);
     }
 }

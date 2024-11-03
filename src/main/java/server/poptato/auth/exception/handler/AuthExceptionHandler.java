@@ -16,7 +16,7 @@ public class AuthExceptionHandler {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(AuthException.class)
     public BaseErrorResponse handleAuthException(AuthException e) {
-        log.error("[AuthException: handle_UserException 호출]", e);
+        log.error("[AuthException: handle_AuthException 호출]", e);
         return new BaseErrorResponse(e.getExceptionStatus(), e.getMessage());
     }
 }
