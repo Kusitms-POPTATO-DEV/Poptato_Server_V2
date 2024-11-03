@@ -31,6 +31,11 @@ jobs:
       - name: Pull Redis image
         run: docker pull redis:latest
 
+      # Redis 실행
+      - name: Run Redis container
+        run: |
+          docker run -d --name redis-server -p 6379:6379 redis:latest 
+
       # main의 resources 디렉토리 생성
       - name: Create main resources directory
         run: mkdir -p src/main/resources
