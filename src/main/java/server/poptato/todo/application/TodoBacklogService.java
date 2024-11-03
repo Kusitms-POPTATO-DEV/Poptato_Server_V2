@@ -19,6 +19,7 @@ import server.poptato.todo.domain.value.TodayStatus;
 import server.poptato.todo.domain.value.Type;
 import server.poptato.user.validator.UserValidator;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Transactional
@@ -37,18 +38,21 @@ public class TodoBacklogService {
     public BacklogCreateResponseDto generateBacklog(Long userId, BacklogCreateRequestDto backlogCreateRequestDto) {
         userValidator.checkIsExistUser(userId);
         Integer maxBacklogOrder = todoRepository.findMaxBacklogOrderByUserIdOrZero(userId);
-        Todo newBacklog = createnewBacklog(userId, backlogCreateRequestDto, maxBacklogOrder);
+        Todo newBacklog = createNewBacklog(userId, backlogCreateRequestDto, maxBacklogOrder);
         return TodoDtoConverter.toBacklogCreateDto(newBacklog);
     }
 
     public PaginatedHistoryResponseDto getHistories(Long userId, int page, int size) {
         userValidator.checkIsExistUser(userId);
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "completedDateTime"));
-
-        List<Type> types = List.of(Type.BACKLOG, Type.YESTERDAY);
-        Page<Todo> historiesPage = todoRepository.findHistories(userId, types, pageable);
-
+        Page<Todo> historiesPage = getHistoriesPage(userId, page, size);
         return TodoDtoConverter.toHistoryListDto(historiesPage);
+    }
+
+    private Page<Todo> getHistoriesPage(Long userId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "completedDateTime"));
+        LocalDate today = LocalDate.now();
+        Page<Todo> historiesPage = todoRepository.findHistories(userId, today, pageable);
+        return historiesPage;
     }
 
     public PaginatedYesterdayResponseDto getYesterdays(Long userId, int page, int size) {
@@ -63,13 +67,13 @@ public class TodoBacklogService {
     private Page<Todo> getBacklogsPagination(Long userId, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size);
         List<Type> types = List.of(Type.BACKLOG, Type.YESTERDAY);
-
-        Page<Todo> backlogs = todoRepository.findBacklogsByUserId(userId, types, pageRequest);
+        List<TodayStatus> statuses = List.of(TodayStatus.COMPLETED);
+        Page<Todo> backlogs = todoRepository.findBacklogsByUserId(userId, types, statuses, pageRequest);
 
         return backlogs;
     }
 
-    private Todo createnewBacklog(Long userId, BacklogCreateRequestDto backlogCreateRequestDto, Integer maxBacklogOrder) {
+    private Todo createNewBacklog(Long userId, BacklogCreateRequestDto backlogCreateRequestDto, Integer maxBacklogOrder) {
         Todo backlog = Todo.createBacklog(userId, backlogCreateRequestDto.getContent(), maxBacklogOrder + 1);
         Todo newBacklog = todoRepository.save(backlog);
         return newBacklog;

@@ -95,7 +95,14 @@ public class TodoService {
             findTodo.updateTodayStatusToInComplete(minTodayOrder);
             return;
         }
+        if (isTypeYesterday(findTodo)){
+            findTodo.updateYesterdayStatusToCompleted();
+        }
         findTodo.updateTodayStatusToCompleted();
+    }
+
+    private boolean isTypeYesterday(Todo findTodo) {
+        return findTodo.getType().equals(Type.YESTERDAY);
     }
 
     private boolean isStatusCompleted(Todo findTodo) {

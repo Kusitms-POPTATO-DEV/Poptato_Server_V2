@@ -1,7 +1,5 @@
 package server.poptato.user.api;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.validation.Validator;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -40,39 +38,44 @@ class UserControllerTest {
     private final String userId = "1";
 
     @BeforeEach
-    void userId가_1인_액세스토큰_생성() {
+    void createAccessToken_UserIdIsOne() {
         accessToken = jwtService.createAccessToken(userId);
     }
 
     @AfterEach
-    void 액세스토큰_비활성화() {
+    void deleteRefreshToken() {
         jwtService.deleteRefreshToken(userId);
     }
 
     @Test
-    @DisplayName("프로필 조회 성공 테스트")
-    void getUserNameAndEmail() throws Exception {
+    @DisplayName("마이페이지 조회 시 성공한다.")
+    void getUserInfo_Success() throws Exception {
+        //given & when & then
         mockMvc.perform(get("/user/mypage")
-                        .header("Authorization", "Bearer "+accessToken)
+                        .header("Authorization", "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print());
     }
+
     @Test
-    @DisplayName("프로필 조회 실패 테스트 - invalid token")
-    void getUserNameAndEmailFailedInvalidToken() throws Exception {
+    @DisplayName("마이페이지 조회 시 유효하지 않은 토큰이면 예외가 발생한다.")
+    void getUserInfo_InvalidTokenException() throws Exception {
+        //given
         String invalidToken = "invalidToken";
+
+        //when & then
         mockMvc.perform(get("/user/mypage")
-                        .header("Authorization", "Bearer "+invalidToken)
+                        .header("Authorization", "Bearer " + invalidToken)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized())
                 .andDo(print());
     }
 
     @Test
-    @DisplayName("회원 탈퇴 성공 - 토큰 검증 후 응답 확인")
-    void deleteUserSuccess() throws Exception {
-
+    @DisplayName("회원 탈퇴 시 성공한다.")
+    void deleteUser_Success() throws Exception {
+        //given & when & then
         mockMvc.perform(MockMvcRequestBuilders.delete("/user")
                         .header("Authorization", "Bearer " + accessToken))
                 .andExpect(status().isOk())
@@ -80,18 +83,21 @@ class UserControllerTest {
     }
 
     @Test
-    @DisplayName("회원 탈퇴 실패 - 토큰 없음")
-    void deleteUserFailureNoToken() throws Exception {
+    @DisplayName("회원 탈퇴 시 토큰이 없으면 예외가 발생한다.")
+    void deleteUser_NoTokenException() throws Exception {
+        //given & when & then
         mockMvc.perform(MockMvcRequestBuilders.delete("/user"))
                 .andExpect(status().isUnauthorized())
                 .andDo(print());
     }
 
     @Test
-    @DisplayName("회원 탈퇴 실패 - 유효하지 않은 토큰")
-    void deleteUserFailureInvalidToken() throws Exception {
+    @DisplayName("회원 탈퇴 시 유효하지 않은 토큰이면 예외가 발생한다")
+    void deleteUser_InvalidTokenException() throws Exception {
+        //given
         String invalidToken = "invalidToken";
 
+        //when & then
         mockMvc.perform(MockMvcRequestBuilders.delete("/user")
                         .header("Authorization", "Bearer " + invalidToken))
                 .andExpect(status().isUnauthorized())

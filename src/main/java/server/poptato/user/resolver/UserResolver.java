@@ -32,9 +32,9 @@ public class UserResolver implements HandlerMethodArgumentResolver {
         if (token == null || token.isBlank() || !token.startsWith("Bearer ")) {
             throw new AuthException(TOKEN_NOT_EXIST);
         }
-        final String encodedUserId = token.substring("Bearer ".length());
-        jwtService.verifyToken(token);
-        final String decodedUserId = jwtService.getUserIdInToken(encodedUserId);
+        final String extractedToken = token.substring("Bearer ".length());
+        jwtService.verifyToken(extractedToken);
+        final String decodedUserId = jwtService.getUserIdInToken(extractedToken);
         try {
             return Long.parseLong(decodedUserId);
         } catch (NumberFormatException e) {

@@ -17,11 +17,10 @@ public interface TodoRepository {
     List<Todo> findByUserIdAndTypeAndTodayDateAndTodayStatusOrderByCompletedDateTimeDesc(
             Long userId, Type type, LocalDate todayDate, TodayStatus todayStatus);
     Optional<Todo> findById(Long todoId);
-    Optional<Todo> findByIdAndUserId(Long todoId, Long userId);
     void delete(Todo todo);
-    Page<Todo> findByUserIdAndCompletedDateTimeIsNotNullAndTypeIn(Long userId, List<Type> types, Pageable pageable);
+    Page<Todo> findByUserIdAndCompletedStatusAndDifferentTodayDate(Long userId, TodayStatus todayStatus, LocalDate today, Pageable pageable);
     Todo save(Todo todo);
-    Page<Todo> findByUserIdAndTypeInOrderByBacklogOrderDesc(Long userId, List<Type> types, Pageable pageable);
+    Page<Todo> findByUserIdAndTypeInAndTodayStatusNotInOrderByBacklogOrderDesc(Long userId, List<Type> types, List<TodayStatus> excludedStatuses, Pageable pageable);
     Integer findMaxBacklogOrderByUserIdOrZero(Long userId);
     Integer findMaxTodayOrderByUserIdOrZero(Long userId);
     Integer findMinTodayOrderByUserIdOrZero(Long userId);
@@ -40,11 +39,11 @@ public interface TodoRepository {
                 userId, type, todayDate, todayStatus);
     }
 
-    default Page<Todo> findBacklogsByUserId(Long userId, List<Type> types, Pageable pageable){
-        return findByUserIdAndTypeInOrderByBacklogOrderDesc(
-                userId, types, pageable);
+    default Page<Todo> findBacklogsByUserId(Long userId, List<Type> types, List<TodayStatus> statuses, Pageable pageable){
+        return findByUserIdAndTypeInAndTodayStatusNotInOrderByBacklogOrderDesc(
+                userId, types, statuses, pageable);
     }
-    default Page<Todo> findHistories(Long userId, List<Type> types, Pageable pageable) {
-        return findByUserIdAndTypeInOrderByBacklogOrderDesc(userId, types, pageable);
+    default Page<Todo> findHistories(Long userId, LocalDate today, Pageable pageable) {
+        return findByUserIdAndCompletedStatusAndDifferentTodayDate(userId, TodayStatus.COMPLETED, today, pageable);
     }
 }

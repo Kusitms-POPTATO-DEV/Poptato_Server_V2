@@ -8,8 +8,10 @@ import server.poptato.user.application.response.UserInfoResponseDto;
 import server.poptato.user.application.service.UserService;
 import server.poptato.user.domain.repository.UserRepository;
 import server.poptato.user.exception.UserException;
+import server.poptato.user.exception.errorcode.UserExceptionErrorCode;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 class UserServiceTest {
@@ -20,28 +22,29 @@ class UserServiceTest {
     @Autowired
     private UserRepository userRepository;
     @Test
-    @DisplayName("getUserNameAndEmailById 메서드는 유효한 userId가 주어졌을 때 사용자 이름과 이메일을 반환한다")
-    public void shouldReturnUserNameAndEmail_WhenUserIdIsValid() {
-        // Given
+    @DisplayName("마이페이지 조회 시 성공한다.")
+    public void getUserInfo_Success() {
+        // given
         Long userId = 1L;
 
-        // When
+        // when
         UserInfoResponseDto responseDto = userService.getUserInfo(userId);
 
-        // Then
-        assertThat(responseDto.getName()).isEqualTo("Poptato");
-        assertThat(responseDto.getEmail()).isEqualTo("poptato@naver.com");
+        // then
+        assertThat(responseDto.name()).isEqualTo("Poptato");
+        assertThat(responseDto.email()).isEqualTo("poptato@naver.com");
     }
 
     @Test
-    @DisplayName("getUserNameAndEmailById 메서드는 유효하지 않은 userId가 주어졌을 때 UserException을 던진다")
-    public void shouldThrowUserException_WhenUserIdIsInvalid() {
-        // Given
+    @DisplayName("마아페이지 조회 시, 유효하지 않은 userId가 주어졌을 때 UserException을 던진다")
+    public void getUserInfo_UserNotExistException() {
+        // given
         Long invalidUserId = 2L;
 
-        // When & Then
-        org.junit.jupiter.api.Assertions.assertThrows(UserException.class,
-                () -> userService.getUserInfo(invalidUserId));
+        // when & then
+        assertThatThrownBy(()-> userService.getUserInfo(invalidUserId))
+                .isInstanceOf(UserException.class)
+                .hasMessage(UserExceptionErrorCode.USER_NOT_EXIST.getMessage());
     }
 }
 

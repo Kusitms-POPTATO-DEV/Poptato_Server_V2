@@ -7,7 +7,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import server.poptato.todo.domain.entity.Todo;
 import server.poptato.todo.domain.repository.TodoRepository;
+import server.poptato.todo.domain.value.TodayStatus;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface JpaTodoRepository extends TodoRepository, JpaRepository<Todo,Long> {
@@ -25,4 +27,11 @@ public interface JpaTodoRepository extends TodoRepository, JpaRepository<Todo,Lo
     Integer findMinBacklogOrderByUserIdOrZero(@Param("userId") Long userId);
     @Query("SELECT COALESCE(MIN(t.todayOrder), 0) FROM Todo t WHERE t.userId = :userId AND t.todayOrder IS NOT NULL")
     Integer findMinTodayOrderByUserIdOrZero(Long userId);
+    @Query("SELECT t FROM Todo t WHERE t.userId = :userId AND t.todayStatus = :todayStatus AND t.todayDate <> :todayDate")
+    Page<Todo> findByUserIdAndCompletedStatusAndDifferentTodayDate(
+            @Param("userId") Long userId,
+            @Param("todayStatus") TodayStatus todayStatus,
+            @Param("todayDate") LocalDate todayDate,
+            Pageable pageable
+    );
 }
