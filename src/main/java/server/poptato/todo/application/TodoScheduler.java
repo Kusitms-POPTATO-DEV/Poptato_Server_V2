@@ -23,7 +23,7 @@ public class TodoScheduler {
     public void updateTodoType() {
         List<Long> updatedTodoIds = new ArrayList<>();
         Map<Long, List<Todo>> userIdAndIncompleteTodaysMap = changeIncompleteTodayToYesterday(updatedTodoIds);
-        List<Todo> yesterdayIncompleteTodos = changeYesterdayToBacklog(updatedTodoIds);
+        List<Todo> yesterdayIncompleteTodos = changeIncompleteYesterdayToBacklog(updatedTodoIds);
         save(userIdAndIncompleteTodaysMap, yesterdayIncompleteTodos);
     }
 
@@ -45,7 +45,7 @@ public class TodoScheduler {
         return userIdAndIncompleteTodaysMap;
     }
 
-    private List<Todo> changeYesterdayToBacklog(List<Long> updatedTodoIds) {
+    private List<Todo> changeIncompleteYesterdayToBacklog(List<Long> updatedTodoIds) {
         List<Todo> yesterdayIncompleteTodos = todoRepository.findByTypeAndTodayStatus(Type.YESTERDAY, TodayStatus.INCOMPLETE)
                 .stream()
                 .filter(todo -> !updatedTodoIds.contains(todo.getId()))
