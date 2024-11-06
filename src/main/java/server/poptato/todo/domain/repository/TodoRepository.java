@@ -60,4 +60,5 @@ public interface TodoRepository {
     }
 
     List<Todo> findByType(Type type);
+    List<Todo> findByTypeAndUserId(Type type, Long userId);
 }

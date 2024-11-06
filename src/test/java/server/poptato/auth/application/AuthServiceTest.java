@@ -170,17 +170,17 @@ public class AuthServiceTest {
         authService.createTutorialData(newUser.getId());
 
         //then
-        List<Todo> todays = todoRepository.findByType(Type.TODAY);
-        List<Todo> backlogs = todoRepository.findByType(Type.BACKLOG);
+        List<Todo> todays = todoRepository.findByTypeAndUserId(Type.TODAY, newUser.getId());
+        List<Todo> backlogs = todoRepository.findByTypeAndUserId(Type.BACKLOG, newUser.getId());
 
         assertThat(todays.size()).isEqualTo(1);
         assertThat(backlogs).hasSize(4)
                 .extracting("content","backlogOrder")
                 .containsExactlyInAnyOrder(
-                        tuple(4, TutorialMessage.BACKLOG_NEW_TODO),
-                        tuple(3, TutorialMessage.BACKLOG_BOOKMARK_DDAY),
-                        tuple(2, TutorialMessage.BACKLOG_DRAG_AND_DROP),
-                        tuple(1, TutorialMessage.BACKLOG_LEFT_SWIPE)
+                        tuple(TutorialMessage.BACKLOG_NEW_TODO, 4),
+                        tuple(TutorialMessage.BACKLOG_BOOKMARK_DDAY, 3),
+                        tuple(TutorialMessage.BACKLOG_DRAG_AND_DROP,2),
+                        tuple(TutorialMessage.BACKLOG_LEFT_SWIPE,1)
                 );
     }
 }
