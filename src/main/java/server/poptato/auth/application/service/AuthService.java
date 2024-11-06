@@ -11,10 +11,16 @@ import server.poptato.external.oauth.SocialService;
 import server.poptato.external.oauth.SocialServiceProvider;
 import server.poptato.external.oauth.SocialUserInfo;
 import server.poptato.global.dto.TokenPair;
+import server.poptato.todo.constant.TutorialMessage;
+import server.poptato.todo.domain.entity.Todo;
+import server.poptato.todo.domain.repository.TodoRepository;
+import server.poptato.todo.domain.value.TodayStatus;
+import server.poptato.todo.domain.value.Type;
 import server.poptato.user.domain.entity.User;
 import server.poptato.user.domain.repository.UserRepository;
 import server.poptato.user.validator.UserValidator;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 import static server.poptato.external.oauth.SocialPlatform.KAKAO;
@@ -26,6 +32,7 @@ public class AuthService {
     private final SocialServiceProvider socialServiceProvider;
     private final UserRepository userRepository;
     private final UserValidator userValidator;
+    private final TodoRepository todoRepository;
 
     public LoginResponseDto login(final KakaoLoginRequestDto loginRequestDto) {
         //TODO: 나중에 없앨 코드
@@ -36,11 +43,12 @@ public class AuthService {
         SocialUserInfo userInfo = socialService.getUserData(accessToken);
         Optional<User> user = userRepository.findByKakaoId(userInfo.socialId());
         if (user.isEmpty()) {
-            return createNewUserResponse(userInfo);
+            LoginResponseDto response = createNewUserResponse(userInfo);
+            createTutorialData(response.userId());
+            return response;
         }
         return createOldUserResponse(user.get());
     }
-
     public void logout(final Long userId) {
         userValidator.checkIsExistUser(userId);
         jwtService.deleteRefreshToken(String.valueOf(userId));
@@ -66,7 +74,6 @@ public class AuthService {
             throw e;
         }
     }
-
     private LoginResponseDto createNewUserResponse(SocialUserInfo userInfo) {
         User newUser = User.builder()
                 .kakaoId(userInfo.socialId())
@@ -86,4 +93,35 @@ public class AuthService {
         TokenPair tokenPair = jwtService.generateTokenPair(String.valueOf(user.getId()));
         return AuthDtoConverter.toLoginDto(tokenPair, user, isNewUser);
     }
+
+    private void createAndSaveTodo(Type type, Long userId, int order, String tutorialMessage) {
+        Todo todo = null;
+        if(type.equals(Type.TODAY)){
+            todo = Todo.builder()
+                    .userId(userId)
+                    .type(type)
+                    .content(tutorialMessage)
+                    .todayDate(LocalDate.now())
+                    .todayStatus(TodayStatus.COMPLETED)
+                    .todayOrder(order)
+                    .build();
+        }
+        if(type.equals(Type.BACKLOG)){
+            todo = Todo.builder()
+                    .userId(userId)
+                    .type(type)
+                    .content(tutorialMessage)
+                    .backlogOrder(order)
+                    .build();
+        }
+        todoRepository.save(todo);
+    }
+
+    public void createTutorialData(Long userId) {
+        createAndSaveTodo(Type.TODAY,userId,1, TutorialMessage.TODAY_COMPLETE);
+        for(int i=0;i<4;i++){
+            createAndSaveTodo(Type.BACKLOG,userId,4-i, TutorialMessage.BACKLOG_MESSAGES.get(i));
+        }
+    }
+
 }

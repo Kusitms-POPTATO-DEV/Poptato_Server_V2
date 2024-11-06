@@ -10,6 +10,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -24,11 +26,20 @@ import server.poptato.auth.exception.AuthException;
 import server.poptato.external.oauth.SocialService;
 import server.poptato.external.oauth.SocialServiceProvider;
 import server.poptato.global.dto.TokenPair;
+import server.poptato.todo.constant.TutorialMessage;
+import server.poptato.todo.domain.entity.Todo;
+import server.poptato.todo.domain.repository.TodoRepository;
+import server.poptato.todo.domain.value.TodayStatus;
+import server.poptato.todo.domain.value.Type;
+import server.poptato.user.domain.entity.User;
 import server.poptato.user.domain.repository.UserRepository;
 import server.poptato.user.exception.UserException;
 import server.poptato.user.validator.UserValidator;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.groups.Tuple.tuple;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static server.poptato.auth.exception.errorcode.AuthExceptionErrorCode.INVALID_TOKEN;
@@ -44,6 +55,8 @@ public class AuthServiceTest {
     private SocialServiceProvider socialServiceProvider;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private TodoRepository todoRepository;
     @Autowired
     private JwtService jwtService;
     @Autowired
@@ -136,5 +149,38 @@ public class AuthServiceTest {
         assertThrows(AuthException.class, () -> authService.refresh(invalidRequestDto))
                 .getMessage()
                 .equals(INVALID_TOKEN);
+    }
+
+    @DisplayName("회원가입 시, 튜토리얼 할 일이 성공적으로 추가된다.")
+    @Test
+    void createTutorialData_Success() {
+        // given
+        String kakaoId = "kakaoId";
+        String email = "email";
+        String name = "name";
+
+        User user = User.builder()
+                .kakaoId(kakaoId)
+                .email(email)
+                .name(name)
+                .build();
+
+        //when
+        User newUser = userRepository.save(user);
+        authService.createTutorialData(newUser.getId());
+
+        //then
+        List<Todo> todays = todoRepository.findByType(Type.TODAY);
+        List<Todo> backlogs = todoRepository.findByType(Type.BACKLOG);
+
+        assertThat(todays.size()).isEqualTo(1);
+        assertThat(backlogs).hasSize(4)
+                .extracting("content","backlogOrder")
+                .containsExactlyInAnyOrder(
+                        tuple(4, TutorialMessage.BACKLOG_NEW_TODO),
+                        tuple(3, TutorialMessage.BACKLOG_BOOKMARK_DDAY),
+                        tuple(2, TutorialMessage.BACKLOG_DRAG_AND_DROP),
+                        tuple(1, TutorialMessage.BACKLOG_LEFT_SWIPE)
+                );
     }
 }
