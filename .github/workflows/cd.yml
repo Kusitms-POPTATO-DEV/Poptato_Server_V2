@@ -22,7 +22,7 @@ jobs:
           envs: APPLICATION_YML, APPLICATION_TEST_YML, TEST_DATA_SQL
           # git clone 같은 초기 작업은 ec2에서 먼저 진행
           script: |
-            cd /home/ubuntu/poptato_server/Poptato_Server
+            cd /home/ubuntu/poptato_server/Poptato_Server_V2
 
             git switch dev
 
