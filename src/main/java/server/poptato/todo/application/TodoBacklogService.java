@@ -42,16 +42,15 @@ public class TodoBacklogService {
         return TodoDtoConverter.toBacklogCreateDto(newBacklog);
     }
 
-    public PaginatedHistoryResponseDto getHistories(Long userId, int page, int size) {
+    public PaginatedHistoryResponseDto getHistories(Long userId, int page, int size, LocalDate date) {
         userValidator.checkIsExistUser(userId);
-        Page<Todo> historiesPage = getHistoriesPage(userId, page, size);
+        Page<Todo> historiesPage = getHistoriesPage(userId, page, size, date);
         return TodoDtoConverter.toHistoryListDto(historiesPage);
     }
 
-    private Page<Todo> getHistoriesPage(Long userId, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "completedDateTime"));
-        LocalDate today = LocalDate.now();
-        Page<Todo> historiesPage = todoRepository.findHistories(userId, today, pageable);
+    private Page<Todo> getHistoriesPage(Long userId, int page, int size, LocalDate date) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "completedDateTime"));
+        Page<Todo> historiesPage = todoRepository.findHistories(userId, TodayStatus.COMPLETED,date, pageable);
         return historiesPage;
     }
 

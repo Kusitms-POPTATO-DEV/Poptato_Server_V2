@@ -40,4 +40,11 @@ public interface JpaTodoRepository extends TodoRepository, JpaRepository<Todo,Lo
             @Param("types") List<Type> types,
             @Param("statuses") List<TodayStatus> statuses,
             Pageable pageable);
+
+    @Query("SELECT t FROM Todo t WHERE t.userId = :userId AND t.todayStatus = :status AND DATE(t.completedDateTime) = :date")
+    Page<Todo> findHistories(
+            @Param("userId") Long userId,
+            @Param("status") TodayStatus status,
+            @Param("date") LocalDate date,
+            Pageable pageable);
 }

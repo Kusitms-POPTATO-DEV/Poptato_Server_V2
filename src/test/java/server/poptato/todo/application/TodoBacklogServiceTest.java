@@ -89,9 +89,10 @@ class TodoBacklogServiceTest {
         Long userId = 1L;
         int page = 0;
         int size = 5;
+        LocalDate date = LocalDate.of(2024,10,16);
 
         // when
-        PaginatedHistoryResponseDto historiesPage = todoBacklogService.getHistories(userId, page, size);
+        PaginatedHistoryResponseDto historiesPage = todoBacklogService.getHistories(userId, page, size, date);
 
         // then
         int actualSize = historiesPage.getHistories().size();
@@ -104,7 +105,7 @@ class TodoBacklogServiceTest {
             LocalDate current = histories.get(i).date();
             LocalDate next = histories.get(i + 1).date();
 
-            assertThat(current).isAfterOrEqualTo(next);
+            assertThat(current).isBeforeOrEqualTo(next);
         }
     }
 

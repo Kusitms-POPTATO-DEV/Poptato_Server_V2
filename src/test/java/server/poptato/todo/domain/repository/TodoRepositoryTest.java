@@ -89,14 +89,14 @@ class TodoRepositoryTest {
     void findHistories_Success(){
         //given
         Long userId = 1L;
-        LocalDate today = LocalDate.of(2024,10,30);
+        LocalDate date = LocalDate.of(2024,10,16);
         Pageable pageable = PageRequest.of(0, 15, Sort.by(Sort.Direction.DESC, "completedDateTime"));
 
         //when
-        Page<Todo> histories = todoRepository.findHistories(userId, today, pageable);
+        Page<Todo> histories = todoRepository.findHistories(userId, TodayStatus.COMPLETED,date, pageable);
 
         //then
         assertThat(histories).isNotNull();
-        assertThat(histories.getContent().size()).isEqualTo(6);
+        assertThat(histories.getContent().size()).isEqualTo(3);
     }
 }

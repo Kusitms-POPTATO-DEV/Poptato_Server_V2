@@ -55,10 +55,7 @@ public interface TodoRepository {
                 userId, type, todayDate, todayStatus);
     }
 
-    default Page<Todo> findHistories(Long userId, LocalDate today, Pageable pageable) {
-        return findByUserIdAndCompletedStatusAndDifferentTodayDate(userId, TodayStatus.COMPLETED, today, pageable);
-    }
-
+    Page<Todo> findHistories(Long userId, TodayStatus status, LocalDate date, Pageable pageable);
     List<Todo> findByType(Type type);
     List<Todo> findByTypeAndUserId(Type type, Long userId);
 }
