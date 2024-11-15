@@ -52,9 +52,6 @@ public class TodoBacklogService {
         Page<Todo> historiesPage = todoRepository.findHistories(userId, today, pageable);
         return historiesPage;
     }
-    private List<HistoryCalendarListResponseDto>getHistoriesCalendarList(Long userId, YearMonth yearMonth){
-
-    }
 
     public PaginatedYesterdayResponseDto getYesterdays(Long userId, int page, int size) {
         userValidator.checkIsExistUser(userId);

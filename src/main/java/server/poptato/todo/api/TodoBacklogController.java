@@ -41,11 +41,10 @@ public class TodoBacklogController {
         return new BaseResponse<>(response);
     }
     @GetMapping("/histories/month")
-    public BaseResponse<HistoryCalendarListResponseDto> getHistoriesCalendarList(
+    public BaseResponse<HistoryCalendarListResponseDto> getHistoryCalendarDateList(
             @UserId Long userId,
             @PathVariable YearMonth month
             ){
-        HistoryCalendarListResponseDto response = todoBacklogService.
 
     }
 
