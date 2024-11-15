@@ -40,4 +40,10 @@ public interface JpaTodoRepository extends TodoRepository, JpaRepository<Todo,Lo
             @Param("types") List<Type> types,
             @Param("statuses") List<TodayStatus> statuses,
             Pageable pageable);
+
+    @Query("SELECT DISTINCT DATE(t.completedDateTime) " +
+            "FROM Todo t " +
+            "WHERE FUNCTION('YEAR', t.completedDateTime) = :year " +
+            "AND FUNCTION('MONTH', t.completedDateTime) = :month")
+    List<LocalDate> findDistinctDatesByYearAndMonth(int year, int month);
 }

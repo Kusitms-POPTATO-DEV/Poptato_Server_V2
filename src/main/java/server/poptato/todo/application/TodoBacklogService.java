@@ -8,10 +8,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import server.poptato.todo.api.request.BacklogCreateRequestDto;
-import server.poptato.todo.application.response.BacklogCreateResponseDto;
-import server.poptato.todo.application.response.BacklogListResponseDto;
-import server.poptato.todo.application.response.PaginatedHistoryResponseDto;
-import server.poptato.todo.application.response.PaginatedYesterdayResponseDto;
+import server.poptato.todo.application.response.*;
 import server.poptato.todo.converter.TodoDtoConverter;
 import server.poptato.todo.domain.entity.Todo;
 import server.poptato.todo.domain.repository.TodoRepository;
@@ -20,6 +17,7 @@ import server.poptato.todo.domain.value.Type;
 import server.poptato.user.validator.UserValidator;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 
 @Transactional
@@ -53,6 +51,9 @@ public class TodoBacklogService {
         LocalDate today = LocalDate.now();
         Page<Todo> historiesPage = todoRepository.findHistories(userId, today, pageable);
         return historiesPage;
+    }
+    private List<HistoryCalendarListResponseDto>getHistoriesCalendarList(Long userId, YearMonth yearMonth){
+
     }
 
     public PaginatedYesterdayResponseDto getYesterdays(Long userId, int page, int size) {

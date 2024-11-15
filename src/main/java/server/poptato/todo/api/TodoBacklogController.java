@@ -6,11 +6,10 @@ import org.springframework.web.bind.annotation.*;
 import server.poptato.global.response.BaseResponse;
 import server.poptato.todo.api.request.BacklogCreateRequestDto;
 import server.poptato.todo.application.TodoBacklogService;
-import server.poptato.todo.application.response.BacklogCreateResponseDto;
-import server.poptato.todo.application.response.BacklogListResponseDto;
-import server.poptato.todo.application.response.PaginatedHistoryResponseDto;
-import server.poptato.todo.application.response.PaginatedYesterdayResponseDto;
+import server.poptato.todo.application.response.*;
 import server.poptato.user.resolver.UserId;
+
+import java.time.YearMonth;
 
 @RestController
 @RequiredArgsConstructor
@@ -40,6 +39,14 @@ public class TodoBacklogController {
             @RequestParam(value = "size", defaultValue = "15") int size) {
         PaginatedHistoryResponseDto response = todoBacklogService.getHistories(userId, page, size);
         return new BaseResponse<>(response);
+    }
+    @GetMapping("/histories/month")
+    public BaseResponse<HistoryCalendarListResponseDto> getHistoriesCalendarList(
+            @UserId Long userId,
+            @PathVariable YearMonth month
+            ){
+        HistoryCalendarListResponseDto response = todoBacklogService.
+
     }
 
     @GetMapping("/yesterdays")

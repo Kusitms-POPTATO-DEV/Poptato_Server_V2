@@ -61,4 +61,5 @@ public interface TodoRepository {
 
     List<Todo> findByType(Type type);
     List<Todo> findByTypeAndUserId(Type type, Long userId);
+    List<LocalDate> findCalendarDatesByYearAndMonth(int year, int month);
 }
