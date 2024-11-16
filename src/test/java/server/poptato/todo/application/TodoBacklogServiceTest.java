@@ -80,7 +80,6 @@ class TodoBacklogServiceTest {
         assertThat(newTodo.getType()).isEqualTo(Type.BACKLOG);
         assertThat(newTodo.isBookmark()).isFalse();
         assertThat(newTodo.getTodayStatus()).isNull();
-        assertThat(newTodo.getCompletedDateTime()).isNull();
     }
     @Test
     @DisplayName("기록 조회 시 페이징 및 정렬하여 기록 조회를 성공한다.")

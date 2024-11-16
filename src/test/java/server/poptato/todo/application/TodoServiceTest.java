@@ -18,6 +18,7 @@ import server.poptato.todo.exception.TodoException;
 import server.poptato.todo.exception.errorcode.TodoExceptionErrorCode;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -283,36 +284,59 @@ class TodoServiceTest {
         assertThat(findTodo.getContent()).isEqualTo(updateContent);
     }
 
-    @DisplayName("투데이 달성여부 변경 시 성공한다.")
+    @DisplayName("투데이 달성 시 성공한다.")
     @Test
     void updateIsCompleted_Today_Success() {
         //given
         Long userId = 1L;
         Long todoId = 1L;
+        LocalDateTime updateDateTime = LocalDateTime.now();
 
         //when
-        todoService.updateIsCompleted(userId, todoId);
+        todoService.updateIsCompleted(userId, todoId, updateDateTime);
         Todo findTodo = todoRepository.findById(todoId).get();
+        Boolean isExist = completedDatetTimeRepository.isExistByDateTimeAndTodoId(updateDateTime,todoId);
 
         //then
         assertThat(findTodo.getTodayStatus()).isEqualTo(TodayStatus.COMPLETED);
-        assertThat(findTodo.getCompletedDateTime()).isNotNull();
+        assertThat(isExist).isTrue();
     }
 
-    @DisplayName("어제한일 달성여부 변경 시 성공한다.")
+    @DisplayName("어제한일 달성 시 성공한다.")
     @Test
     void updateIsCompleted_Yesterday_Success() {
         //given
         Long userId = 1L;
         Long todoId = 35L;
+        LocalDateTime updateDateTime = LocalDateTime.now();
 
         //when
-        todoService.updateIsCompleted(userId, todoId);
+        todoService.updateIsCompleted(userId, todoId, updateDateTime);
         Todo findTodo = todoRepository.findById(todoId).get();
+        Boolean isExist = completedDatetTimeRepository.isExistByDateTimeAndTodoId(updateDateTime,todoId);
 
         //then
         assertThat(findTodo.getTodayStatus()).isEqualTo(TodayStatus.COMPLETED);
         assertThat(findTodo.getCompletedDateTime()).isNotNull();
+        assertThat(isExist).isTrue();
+    }
+
+    @DisplayName("투데이 달성 취소 시 성공한다.")
+    @Test
+    void updateIsCompleted_Today_Success() {
+        //given
+        Long userId = 1L;
+        Long todoId = 3L;
+        LocalDateTime updateDateTime = LocalDateTime.now();
+
+        //when
+        todoService.updateIsCompleted(userId, todoId, updateDateTime);
+        Todo findTodo = todoRepository.findById(todoId).get();
+        Boolean isExist = completedDatetTimeRepository.isExistByDateTimeAndTodoId(updateDateTime,todoId);
+
+        //then
+        assertThat(findTodo.getTodayStatus()).isEqualTo(TodayStatus.INCOMPLETE);
+        assertThat(isExist).isFalse();
     }
 
     @DisplayName("할 일 달성 여부 변경 시 백로그이면 예외가 발생한다.")
