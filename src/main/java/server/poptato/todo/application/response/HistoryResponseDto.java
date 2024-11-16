@@ -4,5 +4,5 @@ import lombok.Builder;
 import java.time.LocalDate;
 
 @Builder
-public record HistoryResponseDto(Long todoId, String content,LocalDate date) {
+public record HistoryResponseDto(Long todoId, String content) {
 }

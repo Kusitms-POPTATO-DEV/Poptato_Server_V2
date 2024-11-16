@@ -98,13 +98,6 @@ class TodoBacklogServiceTest {
         assertThat(actualSize).isLessThanOrEqualTo(size);
         assertThat(historiesPage.getTotalPageCount()).isGreaterThan(0);
 
-        List<HistoryResponseDto> histories = historiesPage.getHistories();
-        for (int i = 0; i < histories.size() - 1; i++) {
-            LocalDate current = histories.get(i).date();
-            LocalDate next = histories.get(i + 1).date();
-
-            assertThat(current).isAfterOrEqualTo(next);
-        }
     }
 
 

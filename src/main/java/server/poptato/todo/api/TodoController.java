@@ -12,6 +12,8 @@ import server.poptato.todo.application.TodoService;
 import server.poptato.todo.application.response.TodoDetailResponseDto;
 import server.poptato.user.resolver.UserId;
 
+import java.time.LocalDateTime;
+
 @RestController
 @RequiredArgsConstructor
 public class TodoController {
@@ -68,9 +70,9 @@ public class TodoController {
     }
 
     @PatchMapping("/todo/{todoId}/achieve")
-    public BaseResponse updateIsCompleted(@UserId Long userId,
+    public BaseResponse updateIsCompleted(//@UserId Long userId,
                                           @PathVariable Long todoId) {
-        todoService.updateIsCompleted(userId, todoId);
+        todoService.updateIsCompleted(1L, todoId, LocalDateTime.now());
         return new BaseResponse<>();
     }
 }

@@ -11,6 +11,7 @@ import server.poptato.todo.api.request.DragAndDropRequestDto;
 import server.poptato.todo.api.request.SwipeRequestDto;
 import server.poptato.todo.application.response.TodoDetailResponseDto;
 import server.poptato.todo.domain.entity.Todo;
+import server.poptato.todo.domain.repository.CompletedDateTimeRepository;
 import server.poptato.todo.domain.repository.TodoRepository;
 import server.poptato.todo.domain.value.TodayStatus;
 import server.poptato.todo.domain.value.Type;
@@ -32,6 +33,8 @@ class TodoServiceTest {
     private TodoService todoService;
     @Autowired
     private TodoRepository todoRepository;
+    @Autowired
+    private CompletedDateTimeRepository completedDateTimeRepository;
 
     @DisplayName("할일 삭제 시 성공한다.")
     @Test
@@ -290,12 +293,12 @@ class TodoServiceTest {
         //given
         Long userId = 1L;
         Long todoId = 1L;
-        LocalDateTime updateDateTime = LocalDateTime.now();
+        LocalDateTime updateDateTime = LocalDateTime.of(2024,10,16,10,0,0,0);
 
         //when
         todoService.updateIsCompleted(userId, todoId, updateDateTime);
         Todo findTodo = todoRepository.findById(todoId).get();
-        Boolean isExist = completedDatetTimeRepository.isExistByDateTimeAndTodoId(updateDateTime,todoId);
+        Boolean isExist = completedDateTimeRepository.existsByDateTimeAndTodoId(updateDateTime,todoId);
 
         //then
         assertThat(findTodo.getTodayStatus()).isEqualTo(TodayStatus.COMPLETED);
@@ -308,31 +311,30 @@ class TodoServiceTest {
         //given
         Long userId = 1L;
         Long todoId = 35L;
-        LocalDateTime updateDateTime = LocalDateTime.now();
+        LocalDateTime updateDateTime = LocalDateTime.of(2024,11,11,10,0,0);
 
         //when
         todoService.updateIsCompleted(userId, todoId, updateDateTime);
         Todo findTodo = todoRepository.findById(todoId).get();
-        Boolean isExist = completedDateTimeRepository.isExistByDateTimeAndTodoId(updateDateTime,todoId);
+        Boolean isExist = completedDateTimeRepository.existsByDateTimeAndTodoId(updateDateTime,todoId);
 
         //then
         assertThat(findTodo.getTodayStatus()).isEqualTo(TodayStatus.COMPLETED);
-        assertThat(findTodo.getCompletedDateTime()).isNotNull();
         assertThat(isExist).isTrue();
     }
 
     @DisplayName("투데이 달성 취소 시 성공한다.")
     @Test
-    void updateIsCompleted_Today_Success() {
+    void updateIsCompleted_Today_toIncomplete_Success() {
         //given
         Long userId = 1L;
         Long todoId = 3L;
-        LocalDateTime updateDateTime = LocalDateTime.now();
+        LocalDateTime updateDateTime = LocalDateTime.of(2024,10,16,10,00,00);
 
         //when
         todoService.updateIsCompleted(userId, todoId, updateDateTime);
         Todo findTodo = todoRepository.findById(todoId).get();
-        Boolean isExist = completedDateTimeRepository.isExistByDateTimeAndTodoId(updateDateTime,todoId);
+        Boolean isExist = completedDateTimeRepository.existsByDateTimeAndTodoId(updateDateTime,todoId);
 
         //then
         assertThat(findTodo.getTodayStatus()).isEqualTo(TodayStatus.INCOMPLETE);
@@ -345,9 +347,10 @@ class TodoServiceTest {
         //given
         Long userId = 1L;
         Long todoId = 20L;
+        LocalDateTime updateDateTime = LocalDateTime.now();
 
         //when & then
-        assertThatThrownBy(() -> todoService.updateIsCompleted(userId, todoId))
+        assertThatThrownBy(() -> todoService.updateIsCompleted(userId, todoId, updateDateTime))
                 .isInstanceOf(TodoException.class)
                 .hasMessage(TodoExceptionErrorCode.BACKLOG_CANT_COMPLETE.getMessage());
     }

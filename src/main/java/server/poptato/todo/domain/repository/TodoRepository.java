@@ -16,14 +16,13 @@ public interface TodoRepository {
     List<Todo> findByUserIdAndTypeAndTodayDateAndTodayStatusOrderByTodayOrderDesc(
             Long userId, Type type, LocalDate todayDate, TodayStatus todayStatus);
 
-    List<Todo> findByUserIdAndTypeAndTodayDateAndTodayStatusOrderByCompletedDateTimeAsc(
-            Long userId, Type type, LocalDate todayDate, TodayStatus todayStatus);
+    List<Todo> findCompletedTodayByUserIdOrderByCompletedDateTimeAsc(Long userId, LocalDate todayDate);
 
     Optional<Todo> findById(Long todoId);
 
     void delete(Todo todo);
 
-    Page<Todo> findByUserIdAndCompletedStatusAndDifferentTodayDate(Long userId, TodayStatus todayStatus, LocalDate today, Pageable pageable);
+    Page<Todo> findByUserIdAndCompletedStatus(Long userId, TodayStatus todayStatus, Pageable pageable);
 
     Todo save(Todo todo);
 
@@ -50,13 +49,13 @@ public interface TodoRepository {
                 userId, type, todayDate, todayStatus);
     }
 
-    default List<Todo> findCompletedTodays(Long userId, Type type, LocalDate todayDate, TodayStatus todayStatus) {
-        return findByUserIdAndTypeAndTodayDateAndTodayStatusOrderByCompletedDateTimeAsc(
-                userId, type, todayDate, todayStatus);
+    default List<Todo> findCompletedTodays(Long userId, LocalDate todayDate) {
+        return findCompletedTodayByUserIdOrderByCompletedDateTimeAsc(
+                userId, todayDate);
     }
 
-    default Page<Todo> findHistories(Long userId, LocalDate today, Pageable pageable) {
-        return findByUserIdAndCompletedStatusAndDifferentTodayDate(userId, TodayStatus.COMPLETED, today, pageable);
+    default Page<Todo> findHistories(Long userId,Pageable pageable) {
+        return findByUserIdAndCompletedStatus(userId, TodayStatus.COMPLETED, pageable);
     }
 
     List<Todo> findByType(Type type);
