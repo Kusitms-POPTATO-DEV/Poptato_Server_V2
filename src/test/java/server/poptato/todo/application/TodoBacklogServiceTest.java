@@ -123,7 +123,8 @@ class TodoBacklogServiceTest {
         // then
         assertThat(result.getYesterdays()).hasSizeLessThanOrEqualTo(size);
         assertThat(result.getTotalPageCount()).isGreaterThan(0);
-        assertThat(result.getYesterdays().get(0).todoId()).isNotNull();
-        assertThat(result.getYesterdays().get(0).content()).isNotNull();
+        assertThat(result.getYesterdays().get(0).getTodoId()).isNotNull();
+        assertThat(result.getYesterdays().get(0).getContent()).isNotNull();
+        assertThat(result.getYesterdays().get(0).isBookmark()).isNotNull();
     }
 }
