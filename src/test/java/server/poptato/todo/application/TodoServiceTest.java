@@ -313,7 +313,7 @@ class TodoServiceTest {
         //when
         todoService.updateIsCompleted(userId, todoId, updateDateTime);
         Todo findTodo = todoRepository.findById(todoId).get();
-        Boolean isExist = completedDatetTimeRepository.isExistByDateTimeAndTodoId(updateDateTime,todoId);
+        Boolean isExist = completedDateTimeRepository.isExistByDateTimeAndTodoId(updateDateTime,todoId);
 
         //then
         assertThat(findTodo.getTodayStatus()).isEqualTo(TodayStatus.COMPLETED);
@@ -332,7 +332,7 @@ class TodoServiceTest {
         //when
         todoService.updateIsCompleted(userId, todoId, updateDateTime);
         Todo findTodo = todoRepository.findById(todoId).get();
-        Boolean isExist = completedDatetTimeRepository.isExistByDateTimeAndTodoId(updateDateTime,todoId);
+        Boolean isExist = completedDateTimeRepository.isExistByDateTimeAndTodoId(updateDateTime,todoId);
 
         //then
         assertThat(findTodo.getTodayStatus()).isEqualTo(TodayStatus.INCOMPLETE);

@@ -30,7 +30,7 @@ class TodoRepositoryTest {
         LocalDate todayDate = LocalDate.of(2024, 10, 16);
 
         //when
-        List<Todo> todos = todoRepository.findByUserIdAndTypeAndTodayDateAndTodayStatusOrderByCompletedDateTimeAsc(
+        List<Todo> todos = todoRepository.findByUserIdAndOrderByCompletedDateTimeAsc(
                 userId, Type.TODAY, todayDate, TodayStatus.COMPLETED);
 
         //then
@@ -39,7 +39,10 @@ class TodoRepositoryTest {
         assertThat(todos.stream().allMatch(todo -> todo.getType() == Type.TODAY)).isTrue();
         assertThat(todos.stream().allMatch(todo -> todo.getTodayDate().equals(todayDate))).isTrue();
         for (int i = 0; i < todos.size() - 1; i++) {
-            assertThat(todos.get(i).getCompletedDateTime()).isBeforeOrEqualTo(todos.get(i + 1).getCompletedDateTime());
+            LocalDateTime currentCompletionTime = completedDateTimeRepository.findByDateAndTodoId(todos.get(i).getId(), todayDate);
+            LocalDateTime nextCompletionTime = completedDateTimeRepository.findByDateAndTodoId(todos.get(i + 1).getId(), todayDate);
+
+            assertThat(currentCompletionTime).isBeforeOrEqualTo(nextCompletionTime); // 정렬 확인
         }
     }
 
