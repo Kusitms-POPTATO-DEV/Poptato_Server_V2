@@ -35,7 +35,6 @@ public class AuthService {
     private final TodoRepository todoRepository;
 
     public LoginResponseDto login(final KakaoLoginRequestDto loginRequestDto) {
-        //TODO: 나중에 없앨 코드
         String accessToken = loginRequestDto.getKakaoCode();
         SocialPlatform socialPlatform = KAKAO;
 
@@ -47,8 +46,9 @@ public class AuthService {
             createTutorialData(response.userId());
             return response;
         }
-        return createOldUserResponse(user.get());
+        return createOldUserResponse(user.get(), userInfo);
     }
+
     public void logout(final Long userId) {
         userValidator.checkIsExistUser(userId);
         jwtService.deleteRefreshToken(String.valueOf(userId));
@@ -67,26 +67,32 @@ public class AuthService {
     }
 
     private void checkIsValidToken(String refreshToken) {
-        try{
+        try {
             jwtService.verifyToken(refreshToken);
             jwtService.compareRefreshToken(jwtService.getUserIdInToken(refreshToken), refreshToken);
-        }catch(Exception e){
+        } catch (Exception e) {
             throw e;
         }
     }
+
     private LoginResponseDto createNewUserResponse(SocialUserInfo userInfo) {
         User newUser = User.builder()
                 .kakaoId(userInfo.socialId())
                 .name(userInfo.nickname())
                 .email(userInfo.email())
+                .imageUrl(userInfo.imageUrl())
                 .build();
         userRepository.save(newUser);
 
         return createLoginResponse(newUser, true);
     }
 
-    private LoginResponseDto createOldUserResponse(User user) {
-        return createLoginResponse(user, false);
+    private LoginResponseDto createOldUserResponse(User existingUser, SocialUserInfo userInfo) {
+
+        if (existingUser.getImageUrl() == null || existingUser.getImageUrl().isEmpty()) {
+            existingUser.updateImageUrl(userInfo.imageUrl());
+        }
+        return createLoginResponse(existingUser, false);
     }
 
     private LoginResponseDto createLoginResponse(User user, boolean isNewUser) {
@@ -96,7 +102,7 @@ public class AuthService {
 
     private void createAndSaveTodo(Type type, Long userId, int order, String tutorialMessage) {
         Todo todo = null;
-        if(type.equals(Type.TODAY)){
+        if (type.equals(Type.TODAY)) {
             todo = Todo.builder()
                     .userId(userId)
                     .type(type)
@@ -106,7 +112,7 @@ public class AuthService {
                     .todayOrder(order)
                     .build();
         }
-        if(type.equals(Type.BACKLOG)){
+        if (type.equals(Type.BACKLOG)) {
             todo = Todo.builder()
                     .userId(userId)
                     .type(type)
@@ -118,9 +124,9 @@ public class AuthService {
     }
 
     public void createTutorialData(Long userId) {
-        createAndSaveTodo(Type.TODAY,userId,1, TutorialMessage.TODAY_COMPLETE);
-        for(int i=0;i<4;i++){
-            createAndSaveTodo(Type.BACKLOG,userId,4-i, TutorialMessage.BACKLOG_MESSAGES.get(i));
+        createAndSaveTodo(Type.TODAY, userId, 1, TutorialMessage.TODAY_COMPLETE);
+        for (int i = 0; i < 4; i++) {
+            createAndSaveTodo(Type.BACKLOG, userId, 4 - i, TutorialMessage.BACKLOG_MESSAGES.get(i));
         }
     }
 
