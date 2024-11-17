@@ -80,7 +80,6 @@ class TodoBacklogServiceTest {
         assertThat(newTodo.getType()).isEqualTo(Type.BACKLOG);
         assertThat(newTodo.isBookmark()).isFalse();
         assertThat(newTodo.getTodayStatus()).isNull();
-        assertThat(newTodo.getCompletedDateTime()).isNull();
     }
     @Test
     @DisplayName("기록 조회 시 페이징 및 정렬하여 기록 조회를 성공한다.")
@@ -99,13 +98,6 @@ class TodoBacklogServiceTest {
         assertThat(actualSize).isLessThanOrEqualTo(size);
         assertThat(historiesPage.getTotalPageCount()).isGreaterThan(0);
 
-        List<HistoryResponseDto> histories = historiesPage.getHistories();
-        for (int i = 0; i < histories.size() - 1; i++) {
-            LocalDate current = histories.get(i).date();
-            LocalDate next = histories.get(i + 1).date();
-
-            assertThat(current).isAfterOrEqualTo(next);
-        }
     }
 
 

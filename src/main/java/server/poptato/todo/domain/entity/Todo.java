@@ -12,6 +12,8 @@ import server.poptato.todo.domain.value.Type;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Entity
@@ -34,6 +36,8 @@ public class Todo{
     private LocalDate deadline;
     @NotNull
     private boolean isBookmark;
+    @NotNull
+    private boolean isRepeat;
     @Nullable
     private LocalDate todayDate;
     @Enumerated(EnumType.STRING)
@@ -42,8 +46,6 @@ public class Todo{
     private Integer todayOrder;
     @Nullable
     private Integer backlogOrder;
-    @Nullable
-    private LocalDateTime completedDateTime;
     @CreatedDate
     @Column(updatable = false)
     private LocalDateTime createDate;
@@ -99,18 +101,15 @@ public class Todo{
     public void updateTodayStatusToInComplete(int minTodayOrder) {
         this.todayStatus = TodayStatus.INCOMPLETE;
         this.todayOrder = --minTodayOrder;
-        this.completedDateTime = null;
     }
 
     public void updateTodayStatusToCompleted() {
         this.todayStatus = TodayStatus.COMPLETED;
-        this.completedDateTime = LocalDateTime.now();
         this.todayOrder = null;
     }
 
     public void updateYesterdayStatusToCompleted() {
         this.todayStatus = TodayStatus.COMPLETED;
-        this.completedDateTime = LocalDateTime.now();
         this.backlogOrder = null;
     }
 

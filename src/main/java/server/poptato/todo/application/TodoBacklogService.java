@@ -49,9 +49,8 @@ public class TodoBacklogService {
     }
 
     private Page<Todo> getHistoriesPage(Long userId, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "completedDateTime"));
-        LocalDate today = LocalDate.now();
-        Page<Todo> historiesPage = todoRepository.findHistories(userId, today, pageable);
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Todo> historiesPage = todoRepository.findHistories(userId, pageable);
         return historiesPage;
     }
 
