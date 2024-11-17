@@ -33,7 +33,7 @@ class UserServiceTest {
         // then
         assertThat(responseDto.name()).isEqualTo("Poptato");
         assertThat(responseDto.email()).isEqualTo("poptato@naver.com");
-        assertThat(responseDto.imageUrl()).isNotNull();
+        assertThat(responseDto.imageUrl()).isEqualTo("https://image");
     }
 
     @Test
