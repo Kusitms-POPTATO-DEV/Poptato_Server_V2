@@ -88,9 +88,12 @@ public class AuthService {
     }
 
     private LoginResponseDto createOldUserResponse(User existingUser, SocialUserInfo userInfo) {
+        System.out.println(existingUser.getImageUrl());
+        System.out.println(userInfo.imageUrl());
 
         if (existingUser.getImageUrl() == null || existingUser.getImageUrl().isEmpty()) {
             existingUser.updateImageUrl(userInfo.imageUrl());
+            userRepository.save(existingUser);
         }
         return createLoginResponse(existingUser, false);
     }

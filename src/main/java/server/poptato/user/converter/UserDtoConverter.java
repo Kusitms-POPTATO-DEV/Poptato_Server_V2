@@ -11,6 +11,7 @@ public class UserDtoConverter {
         return UserInfoResponseDto.builder()
                 .name(user.getName())
                 .email(user.getEmail())
+                .email(user.getImageUrl())
                 .build();
     }
 
