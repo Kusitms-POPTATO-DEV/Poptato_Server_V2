@@ -11,7 +11,9 @@ import server.poptato.todo.domain.repository.TodoRepository;
 import server.poptato.todo.domain.value.Type;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -108,14 +110,17 @@ class TodoBacklogServiceTest {
         Long userId = 1L;
         int page = 0;
         int size = 5;
-
         // when
         PaginatedYesterdayResponseDto result = todoBacklogService.getYesterdays(userId, page, size);
+        Long todoId = result.getYesterdays().get(0).getTodoId();
+        Optional<Todo> todo = todoRepository.findById(todoId);
 
         // then
         assertThat(result.getYesterdays()).hasSizeLessThanOrEqualTo(size);
         assertThat(result.getTotalPageCount()).isGreaterThan(0);
-        assertThat(result.getYesterdays().get(0).todoId()).isNotNull();
-        assertThat(result.getYesterdays().get(0).content()).isNotNull();
+        assertThat(result.getYesterdays().get(0).getTodoId()).isNotNull();
+        assertThat(result.getYesterdays().get(0).getContent()).isNotNull();
+        assertThat(result.getYesterdays().get(0).isBookmark()).isNotNull();
+        assertThat(result.getYesterdays().get(0).getDDay()).isEqualTo((int) ChronoUnit.DAYS.between(LocalDate.now(), todo.get().getDeadline()));
     }
 }
