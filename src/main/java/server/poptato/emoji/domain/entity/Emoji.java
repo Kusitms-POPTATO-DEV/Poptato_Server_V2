@@ -1,4 +1,4 @@
-package server.poptato.user.domain.entity;
+package server.poptato.emoji.domain.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -7,43 +7,29 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.lang.Nullable;
+import server.poptato.emoji.domain.value.GroupName;
 
 import java.time.LocalDateTime;
 
-@Entity
 @Getter
+@Entity
 @Builder
+@EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@Table(name = "users")
-@EntityListeners(AuditingEntityListener.class)
-public class User {
-
+public class Emoji {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     @NotNull
-    private String kakaoId;
-
-    @NotNull
-    private String name;
-
-    @NotNull
-    private String email;
-
-    @Nullable
     private String imageUrl;
-
-    @CreatedDate  // 엔티티가 처음 생성될 때 시간 자동 저장
-    @Column(updatable = false)  // 생성일은 수정 불가
+    @Nullable
+    @Enumerated(EnumType.STRING)
+    private GroupName groupName;
+    @CreatedDate
+    @Column(updatable = false)
     private LocalDateTime createDate;
-
-    @LastModifiedDate  // 엔티티가 수정될 때 시간 자동 저장
+    @LastModifiedDate
     private LocalDateTime modifyDate;
-
-    // name 변경 메서드
-    public void changeName(String newName) {
-        this.name = newName;
-    }
 }
+

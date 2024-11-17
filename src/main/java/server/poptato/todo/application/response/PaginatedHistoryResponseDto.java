@@ -18,8 +18,7 @@ public class PaginatedHistoryResponseDto {
         this.histories = todosPage.getContent().stream()
                 .map(todo -> new HistoryResponseDto(
                         todo.getId(),
-                        todo.getContent(),
-                        todo.getCompletedDateTime().toLocalDate()
+                        todo.getContent()
                 ))
                 .collect(Collectors.toList());
 

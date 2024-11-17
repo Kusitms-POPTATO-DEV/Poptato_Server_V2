@@ -48,7 +48,7 @@ public class TodoTodayService {
         List<Todo> todays = new ArrayList<>();
 
         List<Todo> incompleteTodos = todoRepository.findIncompleteTodays(userId, Type.TODAY, todayDate, TodayStatus.INCOMPLETE);
-        List<Todo> completedTodos = todoRepository.findCompletedTodays(userId, Type.TODAY, todayDate, TodayStatus.COMPLETED);
+        List<Todo> completedTodos = todoRepository.findCompletedTodays(userId, todayDate);
 
         todays.addAll(incompleteTodos);
         todays.addAll(completedTodos);
