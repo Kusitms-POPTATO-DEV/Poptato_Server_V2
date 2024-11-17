@@ -26,6 +26,6 @@ public class YesterdayResponseDto{
     }
 
     private boolean hasDeadline(Todo todo) {
-        return todo.getDeadline() != null && todo.getTodayDate() != null;
+        return todo.getDeadline() != null;
     }
 }
