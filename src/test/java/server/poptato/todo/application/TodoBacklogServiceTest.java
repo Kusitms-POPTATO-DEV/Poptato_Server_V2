@@ -6,7 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import server.poptato.todo.api.request.BacklogCreateRequestDto;
 import server.poptato.todo.application.response.*;
+import server.poptato.todo.domain.entity.CompletedDateTime;
 import server.poptato.todo.domain.entity.Todo;
+import server.poptato.todo.domain.repository.CompletedDateTimeRepository;
 import server.poptato.todo.domain.repository.TodoRepository;
 import server.poptato.todo.domain.value.Type;
 
@@ -15,6 +17,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -23,6 +26,8 @@ class TodoBacklogServiceTest {
     private TodoBacklogService todoBacklogService;
     @Autowired
     private TodoRepository todoRepository;
+    @Autowired
+    private CompletedDateTimeRepository completedDateTimeRepository;
 
     @DisplayName("백로그 목록 조회 시, size=8을 요청하면 8개가 응답된다.")
     @Test
@@ -49,7 +54,7 @@ class TodoBacklogServiceTest {
 
         //when
         BacklogListResponseDto backlogList = todoBacklogService.getBacklogList(userId, page, size);
-        for(BacklogResponseDto todo : backlogList.getBacklogs()){
+        for (BacklogResponseDto todo : backlogList.getBacklogs()) {
             Long todoId = todo.getTodoId();
             System.out.println(todoId);
         }
@@ -82,24 +87,6 @@ class TodoBacklogServiceTest {
         assertThat(newTodo.getType()).isEqualTo(Type.BACKLOG);
         assertThat(newTodo.isBookmark()).isFalse();
         assertThat(newTodo.getTodayStatus()).isNull();
-    }
-    @Test
-    @DisplayName("기록 조회 시 페이징 및 정렬하여 기록 조회를 성공한다.")
-    void getHistories_Success() {
-        // given
-        Long userId = 1L;
-        int page = 0;
-        int size = 5;
-
-        // when
-        PaginatedHistoryResponseDto historiesPage = todoBacklogService.getHistories(userId, page, size);
-
-        // then
-        int actualSize = historiesPage.getHistories().size();
-
-        assertThat(actualSize).isLessThanOrEqualTo(size);
-        assertThat(historiesPage.getTotalPageCount()).isGreaterThan(0);
-
     }
 
 

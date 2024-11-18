@@ -1,25 +1,26 @@
 package server.poptato.todo.application;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cglib.core.Local;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import server.poptato.todo.api.request.BacklogCreateRequestDto;
-import server.poptato.todo.application.response.BacklogCreateResponseDto;
-import server.poptato.todo.application.response.BacklogListResponseDto;
-import server.poptato.todo.application.response.PaginatedHistoryResponseDto;
-import server.poptato.todo.application.response.PaginatedYesterdayResponseDto;
+import server.poptato.todo.application.response.*;
 import server.poptato.todo.converter.TodoDtoConverter;
 import server.poptato.todo.domain.entity.Todo;
+import server.poptato.todo.domain.repository.CompletedDateTimeRepository;
 import server.poptato.todo.domain.repository.TodoRepository;
 import server.poptato.todo.domain.value.TodayStatus;
 import server.poptato.todo.domain.value.Type;
 import server.poptato.user.validator.UserValidator;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Year;
+import java.time.YearMonth;
 import java.util.List;
 
 @Transactional
@@ -27,6 +28,7 @@ import java.util.List;
 @Service
 public class TodoBacklogService {
     private final TodoRepository todoRepository;
+    private final CompletedDateTimeRepository completedDateTimeRepository;
     private final UserValidator userValidator;
 
     public BacklogListResponseDto getBacklogList(Long userId, int page, int size) {
@@ -40,18 +42,6 @@ public class TodoBacklogService {
         Integer maxBacklogOrder = todoRepository.findMaxBacklogOrderByUserIdOrZero(userId);
         Todo newBacklog = createNewBacklog(userId, backlogCreateRequestDto, maxBacklogOrder);
         return TodoDtoConverter.toBacklogCreateDto(newBacklog);
-    }
-
-    public PaginatedHistoryResponseDto getHistories(Long userId, int page, int size) {
-        userValidator.checkIsExistUser(userId);
-        Page<Todo> historiesPage = getHistoriesPage(userId, page, size);
-        return TodoDtoConverter.toHistoryListDto(historiesPage);
-    }
-
-    private Page<Todo> getHistoriesPage(Long userId, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Todo> historiesPage = todoRepository.findHistories(userId, pageable);
-        return historiesPage;
     }
 
     public PaginatedYesterdayResponseDto getYesterdays(Long userId, int page, int size) {

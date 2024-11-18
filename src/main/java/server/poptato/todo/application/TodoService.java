@@ -1,12 +1,17 @@
 package server.poptato.todo.application;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import server.poptato.todo.api.request.ContentUpdateRequestDto;
 import server.poptato.todo.api.request.DeadlineUpdateRequestDto;
 import server.poptato.todo.api.request.DragAndDropRequestDto;
 import server.poptato.todo.api.request.SwipeRequestDto;
+import server.poptato.todo.application.response.HistoryCalendarListResponseDto;
+import server.poptato.todo.application.response.PaginatedHistoryResponseDto;
 import server.poptato.todo.application.response.TodoDetailResponseDto;
 import server.poptato.todo.converter.TodoDtoConverter;
 import server.poptato.todo.domain.entity.CompletedDateTime;
@@ -19,6 +24,7 @@ import server.poptato.todo.exception.TodoException;
 import server.poptato.todo.exception.errorcode.TodoExceptionErrorCode;
 import server.poptato.user.validator.UserValidator;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +47,14 @@ public class TodoService {
         todoRepository.delete(findTodo);
     }
 
+    private Todo validateAndReturnTodo(Long userId, Long todoId) {
+        Todo findTodo = todoRepository.findById(todoId)
+                .orElseThrow(() -> new TodoException(TODO_NOT_EXIST));
+        if (findTodo.getUserId() != userId)
+            throw new TodoException(TodoExceptionErrorCode.TODO_USER_NOT_MATCH);
+        return findTodo;
+    }
+
     public void toggleIsBookmark(Long userId, Long todoId) {
         Todo todo = validateAndReturnTodo(userId, todoId);
         todo.toggleBookmark();
@@ -57,77 +71,8 @@ public class TodoService {
         swipeBacklogToToday(findTodo);
     }
 
-    public void dragAndDrop(Long userId, DragAndDropRequestDto requestDto) {
-        userValidator.checkIsExistUser(userId);
-        List<Todo> todos = getTodosByIds(requestDto.getTodoIds());
-        checkIsValidToDragAndDrop(userId, todos, requestDto);
-        if (isTypeToday(requestDto.getType())) {
-            reassignTodayOrder(todos, requestDto.getTodoIds());
-            return;
-        }
-        reassignBacklogOrder(todos, requestDto.getTodoIds());
-    }
-
-    public TodoDetailResponseDto getTodoInfo(Long userId, Long todoId) {
-        userValidator.checkIsExistUser(userId);
-        Todo findTodo = validateAndReturnTodo(userId, todoId);
-        return TodoDtoConverter.toTodoDetailInfoDto(findTodo);
-    }
-
-    public void updateDeadline(Long userId, Long todoId, DeadlineUpdateRequestDto deadlineUpdateRequestDto) {
-        userValidator.checkIsExistUser(userId);
-        Todo findTodo = validateAndReturnTodo(userId, todoId);
-        findTodo.updateDeadline(deadlineUpdateRequestDto.getDeadline());
-        //TODO: 여기도 왜 SAVE가 필수인지 몰겟담
-        todoRepository.save(findTodo);
-    }
-
-    public void updateContent(Long userId, Long todoId, ContentUpdateRequestDto contentUpdateRequestDto) {
-        userValidator.checkIsExistUser(userId);
-        Todo findTodo = validateAndReturnTodo(userId, todoId);
-        findTodo.updateContent(contentUpdateRequestDto.getContent());
-        //TODO: 여기도 왜 SAVE가 필수인지 몰겟담
-        todoRepository.save(findTodo);
-    }
-
-    public void updateIsCompleted(Long userId, Long todoId, LocalDateTime now) {
-        userValidator.checkIsExistUser(userId);
-        Todo findTodo = validateAndReturnTodo(userId, todoId);
-        checkIsValidToUpdateIsCompleted(findTodo);
-
-        if (isStatusCompleted(findTodo)) {
-            Integer minTodayOrder = todoRepository.findMinTodayOrderByUserIdOrZero(userId);
-            findTodo.updateTodayStatusToInComplete(minTodayOrder);
-            CompletedDateTime completedDateTime = completedDateTimeRepository.findByDateAndTodoId(findTodo.getId(), now.toLocalDate())
-                    .orElseThrow(()->new TodoException(COMPLETED_DATETIME_NOT_EXIST));
-            completedDateTimeRepository.delete(completedDateTime);
-            return;
-        }
-        if (isTypeYesterday(findTodo)){
-            findTodo.updateYesterdayStatusToCompleted();
-            CompletedDateTime completedDateTime = CompletedDateTime.builder().todoId(findTodo.getId()).dateTime(now).build();
-            completedDateTimeRepository.save(completedDateTime);
-            return;
-        }
-        findTodo.updateTodayStatusToCompleted();
-        CompletedDateTime completedDateTime = CompletedDateTime.builder().todoId(findTodo.getId()).dateTime(now).build();
-        completedDateTimeRepository.save(completedDateTime);
-    }
-
-    private boolean isTypeYesterday(Todo findTodo) {
-        return findTodo.getType().equals(Type.YESTERDAY);
-    }
-
-    private boolean isStatusCompleted(Todo findTodo) {
-        return findTodo.getTodayStatus().equals(TodayStatus.COMPLETED);
-    }
-
-    private Todo validateAndReturnTodo(Long userId, Long todoId) {
-        Todo findTodo = todoRepository.findById(todoId)
-                .orElseThrow(() -> new TodoException(TODO_NOT_EXIST));
-        if (findTodo.getUserId() != userId)
-            throw new TodoException(TodoExceptionErrorCode.TODO_USER_NOT_MATCH);
-        return findTodo;
+    private boolean isToday(Todo findTodo) {
+        return findTodo.getType().equals(Type.TODAY);
     }
 
     private void swipeBacklogToToday(Todo todo) {
@@ -144,6 +89,38 @@ public class TodoService {
 
     private boolean isCompletedTodo(Todo todo) {
         return todo.getTodayStatus().equals(TodayStatus.COMPLETED);
+    }
+
+
+    public void dragAndDrop(Long userId, DragAndDropRequestDto requestDto) {
+        userValidator.checkIsExistUser(userId);
+        List<Todo> todos = getTodosByIds(requestDto.getTodoIds());
+        checkIsValidToDragAndDrop(userId, todos, requestDto);
+        if (isTypeToday(requestDto.getType())) {
+            reassignTodayOrder(todos, requestDto.getTodoIds());
+            return;
+        }
+        reassignBacklogOrder(todos, requestDto.getTodoIds());
+    }
+
+    private boolean isTypeToday(Type type) {
+        return type.equals(Type.TODAY);
+    }
+
+    private void reassignTodayOrder(List<Todo> todos, List<Long> todoIds) {
+        int startingOrder = todoRepository.findMaxTodayOrderByIdIn(todoIds);
+        for (Todo todo : todos) {
+            todo.setTodayOrder(startingOrder--);
+            todoRepository.save(todo);
+        }
+    }
+
+    private void reassignBacklogOrder(List<Todo> todos, List<Long> todoIds) {
+        int startingOrder = todoRepository.findMaxBacklogOrderByIdIn(todoIds);
+        for (Todo todo : todos) {
+            todo.setBacklogOrder(startingOrder--);
+            todoRepository.save(todo);
+        }
     }
 
     private List<Todo> getTodosByIds(List<Long> todoIds) {
@@ -178,23 +155,49 @@ public class TodoService {
         }
     }
 
-    private void reassignTodayOrder(List<Todo> todos, List<Long> todoIds) {
-        int startingOrder = todoRepository.findMaxTodayOrderByIdIn(todoIds);
-        for (Todo todo : todos) {
-            todo.setTodayOrder(startingOrder--);
-            //TODO: 왜 save를 호출해야지 반영이 되는지 알아야함
-            todoRepository.save(todo);
-        }
+    public TodoDetailResponseDto getTodoInfo(Long userId, Long todoId) {
+        userValidator.checkIsExistUser(userId);
+        Todo findTodo = validateAndReturnTodo(userId, todoId);
+        return TodoDtoConverter.toTodoDetailInfoDto(findTodo);
     }
 
-    private void reassignBacklogOrder(List<Todo> todos, List<Long> todoIds) {
-        int startingOrder = todoRepository.findMaxBacklogOrderByIdIn(todoIds);
-        for (Todo todo : todos) {
-            todo.setBacklogOrder(startingOrder--);
-            todoRepository.save(todo);
-        }
+    public void updateDeadline(Long userId, Long todoId, DeadlineUpdateRequestDto deadlineUpdateRequestDto) {
+        userValidator.checkIsExistUser(userId);
+        Todo findTodo = validateAndReturnTodo(userId, todoId);
+        findTodo.updateDeadline(deadlineUpdateRequestDto.getDeadline());
+        todoRepository.save(findTodo);
     }
 
+    public void updateContent(Long userId, Long todoId, ContentUpdateRequestDto contentUpdateRequestDto) {
+        userValidator.checkIsExistUser(userId);
+        Todo findTodo = validateAndReturnTodo(userId, todoId);
+        findTodo.updateContent(contentUpdateRequestDto.getContent());
+        todoRepository.save(findTodo);
+    }
+
+    public void updateIsCompleted(Long userId, Long todoId, LocalDateTime now) {
+        userValidator.checkIsExistUser(userId);
+        Todo findTodo = validateAndReturnTodo(userId, todoId);
+        checkIsValidToUpdateIsCompleted(findTodo);
+
+        if (isStatusCompleted(findTodo)) {
+            Integer minTodayOrder = todoRepository.findMinTodayOrderByUserIdOrZero(userId);
+            findTodo.updateTodayStatusToInComplete(minTodayOrder);
+            CompletedDateTime completedDateTime = completedDateTimeRepository.findByDateAndTodoId(findTodo.getId(), now.toLocalDate())
+                    .orElseThrow(() -> new TodoException(COMPLETED_DATETIME_NOT_EXIST));
+            completedDateTimeRepository.delete(completedDateTime);
+            return;
+        }
+        if (isTypeYesterday(findTodo)) {
+            findTodo.updateYesterdayStatusToCompleted();
+            CompletedDateTime completedDateTime = CompletedDateTime.builder().todoId(findTodo.getId()).dateTime(now).build();
+            completedDateTimeRepository.save(completedDateTime);
+            return;
+        }
+        findTodo.updateTodayStatusToCompleted();
+        CompletedDateTime completedDateTime = CompletedDateTime.builder().todoId(findTodo.getId()).dateTime(now).build();
+        completedDateTimeRepository.save(completedDateTime);
+    }
 
     private void checkIsValidToUpdateIsCompleted(Todo todo) {
         if (todo.getType().equals(Type.BACKLOG))
@@ -203,13 +206,32 @@ public class TodoService {
             throw new TodoException(TodoExceptionErrorCode.YESTERDAY_CANT_COMPLETE);
     }
 
-
-    private boolean isToday(Todo findTodo) {
-        return findTodo.getType().equals(Type.TODAY);
+    private boolean isTypeYesterday(Todo findTodo) {
+        return findTodo.getType().equals(Type.YESTERDAY);
     }
 
+    private boolean isStatusCompleted(Todo findTodo) {
+        return findTodo.getTodayStatus().equals(TodayStatus.COMPLETED);
+    }
 
-    private boolean isTypeToday(Type type) {
-        return type.equals(Type.TODAY);
+    public PaginatedHistoryResponseDto getHistories(Long userId, LocalDate localDate, int page, int size) {
+        userValidator.checkIsExistUser(userId);
+        Page<Todo> historiesPage = getHistoriesPage(userId, localDate, page, size);
+        return TodoDtoConverter.toHistoryListDto(historiesPage);
+    }
+
+    private Page<Todo> getHistoriesPage(Long userId, LocalDate localDate, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Todo> historiesPage = todoRepository.findHistories(userId, localDate, pageable);
+        return historiesPage;
+    }
+
+    public HistoryCalendarListResponseDto getHistoriesCalendar(Long userId, String year, int month) {
+
+        List<LocalDateTime> dateTimes = completedDateTimeRepository.findHistoryExistingDates(userId, year, month);
+        List<LocalDate> dates = dateTimes.stream()
+                .map(LocalDateTime::toLocalDate)
+                .toList();
+        return HistoryCalendarListResponseDto.builder().dates(dates).build();
     }
 }

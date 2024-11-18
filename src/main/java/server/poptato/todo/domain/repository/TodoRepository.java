@@ -2,6 +2,7 @@ package server.poptato.todo.domain.repository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.query.Param;
 import server.poptato.todo.domain.entity.Todo;
 import server.poptato.todo.domain.value.TodayStatus;
 import server.poptato.todo.domain.value.Type;
@@ -54,10 +55,10 @@ public interface TodoRepository {
                 userId, todayDate);
     }
 
-    default Page<Todo> findHistories(Long userId,Pageable pageable) {
-        return findByUserIdAndCompletedStatus(userId, TodayStatus.COMPLETED, pageable);
+    default Page<Todo> findHistories(Long userId,LocalDate localDate, Pageable pageable) {
+        return findTodosByUserIdAndCompletedDateTime(userId, localDate, pageable);
     }
-
+    Page<Todo> findTodosByUserIdAndCompletedDateTime(Long userId, LocalDate localDate, Pageable pageable);
     List<Todo> findByType(Type type);
     List<Todo> findByTypeAndUserId(Type type, Long userId);
 }
