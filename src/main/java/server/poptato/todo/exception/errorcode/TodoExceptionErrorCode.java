@@ -17,7 +17,8 @@ public enum TodoExceptionErrorCode implements ResponseStatus {
     ALREADY_COMPLETED_TODO(5003, HttpStatus.BAD_REQUEST.value(), "달성된 할 일은 스와이프할 수 없습니다."),
     TODO_TYPE_NOT_MATCH(5004, HttpStatus.BAD_REQUEST.value(), "드래그앤드롭 시 할 일 리스트와 할 일 타입이 맞지 않습니다." ),
     BACKLOG_CANT_COMPLETE(5005,HttpStatus.BAD_REQUEST.value(), "백로그 할 일은 달성할 수 없습니다."),
-    YESTERDAY_CANT_COMPLETE(5006, HttpStatus.BAD_REQUEST.value(), "이미 달성한 어제 한 일은 취소할 수 없습니다.");
+    YESTERDAY_CANT_COMPLETE(5006, HttpStatus.BAD_REQUEST.value(), "이미 달성한 어제 한 일은 취소할 수 없습니다."),
+    COMPLETED_DATETIME_NOT_EXIST(5007, HttpStatus.BAD_REQUEST.value(), "존재하지 않는 달성 시각입니다.");
 
 
     private final int code;

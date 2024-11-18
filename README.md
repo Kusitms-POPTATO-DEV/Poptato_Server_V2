@@ -4,13 +4,13 @@
 
 ### 📘 ERD (Entity-Relationship Diagram)
 
-<img src="https://github.com/user-attachments/assets/1f3a7541-9f03-4649-bf6d-aed7028f7711" alt="ERD Diagram" width="70%"/>
+![image](https://github.com/user-attachments/assets/1936f6cc-1f9b-4352-90b4-a85cfd4949e3)
 
 ---
 
 ### 🛠 System Architecture
 
-<img src="https://github.com/user-attachments/assets/212fe9e6-545b-4f56-b453-118824447fbe" alt="System Architecture Diagram" width="70%"/>
+![image](https://github.com/user-attachments/assets/9728bbd3-bb18-4bf5-9c4b-cb9de9988220)
 
 ---
 

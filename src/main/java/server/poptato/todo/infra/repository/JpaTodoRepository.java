@@ -26,11 +26,10 @@ public interface JpaTodoRepository extends TodoRepository, JpaRepository<Todo,Lo
     Integer findMinBacklogOrderByUserIdOrZero(@Param("userId") Long userId);
     @Query("SELECT COALESCE(MIN(t.todayOrder), 0) FROM Todo t WHERE t.userId = :userId AND t.todayOrder IS NOT NULL")
     Integer findMinTodayOrderByUserIdOrZero(Long userId);
-    @Query("SELECT t FROM Todo t WHERE t.userId = :userId AND t.todayStatus = :todayStatus AND t.todayDate <> :todayDate")
-    Page<Todo> findByUserIdAndCompletedStatusAndDifferentTodayDate(
+    @Query("SELECT t FROM Todo t WHERE t.userId = :userId AND t.todayStatus = :todayStatus")
+    Page<Todo> findByUserIdAndCompletedStatus(
             @Param("userId") Long userId,
             @Param("todayStatus") TodayStatus todayStatus,
-            @Param("todayDate") LocalDate todayDate,
             Pageable pageable
     );
     @Query("SELECT t FROM Todo t WHERE t.userId = :userId AND (t.type IN :types AND (t.todayStatus NOT IN :statuses OR t.todayStatus IS NULL)) " +
@@ -41,9 +40,26 @@ public interface JpaTodoRepository extends TodoRepository, JpaRepository<Todo,Lo
             @Param("statuses") List<TodayStatus> statuses,
             Pageable pageable);
 
-    @Query("SELECT DISTINCT DATE(t.completedDateTime) " +
-            "FROM Todo t " +
-            "WHERE FUNCTION('YEAR', t.completedDateTime) = :year " +
-            "AND FUNCTION('MONTH', t.completedDateTime) = :month")
-    List<LocalDate> findDistinctDatesByYearAndMonth(int year, int month);
+    @Query("""
+    SELECT t 
+    FROM Todo t
+    JOIN CompletedDateTime c ON t.id = c.todoId
+    WHERE t.userId = :userId 
+      AND t.type = 'TODAY'
+      AND t.todayStatus = 'COMPLETED'
+      AND FUNCTION('DATE', c.dateTime) = :todayDate
+    ORDER BY c.dateTime ASC
+    """)
+    List<Todo> findCompletedTodayByUserIdOrderByCompletedDateTimeAsc(
+            @Param("userId") Long userId,
+            @Param("todayDate") LocalDate todayDate
+    );
+    @Query("SELECT t FROM Todo t " +
+            "WHERE t.id IN (" +
+            "    SELECT c.todoId FROM CompletedDateTime c " +
+            "    WHERE DATE(c.dateTime) = :localDate" +
+            ") AND t.userId = :userId " +
+            "ORDER BY (SELECT c.dateTime FROM CompletedDateTime c WHERE c.todoId = t.id) ASC")
+    Page<Todo> findTodosByUserIdAndCompletedDateTime(@Param("userId") Long userId,
+                                                     @Param("localDate") LocalDate localDate, Pageable pageable);
 }

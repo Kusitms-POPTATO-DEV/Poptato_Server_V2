@@ -2,6 +2,7 @@ package server.poptato.todo.domain.repository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.query.Param;
 import server.poptato.todo.domain.entity.Todo;
 import server.poptato.todo.domain.value.TodayStatus;
 import server.poptato.todo.domain.value.Type;
@@ -16,14 +17,13 @@ public interface TodoRepository {
     List<Todo> findByUserIdAndTypeAndTodayDateAndTodayStatusOrderByTodayOrderDesc(
             Long userId, Type type, LocalDate todayDate, TodayStatus todayStatus);
 
-    List<Todo> findByUserIdAndTypeAndTodayDateAndTodayStatusOrderByCompletedDateTimeAsc(
-            Long userId, Type type, LocalDate todayDate, TodayStatus todayStatus);
+    List<Todo> findCompletedTodayByUserIdOrderByCompletedDateTimeAsc(Long userId, LocalDate todayDate);
 
     Optional<Todo> findById(Long todoId);
 
     void delete(Todo todo);
 
-    Page<Todo> findByUserIdAndCompletedStatusAndDifferentTodayDate(Long userId, TodayStatus todayStatus, LocalDate today, Pageable pageable);
+    Page<Todo> findByUserIdAndCompletedStatus(Long userId, TodayStatus todayStatus, Pageable pageable);
 
     Todo save(Todo todo);
 
@@ -50,16 +50,15 @@ public interface TodoRepository {
                 userId, type, todayDate, todayStatus);
     }
 
-    default List<Todo> findCompletedTodays(Long userId, Type type, LocalDate todayDate, TodayStatus todayStatus) {
-        return findByUserIdAndTypeAndTodayDateAndTodayStatusOrderByCompletedDateTimeAsc(
-                userId, type, todayDate, todayStatus);
+    default List<Todo> findCompletedTodays(Long userId, LocalDate todayDate) {
+        return findCompletedTodayByUserIdOrderByCompletedDateTimeAsc(
+                userId, todayDate);
     }
 
-    default Page<Todo> findHistories(Long userId, LocalDate today, Pageable pageable) {
-        return findByUserIdAndCompletedStatusAndDifferentTodayDate(userId, TodayStatus.COMPLETED, today, pageable);
+    default Page<Todo> findHistories(Long userId,LocalDate localDate, Pageable pageable) {
+        return findTodosByUserIdAndCompletedDateTime(userId, localDate, pageable);
     }
-
+    Page<Todo> findTodosByUserIdAndCompletedDateTime(Long userId, LocalDate localDate, Pageable pageable);
     List<Todo> findByType(Type type);
     List<Todo> findByTypeAndUserId(Type type, Long userId);
-    List<LocalDate> findCalendarDatesByYearAndMonth(int year, int month);
 }
