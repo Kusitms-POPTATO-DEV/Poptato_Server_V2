@@ -80,7 +80,7 @@ class TodoRepositoryTest {
         PageRequest pageRequest = PageRequest.of(0, 8);
 
         //when
-        Page<Todo> backlogs = todoRepository.findAllBacklogsByUserId(userId, types, statuses, pageRequest);
+        Page<Todo> backlogs = todoRepository.findAllBacklogs(userId, types, statuses, pageRequest);
 
         //then
         assertThat(backlogs.getContent()).isNotEmpty();
@@ -101,7 +101,7 @@ class TodoRepositoryTest {
         PageRequest pageRequest = PageRequest.of(0, 8);
 
         //when
-        Page<Todo> backlogs = todoRepository.findBookmarkBacklogsByUserId(userId, types, statuses, pageRequest);
+        Page<Todo> backlogs = todoRepository.findBookmarkBacklogs(userId, types, statuses, pageRequest);
 
         //then
         assertThat(backlogs.getContent()).isNotEmpty();
@@ -115,7 +115,7 @@ class TodoRepositoryTest {
 
     @DisplayName("카테고리 지정 백로그 목록 조회 시, userId가 1이 등록한 백로그 리스트가 CategoryId와 BacklogOrder에 따라 성공적으로 내림차순 정렬되어 조회된다.")
     @Test
-    void findBookmarkBacklogs_Success() {
+    void findBacklogsByCategoryId_Success() {
         //given
         Long userId = 1L;
         List<Type> types = List.of(Type.BACKLOG, Type.YESTERDAY);
@@ -124,7 +124,7 @@ class TodoRepositoryTest {
         Long categoryId = 1L;
 
         //when
-        Page<Todo> backlogs = todoRepository.findCategoryBacklogsByUserId(userId, categoryId, types, statuses, pageRequest);
+        Page<Todo> backlogs = todoRepository.findBacklogsByCategoryId(userId, categoryId, types, statuses, pageRequest);
 
         //then
         assertThat(backlogs.getContent()).isNotEmpty();

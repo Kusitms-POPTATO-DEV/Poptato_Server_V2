@@ -37,7 +37,7 @@ class TodoBacklogServiceTest {
         Long userId = 1L;
         int page = 0;
         int size = 8;
-        Long categoryId = -1;
+        Long categoryId = -1L;
 
         //when
         List<BacklogResponseDto> backlogList = todoBacklogService.getBacklogList(userId, categoryId ,page, size).getBacklogs();
@@ -65,9 +65,9 @@ class TodoBacklogServiceTest {
 
     @DisplayName("백로그 목록 조회 시, categoryId가 0이면 북마크 할 일만 조회된다.")
     @Test
-    void getBacklogList_EmptyToday_Success() {
+    void getBookmarkBacklogList_Success() {
         //given
-        Long userId = 50L;
+        Long userId = 1L;
         int page = 0;
         int size = 8;
         Long categoryId = 0L;
@@ -83,9 +83,9 @@ class TodoBacklogServiceTest {
 
     @DisplayName("백로그 목록 조회 시, categoryId가 양수이면 해당 카테고리만 조회된다.")
     @Test
-    void getBacklogList_EmptyToday_Success() {
+    void getBacklogList_By_Category_Success() {
         //given
-        Long userId = 50L;
+        Long userId = 1L;
         int page = 0;
         int size = 8;
         Long categoryId = 1L;
