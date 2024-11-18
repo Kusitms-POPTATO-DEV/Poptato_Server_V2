@@ -16,10 +16,7 @@ public class PaginatedYesterdayResponseDto {
     @Builder
     public PaginatedYesterdayResponseDto(Page<Todo> yesterdaysPage) {
         this.yesterdays = yesterdaysPage.getContent().stream()
-                .map(todo -> new YesterdayResponseDto(
-                        todo.getId(),
-                        todo.getContent()
-                ))
+                .map(YesterdayResponseDto::new)
                 .collect(Collectors.toList());
         this.totalPageCount = yesterdaysPage.getTotalPages();
     }

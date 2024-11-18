@@ -6,12 +6,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import server.poptato.todo.api.request.BacklogCreateRequestDto;
 import server.poptato.todo.application.response.*;
+import server.poptato.todo.domain.entity.CompletedDateTime;
 import server.poptato.todo.domain.entity.Todo;
 import server.poptato.todo.domain.repository.TodoRepository;
 import server.poptato.todo.domain.value.Type;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -47,7 +50,7 @@ class TodoBacklogServiceTest {
 
         //when
         BacklogListResponseDto backlogList = todoBacklogService.getBacklogList(userId, page, size);
-        for(BacklogResponseDto todo : backlogList.getBacklogs()){
+        for (BacklogResponseDto todo : backlogList.getBacklogs()) {
             Long todoId = todo.getTodoId();
             System.out.println(todoId);
         }
@@ -80,8 +83,8 @@ class TodoBacklogServiceTest {
         assertThat(newTodo.getType()).isEqualTo(Type.BACKLOG);
         assertThat(newTodo.isBookmark()).isFalse();
         assertThat(newTodo.getTodayStatus()).isNull();
-        assertThat(newTodo.getCompletedDateTime()).isNull();
     }
+
     @Test
     @DisplayName("기록 조회 시 페이징 및 정렬하여 기록 조회를 성공한다.")
     void getHistories_Success() {
@@ -89,24 +92,20 @@ class TodoBacklogServiceTest {
         Long userId = 1L;
         int page = 0;
         int size = 5;
-        LocalDate date = LocalDate.of(2024,10,16);
+        LocalDate date = LocalDate.of(2024, 10, 16);
 
         // when
-        PaginatedHistoryResponseDto historiesPage = todoBacklogService.getHistories(userId, page, size, date);
+        PaginatedHistoryResponseDto historiesPage = todoBacklogService.getHistories(userId, date, page, size);
 
         // then
         int actualSize = historiesPage.getHistories().size();
+        List<HistoryResponseDto> histories = historiesPage.getHistories();
 
         assertThat(actualSize).isLessThanOrEqualTo(size);
-        assertThat(historiesPage.getTotalPageCount()).isGreaterThan(0);
+        assertThat(historiesPage.getTotalPageCount()).isEqualTo(2);
+        assertThat(histories.get(0).todoId()).isEqualTo(3);
+        assertThat(histories.get(1).todoId()).isEqualTo(6);
 
-        List<HistoryResponseDto> histories = historiesPage.getHistories();
-        for (int i = 0; i < histories.size() - 1; i++) {
-            LocalDate current = histories.get(i).date();
-            LocalDate next = histories.get(i + 1).date();
-
-            assertThat(current).isBeforeOrEqualTo(next);
-        }
     }
 
 
@@ -117,14 +116,17 @@ class TodoBacklogServiceTest {
         Long userId = 1L;
         int page = 0;
         int size = 5;
-
         // when
         PaginatedYesterdayResponseDto result = todoBacklogService.getYesterdays(userId, page, size);
+        Long todoId = result.getYesterdays().get(0).getTodoId();
+        Optional<Todo> todo = todoRepository.findById(todoId);
 
         // then
         assertThat(result.getYesterdays()).hasSizeLessThanOrEqualTo(size);
         assertThat(result.getTotalPageCount()).isGreaterThan(0);
-        assertThat(result.getYesterdays().get(0).todoId()).isNotNull();
-        assertThat(result.getYesterdays().get(0).content()).isNotNull();
+        assertThat(result.getYesterdays().get(0).getTodoId()).isNotNull();
+        assertThat(result.getYesterdays().get(0).getContent()).isNotNull();
+        assertThat(result.getYesterdays().get(0).isBookmark()).isNotNull();
+        assertThat(result.getYesterdays().get(0).getDDay()).isEqualTo((int) ChronoUnit.DAYS.between(LocalDate.now(), todo.get().getDeadline()));
     }
 }

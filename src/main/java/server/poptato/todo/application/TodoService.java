@@ -9,7 +9,9 @@ import server.poptato.todo.api.request.DragAndDropRequestDto;
 import server.poptato.todo.api.request.SwipeRequestDto;
 import server.poptato.todo.application.response.TodoDetailResponseDto;
 import server.poptato.todo.converter.TodoDtoConverter;
+import server.poptato.todo.domain.entity.CompletedDateTime;
 import server.poptato.todo.domain.entity.Todo;
+import server.poptato.todo.domain.repository.CompletedDateTimeRepository;
 import server.poptato.todo.domain.repository.TodoRepository;
 import server.poptato.todo.domain.value.TodayStatus;
 import server.poptato.todo.domain.value.Type;
@@ -17,9 +19,11 @@ import server.poptato.todo.exception.TodoException;
 import server.poptato.todo.exception.errorcode.TodoExceptionErrorCode;
 import server.poptato.user.validator.UserValidator;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static server.poptato.todo.exception.errorcode.TodoExceptionErrorCode.COMPLETED_DATETIME_NOT_EXIST;
 import static server.poptato.todo.exception.errorcode.TodoExceptionErrorCode.TODO_NOT_EXIST;
 
 @Transactional
@@ -27,6 +31,7 @@ import static server.poptato.todo.exception.errorcode.TodoExceptionErrorCode.TOD
 @Service
 public class TodoService {
     private final TodoRepository todoRepository;
+    private final CompletedDateTimeRepository completedDateTimeRepository;
     private final UserValidator userValidator;
 
 
@@ -85,7 +90,7 @@ public class TodoService {
         todoRepository.save(findTodo);
     }
 
-    public void updateIsCompleted(Long userId, Long todoId) {
+    public void updateIsCompleted(Long userId, Long todoId, LocalDateTime now) {
         userValidator.checkIsExistUser(userId);
         Todo findTodo = validateAndReturnTodo(userId, todoId);
         checkIsValidToUpdateIsCompleted(findTodo);
@@ -93,12 +98,20 @@ public class TodoService {
         if (isStatusCompleted(findTodo)) {
             Integer minTodayOrder = todoRepository.findMinTodayOrderByUserIdOrZero(userId);
             findTodo.updateTodayStatusToInComplete(minTodayOrder);
+            CompletedDateTime completedDateTime = completedDateTimeRepository.findByDateAndTodoId(findTodo.getId(), now.toLocalDate())
+                    .orElseThrow(()->new TodoException(COMPLETED_DATETIME_NOT_EXIST));
+            completedDateTimeRepository.delete(completedDateTime);
             return;
         }
         if (isTypeYesterday(findTodo)){
             findTodo.updateYesterdayStatusToCompleted();
+            CompletedDateTime completedDateTime = CompletedDateTime.builder().todoId(findTodo.getId()).dateTime(now).build();
+            completedDateTimeRepository.save(completedDateTime);
+            return;
         }
         findTodo.updateTodayStatusToCompleted();
+        CompletedDateTime completedDateTime = CompletedDateTime.builder().todoId(findTodo.getId()).dateTime(now).build();
+        completedDateTimeRepository.save(completedDateTime);
     }
 
     private boolean isTypeYesterday(Todo findTodo) {

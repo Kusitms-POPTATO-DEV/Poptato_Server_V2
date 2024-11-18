@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import server.poptato.todo.domain.entity.CompletedDateTime;
 import server.poptato.todo.domain.entity.Todo;
 import server.poptato.todo.domain.value.TodayStatus;
 import server.poptato.todo.domain.value.Type;
@@ -21,6 +22,8 @@ import java.util.List;
 class TodoRepositoryTest {
     @Autowired
     private TodoRepository todoRepository;
+    @Autowired
+    private CompletedDateTimeRepository completedDateTimeRepository;
 
     @DisplayName("달성된 투데이 조회 시, userId가 1이 등록한 달성된 투데이가 달성 시각 순서에 따라 성공적으로 정렬되어 조회된다.")
     @Test
@@ -30,8 +33,8 @@ class TodoRepositoryTest {
         LocalDate todayDate = LocalDate.of(2024, 10, 16);
 
         //when
-        List<Todo> todos = todoRepository.findByUserIdAndTypeAndTodayDateAndTodayStatusOrderByCompletedDateTimeAsc(
-                userId, Type.TODAY, todayDate, TodayStatus.COMPLETED);
+        List<Todo> todos = todoRepository.findCompletedTodayByUserIdOrderByCompletedDateTimeAsc(
+                userId, todayDate);
 
         //then
         assertThat(todos).isNotEmpty();
@@ -39,7 +42,10 @@ class TodoRepositoryTest {
         assertThat(todos.stream().allMatch(todo -> todo.getType() == Type.TODAY)).isTrue();
         assertThat(todos.stream().allMatch(todo -> todo.getTodayDate().equals(todayDate))).isTrue();
         for (int i = 0; i < todos.size() - 1; i++) {
-            assertThat(todos.get(i).getCompletedDateTime()).isBeforeOrEqualTo(todos.get(i + 1).getCompletedDateTime());
+            CompletedDateTime currentCompletionTime = completedDateTimeRepository.findByDateAndTodoId(todos.get(i).getId(), todayDate).get();
+            CompletedDateTime nextCompletionTime = completedDateTimeRepository.findByDateAndTodoId(todos.get(i + 1).getId(), todayDate).get();
+
+            assertThat(currentCompletionTime.getDateTime()).isBeforeOrEqualTo(nextCompletionTime.getDateTime()); // 정렬 확인
         }
     }
 
@@ -90,13 +96,14 @@ class TodoRepositoryTest {
         //given
         Long userId = 1L;
         LocalDate date = LocalDate.of(2024,10,16);
-        Pageable pageable = PageRequest.of(0, 15, Sort.by(Sort.Direction.DESC, "completedDateTime"));
+
+        Pageable pageable = PageRequest.of(0, 15);
 
         //when
-        Page<Todo> histories = todoRepository.findHistories(userId, TodayStatus.COMPLETED,date, pageable);
+        Page<Todo> histories = todoRepository.findHistories(userId, date, pageable);
 
         //then
         assertThat(histories).isNotNull();
-        assertThat(histories.getContent().size()).isEqualTo(3);
+        assertThat(histories.getContent().size()).isEqualTo(6);
     }
 }
