@@ -21,7 +21,9 @@ public class KakaoSocialService extends SocialService {
         return new SocialUserInfo(
                 String.valueOf(userResponse.id()),
                 userResponse.properties().nickname(),
-                userResponse.kakao_account().email()
+                userResponse.kakao_account().email(),
+                userResponse.kakao_account().profile().profile_image_url()
+
         );
     }
 }

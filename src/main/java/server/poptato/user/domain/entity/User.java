@@ -35,15 +35,14 @@ public class User {
     @Nullable
     private String imageUrl;
 
-    @CreatedDate  // 엔티티가 처음 생성될 때 시간 자동 저장
-    @Column(updatable = false)  // 생성일은 수정 불가
+    @CreatedDate
+    @Column(updatable = false)
     private LocalDateTime createDate;
 
-    @LastModifiedDate  // 엔티티가 수정될 때 시간 자동 저장
+    @LastModifiedDate
     private LocalDateTime modifyDate;
 
-    // name 변경 메서드
-    public void changeName(String newName) {
-        this.name = newName;
+    public void updateImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }
