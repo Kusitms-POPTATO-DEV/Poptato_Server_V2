@@ -8,6 +8,7 @@ import server.poptato.todo.api.request.BacklogCreateRequestDto;
 import server.poptato.todo.application.response.*;
 import server.poptato.todo.domain.entity.CompletedDateTime;
 import server.poptato.todo.domain.entity.Todo;
+import server.poptato.todo.domain.repository.CompletedDateTimeRepository;
 import server.poptato.todo.domain.repository.TodoRepository;
 import server.poptato.todo.domain.value.Type;
 
@@ -24,6 +25,8 @@ class TodoBacklogServiceTest {
     private TodoBacklogService todoBacklogService;
     @Autowired
     private TodoRepository todoRepository;
+    @Autowired
+    private CompletedDateTimeRepository completedDateTimeRepository;
 
     @DisplayName("백로그 목록 조회 시, size=8을 요청하면 8개가 응답된다.")
     @Test
@@ -103,9 +106,11 @@ class TodoBacklogServiceTest {
 
         assertThat(actualSize).isLessThanOrEqualTo(size);
         assertThat(historiesPage.getTotalPageCount()).isEqualTo(2);
-        assertThat(histories.get(0).todoId()).isEqualTo(3);
-        assertThat(histories.get(1).todoId()).isEqualTo(6);
-
+        for(int i = 0; i<histories.size()-1; i++){
+            CompletedDateTime current = completedDateTimeRepository.findByDateAndTodoId(histories.get(i).todoId(), date).get();
+            CompletedDateTime next = completedDateTimeRepository.findByDateAndTodoId(histories.get(i+1).todoId(), date).get();
+            assertThat(current.getDateTime()).isBeforeOrEqualTo(next.getDateTime());
+        }
     }
 
 
