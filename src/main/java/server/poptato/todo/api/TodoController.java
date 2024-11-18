@@ -9,9 +9,12 @@ import server.poptato.todo.api.request.DeadlineUpdateRequestDto;
 import server.poptato.todo.api.request.DragAndDropRequestDto;
 import server.poptato.todo.api.request.SwipeRequestDto;
 import server.poptato.todo.application.TodoService;
+import server.poptato.todo.application.response.HistoryCalendarListResponseDto;
+import server.poptato.todo.application.response.PaginatedHistoryResponseDto;
 import server.poptato.todo.application.response.TodoDetailResponseDto;
 import server.poptato.user.resolver.UserId;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @RestController
@@ -74,5 +77,23 @@ public class TodoController {
                                           @PathVariable Long todoId) {
         todoService.updateIsCompleted(1L, todoId, LocalDateTime.now());
         return new BaseResponse<>();
+    }
+    @GetMapping("/histories")
+    public BaseResponse<PaginatedHistoryResponseDto> getHistories(
+            @UserId Long userId,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "15") int size,
+            @RequestParam LocalDate date) {
+        PaginatedHistoryResponseDto response = todoService.getHistories(userId,date, page, size);
+        return new BaseResponse<>(response);
+    }
+    @GetMapping("/calendar")
+    public BaseResponse<HistoryCalendarListResponseDto> getHistoryCalendarDateList(
+            @UserId Long userId,
+            @RequestParam String year,
+            @RequestParam int month
+    ){
+        HistoryCalendarListResponseDto response = todoService.getHistoriesCalendar(userId, year, month);
+        return new BaseResponse<>(response);
     }
 }

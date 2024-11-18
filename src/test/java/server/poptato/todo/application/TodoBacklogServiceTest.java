@@ -89,52 +89,6 @@ class TodoBacklogServiceTest {
         assertThat(newTodo.getTodayStatus()).isNull();
     }
 
-    @Test
-    @DisplayName("기록 조회 시 페이징 및 정렬하여 기록 조회를 성공한다.")
-    void getHistories_Success() {
-        // given
-        Long userId = 1L;
-        int page = 0;
-        int size = 5;
-        LocalDate date = LocalDate.of(2024, 10, 16);
-
-        // when
-        PaginatedHistoryResponseDto historiesPage = todoBacklogService.getHistories(userId, date, page, size);
-
-        // then
-        int actualSize = historiesPage.getHistories().size();
-        List<HistoryResponseDto> histories = historiesPage.getHistories();
-
-        assertThat(actualSize).isLessThanOrEqualTo(size);
-        assertThat(historiesPage.getTotalPageCount()).isEqualTo(2);
-        for(int i = 0; i<histories.size()-1; i++){
-            CompletedDateTime current = completedDateTimeRepository.findByDateAndTodoId(histories.get(i).todoId(), date).get();
-            CompletedDateTime next = completedDateTimeRepository.findByDateAndTodoId(histories.get(i+1).todoId(), date).get();
-            assertThat(current.getDateTime()).isBefore(next.getDateTime());
-        }
-    }
-    @Test
-    @DisplayName("캘린더 조회 시 기록이 있는 날짜들 반환을 성공한다")
-    void getCalendar_Success() {
-        // given
-        Long userId = 1L;
-        String year = "2024";
-        int month = 10;
-
-        //when
-        HistoryCalendarListResponseDto responseDto = todoBacklogService.getHistoriesCalendar(userId, year, month);
-
-        // then
-        List<LocalDate> dates = responseDto.dates();
-
-        LocalDate firstCompletedDate = dates.get(0);
-        String completedYear = String.valueOf(firstCompletedDate.getYear());
-        int completedMonth = firstCompletedDate.getMonthValue();
-
-        assertThat(year).isEqualTo(completedYear);
-        assertThat(month).isEqualTo(completedMonth);
-    }
-
 
     @Test
     @DisplayName("어제한일 조회 시 성공한다.")

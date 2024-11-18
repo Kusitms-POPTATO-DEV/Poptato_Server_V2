@@ -44,27 +44,6 @@ public class TodoBacklogService {
         return TodoDtoConverter.toBacklogCreateDto(newBacklog);
     }
 
-    public PaginatedHistoryResponseDto getHistories(Long userId, LocalDate localDate, int page, int size) {
-        userValidator.checkIsExistUser(userId);
-        Page<Todo> historiesPage = getHistoriesPage(userId, localDate, page, size);
-        return TodoDtoConverter.toHistoryListDto(historiesPage);
-    }
-
-    private Page<Todo> getHistoriesPage(Long userId, LocalDate localDate, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Todo> historiesPage = todoRepository.findHistories(userId, localDate, pageable);
-        return historiesPage;
-    }
-
-    public HistoryCalendarListResponseDto getHistoriesCalendar(Long userId, String year, int month){
-
-        List<LocalDateTime> dateTimes = completedDateTimeRepository.findHistoryExistingDates(userId, year, month);
-        List<LocalDate> dates = dateTimes.stream()
-                .map(LocalDateTime::toLocalDate)
-                .toList();
-        return HistoryCalendarListResponseDto.builder().dates(dates).build();
-    }
-
     public PaginatedYesterdayResponseDto getYesterdays(Long userId, int page, int size) {
         userValidator.checkIsExistUser(userId);
 

@@ -33,25 +33,6 @@ public class TodoBacklogController {
         return new BaseResponse<>(response);
     }
 
-    @GetMapping("/histories")
-    public BaseResponse<PaginatedHistoryResponseDto> getHistories(
-            @UserId Long userId,
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "15") int size,
-            @RequestParam LocalDate date) {
-        PaginatedHistoryResponseDto response = todoBacklogService.getHistories(userId,date, page, size);
-        return new BaseResponse<>(response);
-    }
-    @GetMapping("/calendar")
-    public BaseResponse<HistoryCalendarListResponseDto> getHistoryCalendarDateList(
-            @UserId Long userId,
-            @RequestParam String year,
-            @RequestParam int month
-            ){
-        HistoryCalendarListResponseDto response = todoBacklogService.getHistoriesCalendar(userId, year, month);
-        return new BaseResponse<>(response);
-    }
-
     @GetMapping("/yesterdays")
     public BaseResponse<PaginatedYesterdayResponseDto> getYesterdays(
             @UserId Long userId,
