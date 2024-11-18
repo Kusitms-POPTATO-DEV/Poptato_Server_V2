@@ -125,17 +125,4 @@ class TodoBacklogControllerTest {
                 .andExpect(status().isOk())
                 .andDo(print());
     }
-    @DisplayName("히스토리 목록 조회 시 page와 size를 query string으로 받고 헤더에 accessToken을 담아 요청한다.")
-    @Test
-    void getHistories_Success() throws Exception {
-        // given & when & then
-        mockMvc.perform(get("/histories")
-                        .param("page", "0")
-                        .param("size", "15")
-                        .param("date", "2024-10-16")
-                        .header("Authorization", "Bearer " + accessToken)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-
-    }
 }

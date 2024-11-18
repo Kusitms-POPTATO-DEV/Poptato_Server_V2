@@ -17,6 +17,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -86,31 +87,6 @@ class TodoBacklogServiceTest {
         assertThat(newTodo.getType()).isEqualTo(Type.BACKLOG);
         assertThat(newTodo.isBookmark()).isFalse();
         assertThat(newTodo.getTodayStatus()).isNull();
-    }
-
-    @Test
-    @DisplayName("기록 조회 시 페이징 및 정렬하여 기록 조회를 성공한다.")
-    void getHistories_Success() {
-        // given
-        Long userId = 1L;
-        int page = 0;
-        int size = 5;
-        LocalDate date = LocalDate.of(2024, 10, 16);
-
-        // when
-        PaginatedHistoryResponseDto historiesPage = todoBacklogService.getHistories(userId, date, page, size);
-
-        // then
-        int actualSize = historiesPage.getHistories().size();
-        List<HistoryResponseDto> histories = historiesPage.getHistories();
-
-        assertThat(actualSize).isLessThanOrEqualTo(size);
-        assertThat(historiesPage.getTotalPageCount()).isEqualTo(2);
-        for(int i = 0; i<histories.size()-1; i++){
-            CompletedDateTime current = completedDateTimeRepository.findByDateAndTodoId(histories.get(i).todoId(), date).get();
-            CompletedDateTime next = completedDateTimeRepository.findByDateAndTodoId(histories.get(i+1).todoId(), date).get();
-            assertThat(current.getDateTime()).isBefore(next.getDateTime());
-        }
     }
 
 

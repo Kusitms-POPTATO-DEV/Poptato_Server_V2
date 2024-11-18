@@ -61,5 +61,4 @@ public interface TodoRepository {
     Page<Todo> findTodosByUserIdAndCompletedDateTime(Long userId, LocalDate localDate, Pageable pageable);
     List<Todo> findByType(Type type);
     List<Todo> findByTypeAndUserId(Type type, Long userId);
-
 }
