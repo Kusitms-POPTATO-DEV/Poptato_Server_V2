@@ -17,6 +17,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -111,6 +112,27 @@ class TodoBacklogServiceTest {
             CompletedDateTime next = completedDateTimeRepository.findByDateAndTodoId(histories.get(i+1).todoId(), date).get();
             assertThat(current.getDateTime()).isBefore(next.getDateTime());
         }
+    }
+    @Test
+    @DisplayName("캘린더 조회 시 기록이 있는 날짜들 반환을 성공한다")
+    void getCalendar_Success() {
+        // given
+        Long userId = 1L;
+        String year = "2024";
+        int month = 10;
+
+        //when
+        HistoryCalendarListResponseDto responseDto = todoBacklogService.getHistoriesCalendar(userId, year, month);
+
+        // then
+        List<LocalDate> dates = responseDto.dates();
+
+        LocalDate firstCompletedDate = dates.get(0);
+        String completedYear = String.valueOf(firstCompletedDate.getYear());
+        int completedMonth = firstCompletedDate.getMonthValue();
+
+        assertThat(year).isEqualTo(completedYear);
+        assertThat(month).isEqualTo(completedMonth);
     }
 
 

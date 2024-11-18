@@ -16,6 +16,7 @@ import server.poptato.todo.domain.value.Type;
 import static org.assertj.core.api.Assertions.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @SpringBootTest

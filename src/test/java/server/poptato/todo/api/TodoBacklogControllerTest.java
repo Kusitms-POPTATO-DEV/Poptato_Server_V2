@@ -138,4 +138,16 @@ class TodoBacklogControllerTest {
                 .andExpect(status().isOk());
 
     }
+    @DisplayName("캘린더 조회시 year랑 month를 query string 으로 받고 헤더에 accessToken을 담아 요청한다.")
+    @Test
+    void getCalendar_Success() throws Exception {
+        // given & when & then
+        mockMvc.perform(get("/calendar")
+                        .param("year", "2024")
+                        .param("month", "10")
+                        .header("Authorization", "Bearer " + accessToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+    }
 }
