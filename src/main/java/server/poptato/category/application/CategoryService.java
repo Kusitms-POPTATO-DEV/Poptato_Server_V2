@@ -58,6 +58,7 @@ public class CategoryService {
 
     public void updateCategory(Long userId, Long categoryId, CategoryCreateUpdateRequestDto updateRequestDto) {
         userValidator.checkIsExistUser(userId);
+        emojiValidator.checkIsExistEmoji(updateRequestDto.emojiId());
         Category category = validateAndReturnCategory(userId, categoryId);
         category.update(updateRequestDto);
         categoryRepository.save(category);

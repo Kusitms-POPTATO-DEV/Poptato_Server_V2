@@ -25,7 +25,7 @@ public class CategoryController {
     @GetMapping
     public BaseResponse<CategoryListResponseDto> getCategories(@UserId Long userId,
                                                                @RequestParam(value = "page", defaultValue = "0") int page,
-                                                               @RequestParam(value = "size", defaultValue = "8") int size) {
+                                                               @RequestParam(value = "size", defaultValue = "6") int size) {
         CategoryListResponseDto response = categoryService.getCategories(userId, page, size);
         return new BaseResponse<>(response);
     }

@@ -11,7 +11,7 @@ public enum EmojiExceptionErrorCode implements ResponseStatus {
      * 7000: Emoji 도메인 오류
      */
 
-    EMOJI_NOT_EXIST(7000,HttpStatus.BAD_REQUEST.value(), "유효햐지 않은 페이지 수입니다.");
+    EMOJI_NOT_EXIST(7000,HttpStatus.BAD_REQUEST.value(), "존재하지 않는 이모지입니다.");
     private final int code;
     private final int status;
     private final String message;
