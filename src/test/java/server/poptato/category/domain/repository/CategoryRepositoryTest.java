@@ -23,11 +23,11 @@ public class CategoryRepositoryTest {
         PageRequest pageRequest = PageRequest.of(0, 6);
 
         //when
-        Page<Category> categories = categoryRepository.findByUserIdOrderByCategoryOrder(userId, pageRequest);
+        Page<Category> categories = categoryRepository.findCategories(userId, pageRequest);
 
         //then
         assertThat(categories.getContent()).isNotEmpty();
-        assertThat(categories.getContent().stream().allMatch(category -> category.getUserId().equals(userId))).isTrue();
+        assertThat(categories.getContent().stream().allMatch(category -> category.getUserId().equals(userId) || category.getUserId().equals(-1L))).isTrue();
         for (int i = 0; i < categories.getContent().size() - 1; i++) {
             assertThat(categories.getContent().get(i).getCategoryOrder()).isLessThan(categories.getContent().get(i + 1).getCategoryOrder());
         }
