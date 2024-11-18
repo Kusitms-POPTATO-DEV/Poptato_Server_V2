@@ -41,7 +41,7 @@ public class CategoryService {
     public CategoryListResponseDto getCategories(Long userId, int page, int size) {
         userValidator.checkIsExistUser(userId);
         PageRequest pageRequest = PageRequest.of(page, size);
-        Page<Category> categories = categoryRepository.findByUserIdOrderByCategoryOrder(userId, pageRequest);
+        Page<Category> categories = categoryRepository.findCategories(userId, pageRequest);
         return convertToCategoryListDto(categories);
     }
 

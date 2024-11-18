@@ -17,28 +17,31 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @PostMapping
-    public BaseResponse<CategoryCreateResponseDto> createCategory(@UserId Long userId, @Validated @RequestBody CategoryCreateUpdateRequestDto categoryCreateRequestDto) {
-        CategoryCreateResponseDto response = categoryService.createCategory(userId, categoryCreateRequestDto);
+    public BaseResponse<CategoryCreateResponseDto> createCategory(//@UserId Long userId,
+                                                                  @Validated @RequestBody CategoryCreateUpdateRequestDto categoryCreateRequestDto) {
+        CategoryCreateResponseDto response = categoryService.createCategory(1L, categoryCreateRequestDto);
         return new BaseResponse<>(response);
     }
 
-    @GetMapping
-    public BaseResponse<CategoryListResponseDto> getCategories(@UserId Long userId,
+    @GetMapping("/list")
+    public BaseResponse<CategoryListResponseDto> getCategories(//@UserId Long userId,
                                                                @RequestParam(value = "page", defaultValue = "0") int page,
                                                                @RequestParam(value = "size", defaultValue = "6") int size) {
-        CategoryListResponseDto response = categoryService.getCategories(userId, page, size);
+        CategoryListResponseDto response = categoryService.getCategories(1L, page, size);
         return new BaseResponse<>(response);
     }
 
     @PutMapping("/{categoryId}")
-    public BaseResponse updateCategory(@UserId Long userId, @PathVariable Long categoryId,
+    public BaseResponse updateCategory(//@UserId Long userId,
+                                       @PathVariable Long categoryId,
                                        @Validated @RequestBody CategoryCreateUpdateRequestDto categoryUpdateRequestDto) {
-        categoryService.updateCategory(userId, categoryId, categoryUpdateRequestDto);
+        categoryService.updateCategory(1L, categoryId, categoryUpdateRequestDto);
         return new BaseResponse<>();
     }
     @DeleteMapping("/{categoryId}")
-    public BaseResponse deleteCategory(@UserId Long userId, @PathVariable Long categoryId) {
-        categoryService.deleteCategory(userId, categoryId);
+    public BaseResponse deleteCategory(//@UserId Long userId,
+                                       @PathVariable Long categoryId) {
+        categoryService.deleteCategory(1L, categoryId);
         return new BaseResponse<>();
     }
 }

@@ -27,6 +27,8 @@ public class Todo{
     private Long id;
     @NotNull
     private Long userId;
+    @Nullable
+    private Long  categoryId;
     @NotNull
     @Enumerated(EnumType.STRING)
     private Type type;
