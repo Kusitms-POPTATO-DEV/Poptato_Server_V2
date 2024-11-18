@@ -4,10 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import server.poptato.global.response.BaseResponse;
-import server.poptato.todo.api.request.ContentUpdateRequestDto;
-import server.poptato.todo.api.request.DeadlineUpdateRequestDto;
-import server.poptato.todo.api.request.DragAndDropRequestDto;
-import server.poptato.todo.api.request.SwipeRequestDto;
+import server.poptato.todo.api.request.*;
 import server.poptato.todo.application.TodoService;
 import server.poptato.todo.application.response.HistoryCalendarListResponseDto;
 import server.poptato.todo.application.response.PaginatedHistoryResponseDto;
@@ -78,21 +75,31 @@ public class TodoController {
         todoService.updateIsCompleted(userId, todoId, LocalDateTime.now());
         return new BaseResponse<>();
     }
+
+    @PatchMapping("/todo/{todoId}/category")
+    public BaseResponse updateCategory(@UserId Long userId,
+                                       @PathVariable Long todoId,
+                                       @RequestBody TodoCategoryUpdateRequestDto todoCategoryUpdateRequestDto) {
+        todoService.updateCategory(userId, todoId, todoCategoryUpdateRequestDto);
+        return new BaseResponse<>();
+    }
+
     @GetMapping("/histories")
     public BaseResponse<PaginatedHistoryResponseDto> getHistories(
             @UserId Long userId,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "15") int size,
             @RequestParam LocalDate date) {
-        PaginatedHistoryResponseDto response = todoService.getHistories(userId,date, page, size);
+        PaginatedHistoryResponseDto response = todoService.getHistories(userId, date, page, size);
         return new BaseResponse<>(response);
     }
+
     @GetMapping("/calendar")
     public BaseResponse<HistoryCalendarListResponseDto> getHistoryCalendarDateList(
             @UserId Long userId,
             @RequestParam String year,
             @RequestParam int month
-    ){
+    ) {
         HistoryCalendarListResponseDto response = todoService.getHistoriesCalendar(userId, year, month);
         return new BaseResponse<>(response);
     }
