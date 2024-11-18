@@ -76,11 +76,11 @@ class TodoRepositoryTest {
         //given
         Long userId = 1L;
         List<Type> types = List.of(Type.BACKLOG, Type.YESTERDAY);
-        List<TodayStatus> statuses = List.of(TodayStatus.COMPLETED);
+        TodayStatus status = TodayStatus.COMPLETED;
         PageRequest pageRequest = PageRequest.of(0, 8);
 
         //when
-        Page<Todo> backlogs = todoRepository.findAllBacklogs(userId, types, statuses, pageRequest);
+        Page<Todo> backlogs = todoRepository.findAllBacklogs(userId, types, status, pageRequest);
 
         //then
         assertThat(backlogs.getContent()).isNotEmpty();
@@ -97,11 +97,11 @@ class TodoRepositoryTest {
         //given
         Long userId = 1L;
         List<Type> types = List.of(Type.BACKLOG, Type.YESTERDAY);
-        List<TodayStatus> statuses = List.of(TodayStatus.COMPLETED);
+        TodayStatus status = TodayStatus.COMPLETED;
         PageRequest pageRequest = PageRequest.of(0, 8);
 
         //when
-        Page<Todo> backlogs = todoRepository.findBookmarkBacklogs(userId, types, statuses, pageRequest);
+        Page<Todo> backlogs = todoRepository.findBookmarkBacklogs(userId, types, status, pageRequest);
 
         //then
         assertThat(backlogs.getContent()).isNotEmpty();
@@ -119,12 +119,12 @@ class TodoRepositoryTest {
         //given
         Long userId = 1L;
         List<Type> types = List.of(Type.BACKLOG, Type.YESTERDAY);
-        List<TodayStatus> statuses = List.of(TodayStatus.COMPLETED);
+        TodayStatus status = TodayStatus.COMPLETED;
         PageRequest pageRequest = PageRequest.of(0, 8);
         Long categoryId = 1L;
 
         //when
-        Page<Todo> backlogs = todoRepository.findBacklogsByCategoryId(userId, categoryId, types, statuses, pageRequest);
+        Page<Todo> backlogs = todoRepository.findBacklogsByCategoryId(userId, categoryId, types, status, pageRequest);
 
         //then
         assertThat(backlogs.getContent()).isNotEmpty();

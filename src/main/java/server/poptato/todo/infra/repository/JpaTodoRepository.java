@@ -40,29 +40,32 @@ public interface JpaTodoRepository extends TodoRepository, JpaRepository<Todo, L
             Pageable pageable
     );
 
-    @Query("SELECT t FROM Todo t WHERE t.userId = :userId AND (t.type IN :types AND (t.todayStatus NOT IN :statuses OR t.todayStatus IS NULL)) " +
+    @Query("SELECT t FROM Todo t WHERE t.userId = :userId AND (t.type IN :types " +
+            "AND (t.todayStatus != :status OR t.todayStatus IS NULL)) " +
             "ORDER BY t.backlogOrder DESC")
     Page<Todo> findAllBacklogs(
             @Param("userId") Long userId,
             @Param("types") List<Type> types,
-            @Param("statuses") List<TodayStatus> statuses,
+            @Param("status") TodayStatus status,
             Pageable pageable);
 
-    @Query("SELECT t FROM Todo t WHERE t.userId = :userId AND t.isBookmark = true AND t.type IN :types AND (t.todayStatus NOT IN :statuses OR t.todayStatus IS NULL) ORDER BY t.backlogOrder DESC")
+    @Query("SELECT t FROM Todo t WHERE t.userId = :userId AND t.isBookmark = true " +
+            "AND t.type IN :types AND (t.todayStatus != :status " +
+            "OR t.todayStatus IS NULL) ORDER BY t.backlogOrder DESC")
     Page<Todo> findBookmarkBacklogs(
             @Param("userId") Long userId,
             @Param("types") List<Type> types,
-            @Param("statuses") List<TodayStatus> statuses,
+            @Param("status") TodayStatus status,
             Pageable pageable);
 
     @Query("SELECT t FROM Todo t WHERE t.userId = :userId AND t.categoryId = :categoryId AND " +
-            "(t.type IN :types AND (t.todayStatus NOT IN :statuses OR t.todayStatus IS NULL)) " +
+            "(t.type IN :types AND (t.todayStatus != :status OR t.todayStatus IS NULL)) " +
             "ORDER BY t.backlogOrder DESC")
     Page<Todo> findBacklogsByCategoryId(
             @Param("userId") Long userId,
             @Param("categoryId") Long categoryId,
             @Param("types") List<Type> types,
-            @Param("statuses") List<TodayStatus> statuses,
+            @Param("status") TodayStatus status,
             Pageable pageable);
 
     @Query("""

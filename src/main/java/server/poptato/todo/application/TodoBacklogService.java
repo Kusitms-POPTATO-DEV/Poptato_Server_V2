@@ -61,10 +61,11 @@ public class TodoBacklogService {
     private Page<Todo> getBacklogsPagination(Long userId, Long categoryId, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size);
         List<Type> types = List.of(Type.BACKLOG, Type.YESTERDAY);
-        List<TodayStatus> statuses = List.of(TodayStatus.COMPLETED);
-        if(categoryId==ALL_CATEGORY) return todoRepository.findAllBacklogs(userId, types, statuses, pageRequest);
-        if(categoryId==BOOKMARK_CATEGORY) return todoRepository.findBookmarkBacklogs(userId, types, statuses, pageRequest);
-        return todoRepository.findBacklogsByCategoryId(userId, categoryId, types, statuses, pageRequest);
+        TodayStatus status = TodayStatus.COMPLETED;
+        if (categoryId == ALL_CATEGORY) return todoRepository.findAllBacklogs(userId, types, status, pageRequest);
+        if (categoryId == BOOKMARK_CATEGORY)
+            return todoRepository.findBookmarkBacklogs(userId, types, status, pageRequest);
+        return todoRepository.findBacklogsByCategoryId(userId, categoryId, types, status, pageRequest);
     }
 
     private Todo createNewBacklog(Long userId, BacklogCreateRequestDto backlogCreateRequestDto, Integer maxBacklogOrder) {

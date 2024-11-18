@@ -1,7 +1,6 @@
 package server.poptato.todo.domain.repository;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import server.poptato.todo.domain.entity.Todo;
 import server.poptato.todo.domain.value.TodayStatus;
@@ -57,9 +56,9 @@ public interface TodoRepository {
     List<Todo> findByType(Type type);
     List<Todo> findByTypeAndUserId(Type type, Long userId);
 
-    Page<Todo> findAllBacklogs(Long userId, List<Type> types, List<TodayStatus> statuses, Pageable pageable);
+    Page<Todo> findAllBacklogs(Long userId, List<Type> types, TodayStatus status, Pageable pageable);
 
-    Page<Todo> findBookmarkBacklogs(Long userId, List<Type> types, List<TodayStatus> statuses, Pageable pageable);
+    Page<Todo> findBookmarkBacklogs(Long userId, List<Type> types, TodayStatus status, Pageable pageable);
 
-    Page<Todo> findBacklogsByCategoryId(Long userId, Long categoryId, List<Type> types, List<TodayStatus> statuses, Pageable pageable);
+    Page<Todo> findBacklogsByCategoryId(Long userId, Long categoryId, List<Type> types, TodayStatus status, Pageable pageable);
 }
