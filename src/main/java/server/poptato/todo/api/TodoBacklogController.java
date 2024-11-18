@@ -20,9 +20,10 @@ public class TodoBacklogController {
     @GetMapping("/backlogs")
     public BaseResponse<BacklogListResponseDto> getBacklogList(
             @UserId Long userId,
+            @RequestParam(value = "category") Long categoryId,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "8") int size) {
-        BacklogListResponseDto response = todoBacklogService.getBacklogList(userId, page, size);
+        BacklogListResponseDto response = todoBacklogService.getBacklogList(userId, categoryId ,page, size);
         return new BaseResponse<>(response);
     }
 

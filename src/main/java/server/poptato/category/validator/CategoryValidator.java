@@ -20,4 +20,10 @@ public class CategoryValidator {
         if (findCategory.getUserId() != userId && findCategory.getUserId() != -1L) throw new CategoryException(CATEGORY_USER_NOT_MATCH);
         return findCategory;
     }
+
+    public void validateCategory(Long userId, Long categoryId) {
+        Category findCategory = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new CategoryException(CATEGORY_NOT_EXIST));
+        if (findCategory.getUserId() != userId && findCategory.getUserId() != -1L) throw new CategoryException(CATEGORY_USER_NOT_MATCH);
+    }
 }
