@@ -5,8 +5,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import server.poptato.todo.api.request.BacklogCreateRequestDto;
-import server.poptato.todo.application.response.*;
-import server.poptato.todo.domain.entity.CompletedDateTime;
+import server.poptato.todo.application.response.BacklogCreateResponseDto;
+import server.poptato.todo.application.response.BacklogListResponseDto;
+import server.poptato.todo.application.response.BacklogResponseDto;
+import server.poptato.todo.application.response.PaginatedYesterdayResponseDto;
 import server.poptato.todo.domain.entity.Todo;
 import server.poptato.todo.domain.repository.CompletedDateTimeRepository;
 import server.poptato.todo.domain.repository.TodoRepository;
@@ -17,7 +19,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -36,9 +37,10 @@ class TodoBacklogServiceTest {
         Long userId = 1L;
         int page = 0;
         int size = 8;
+        Long categoryId = -1;
 
         //when
-        List<BacklogResponseDto> backlogList = todoBacklogService.getBacklogList(userId, page, size).getBacklogs();
+        List<BacklogResponseDto> backlogList = todoBacklogService.getBacklogList(userId, categoryId ,page, size).getBacklogs();
 
         //then
         assertThat(backlogList.size()).isEqualTo(size);
@@ -51,17 +53,51 @@ class TodoBacklogServiceTest {
         Long userId = 50L;
         int page = 0;
         int size = 8;
+        Long categoryId = -1L;
 
         //when
-        BacklogListResponseDto backlogList = todoBacklogService.getBacklogList(userId, page, size);
-        for (BacklogResponseDto todo : backlogList.getBacklogs()) {
-            Long todoId = todo.getTodoId();
-            System.out.println(todoId);
-        }
+        BacklogListResponseDto backlogList = todoBacklogService.getBacklogList(userId, categoryId ,page, size);
 
         //then
         assertThat(backlogList.getBacklogs().size()).isEqualTo(0);
         assertThat(backlogList.getTotalPageCount()).isEqualTo(0);
+    }
+
+    @DisplayName("백로그 목록 조회 시, categoryId가 0이면 북마크 할 일만 조회된다.")
+    @Test
+    void getBacklogList_EmptyToday_Success() {
+        //given
+        Long userId = 50L;
+        int page = 0;
+        int size = 8;
+        Long categoryId = 0L;
+
+        //when
+        BacklogListResponseDto backlogList = todoBacklogService.getBacklogList(userId, categoryId ,page, size);
+
+        //then
+        for (BacklogResponseDto todo : backlogList.getBacklogs()) {
+            assertThat(todo.isBookmark()).isTrue();
+        }
+    }
+
+    @DisplayName("백로그 목록 조회 시, categoryId가 양수이면 해당 카테고리만 조회된다.")
+    @Test
+    void getBacklogList_EmptyToday_Success() {
+        //given
+        Long userId = 50L;
+        int page = 0;
+        int size = 8;
+        Long categoryId = 1L;
+
+        //when
+        BacklogListResponseDto backlogList = todoBacklogService.getBacklogList(userId, categoryId ,page, size);
+
+        //then
+        for (BacklogResponseDto todo : backlogList.getBacklogs()) {
+            Todo findTodo = todoRepository.findById(todo.getTodoId()).get();
+            assertThat(findTodo.getCategoryId()).isEqualTo(1L);
+        }
     }
 
     @DisplayName("백로그 생성 시 성공한다.")

@@ -54,11 +54,14 @@ class TodoBacklogControllerTest {
         jwtService.deleteRefreshToken(userId);
     }
 
-    @DisplayName("백로그 목록 조회 시 page와 size를 query string으로 받고 헤더에 accessToken을 담아 요청하면 성공한다.")
+    @DisplayName("백로그 목록 조회 시 categoryId를 pathVariable로,  page와 size를 query string으로 받고 헤더에 accessToken을 담아 요청하면 성공한다.")
     @Test
     void getBacklogList_Success() throws Exception {
-        //given & when & then
-        mockMvc.perform(get("/backlogs")
+        //given
+        Long categoryId = -1L;
+
+        //when & then
+        mockMvc.perform(get("/backlogs/category/{categoryId}",categoryId)
                         .param("page", "0")
                         .param("size", "8")
                         .header("Authorization", "Bearer " + accessToken)
@@ -70,8 +73,11 @@ class TodoBacklogControllerTest {
     @DisplayName("백로그 목록 조회 시 Query String에 Default 값이 적용되고, JWT로 사용자 아이디를 조회한다.")
     @Test
     void getBacklogList_Default_QueryString_Success() throws Exception {
-        //given & when & then
-        mockMvc.perform(get("/backlogs")
+        //given
+        Long categoryId = -1L;
+
+        //when & then
+        mockMvc.perform(get("/backlogs/category/{categoryId}",categoryId)
                         .header("Authorization", "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -87,6 +93,16 @@ class TodoBacklogControllerTest {
         mockMvc.perform(get("/backlogs")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized())
+                .andDo(print());
+    }
+
+    @DisplayName("백로그 목록 조회 시 categoryId가 경로변수가 없으면 예외가 발생한다.")
+    @Test
+    void getBacklogList_NoPathVariableException() throws Exception {
+        //given & when & then
+        mockMvc.perform(get("/backlogs")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is4xxClientError())
                 .andDo(print());
     }
 
