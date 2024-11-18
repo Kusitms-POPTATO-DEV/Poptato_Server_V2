@@ -17,31 +17,31 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @PostMapping
-    public BaseResponse<CategoryCreateResponseDto> createCategory(//@UserId Long userId,
+    public BaseResponse<CategoryCreateResponseDto> createCategory(@UserId Long userId,
                                                                   @Validated @RequestBody CategoryCreateUpdateRequestDto categoryCreateRequestDto) {
-        CategoryCreateResponseDto response = categoryService.createCategory(1L, categoryCreateRequestDto);
+        CategoryCreateResponseDto response = categoryService.createCategory(userId, categoryCreateRequestDto);
         return new BaseResponse<>(response);
     }
 
     @GetMapping("/list")
-    public BaseResponse<CategoryListResponseDto> getCategories(//@UserId Long userId,
+    public BaseResponse<CategoryListResponseDto> getCategories(@UserId Long userId,
                                                                @RequestParam(value = "page", defaultValue = "0") int page,
                                                                @RequestParam(value = "size", defaultValue = "6") int size) {
-        CategoryListResponseDto response = categoryService.getCategories(1L, page, size);
+        CategoryListResponseDto response = categoryService.getCategories(userId, page, size);
         return new BaseResponse<>(response);
     }
 
     @PutMapping("/{categoryId}")
-    public BaseResponse updateCategory(//@UserId Long userId,
+    public BaseResponse updateCategory(@UserId Long userId,
                                        @PathVariable Long categoryId,
                                        @Validated @RequestBody CategoryCreateUpdateRequestDto categoryUpdateRequestDto) {
-        categoryService.updateCategory(1L, categoryId, categoryUpdateRequestDto);
+        categoryService.updateCategory(userId, categoryId, categoryUpdateRequestDto);
         return new BaseResponse<>();
     }
     @DeleteMapping("/{categoryId}")
-    public BaseResponse deleteCategory(//@UserId Long userId,
+    public BaseResponse deleteCategory(@UserId Long userId,
                                        @PathVariable Long categoryId) {
-        categoryService.deleteCategory(1L, categoryId);
+        categoryService.deleteCategory(userId, categoryId);
         return new BaseResponse<>();
     }
 }
