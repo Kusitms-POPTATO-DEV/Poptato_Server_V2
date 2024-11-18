@@ -6,10 +6,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import server.poptato.todo.api.request.ContentUpdateRequestDto;
-import server.poptato.todo.api.request.DeadlineUpdateRequestDto;
-import server.poptato.todo.api.request.DragAndDropRequestDto;
-import server.poptato.todo.api.request.SwipeRequestDto;
+import server.poptato.category.validator.CategoryValidator;
+import server.poptato.todo.api.request.*;
 import server.poptato.todo.application.response.HistoryCalendarListResponseDto;
 import server.poptato.todo.application.response.PaginatedHistoryResponseDto;
 import server.poptato.todo.application.response.TodoDetailResponseDto;
@@ -39,6 +37,7 @@ public class TodoService {
     private final TodoRepository todoRepository;
     private final CompletedDateTimeRepository completedDateTimeRepository;
     private final UserValidator userValidator;
+    private final CategoryValidator categoryValidator;
 
 
     public void deleteTodoById(Long userId, Long todoId) {
@@ -227,11 +226,18 @@ public class TodoService {
     }
 
     public HistoryCalendarListResponseDto getHistoriesCalendar(Long userId, String year, int month) {
-
         List<LocalDateTime> dateTimes = completedDateTimeRepository.findHistoryExistingDates(userId, year, month);
         List<LocalDate> dates = dateTimes.stream()
                 .map(LocalDateTime::toLocalDate)
                 .toList();
         return HistoryCalendarListResponseDto.builder().dates(dates).build();
+    }
+
+    public void updateCategory(Long userId, Long todoId, TodoCategoryUpdateRequestDto requestDto) {
+        userValidator.checkIsExistUser(userId);
+        Todo findTodo = validateAndReturnTodo(userId, todoId);
+        if(requestDto.categoryId()!=null) categoryValidator.validateCategory(userId, requestDto.categoryId());
+        findTodo.updateCategory(requestDto.categoryId());
+        todoRepository.save(findTodo);
     }
 }

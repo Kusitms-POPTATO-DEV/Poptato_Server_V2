@@ -123,4 +123,7 @@ public class Todo{
         this.todayStatus = todayStatus;
     }
 
+    public void updateCategory(Long categoryId) {
+        this.categoryId = categoryId;
+    }
 }

@@ -46,7 +46,7 @@ public class CategoryServiceTest {
         CategoryCreateResponseDto response = categoryService.createCategory(userId, request);
 
         //then
-        assertThat(response.getCategoryId()).isEqualTo(11L);
+        assertThat(response.getCategoryId()).isEqualTo(51L);
     }
 
     @DisplayName("카테고리 생성 시 존재하지 않는 이모지이면 예외가 발생한다.")

@@ -5,10 +5,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
-import server.poptato.todo.api.request.ContentUpdateRequestDto;
-import server.poptato.todo.api.request.DeadlineUpdateRequestDto;
-import server.poptato.todo.api.request.DragAndDropRequestDto;
-import server.poptato.todo.api.request.SwipeRequestDto;
+import server.poptato.category.exception.CategoryException;
+import server.poptato.category.exception.errorcode.CategoryExceptionErrorCode;
+import server.poptato.todo.api.request.*;
 import server.poptato.todo.application.response.HistoryCalendarListResponseDto;
 import server.poptato.todo.application.response.HistoryResponseDto;
 import server.poptato.todo.application.response.PaginatedHistoryResponseDto;
@@ -29,6 +28,8 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static server.poptato.category.exception.errorcode.CategoryExceptionErrorCode.CATEGORY_NOT_EXIST;
+import static server.poptato.category.exception.errorcode.CategoryExceptionErrorCode.CATEGORY_USER_NOT_MATCH;
 
 @Transactional
 @SpringBootTest
@@ -290,6 +291,62 @@ class TodoServiceTest {
         Todo findTodo = todoRepository.findById(todoId).get();
         assertThat(findTodo.getContent()).isEqualTo(updateContent);
     }
+
+    @DisplayName("할 일 카테고리 수정 시 성공한다.")
+    @Test
+    void updateCategory_Success() {
+        //given
+        Long userId = 1L;
+        Long todoId = 1L;
+        Long categoryId = 1L;
+        TodoCategoryUpdateRequestDto requestDto = TodoCategoryUpdateRequestDto.builder()
+                .categoryId(categoryId)
+                .build();
+
+        //when
+        todoService.updateCategory(userId, todoId, requestDto);
+
+        //then
+        Todo findTodo = todoRepository.findById(todoId).get();
+        assertThat(findTodo.getCategoryId()).isEqualTo(categoryId);
+    }
+
+    @DisplayName("할 일 카테고리 수정 시 존재하지 않는 카테고리이면 예외가 발생한다.")
+    @Test
+    void updateCategory_CategoryNotExist_Exception() {
+        //given
+        Long userId = 1L;
+        Long todoId = 1L;
+        Long categoryId = 100L;
+        TodoCategoryUpdateRequestDto requestDto = TodoCategoryUpdateRequestDto.builder()
+                .categoryId(categoryId)
+                .build();
+
+        //when & then
+        assertThatThrownBy(()->todoService.updateCategory(userId, todoId, requestDto))
+                .isInstanceOf(CategoryException.class)
+                .hasMessage(CATEGORY_NOT_EXIST.getMessage());
+    }
+
+    @DisplayName("할 일 카테고리 수정 시 사용자의 카테고리가 아니면 예외가 발생한다.")
+    @Test
+    void updateCategory_CategoryUserNotMatch_Exception() {
+        //given
+        Long userId = 1L;
+        Long todoId = 1L;
+        Long categoryId = 50L;
+        TodoCategoryUpdateRequestDto requestDto = TodoCategoryUpdateRequestDto.builder()
+                .categoryId(categoryId)
+                .build();
+
+        //when & then
+        assertThatThrownBy(()->todoService.updateCategory(userId, todoId, requestDto))
+                .isInstanceOf(CategoryException.class)
+                .hasMessage(CATEGORY_USER_NOT_MATCH.getMessage());
+    }
+
+
+
 
     @DisplayName("투데이 달성 시 성공한다.")
     @Test
