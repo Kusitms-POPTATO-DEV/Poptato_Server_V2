@@ -73,9 +73,9 @@ public class TodoController {
     }
 
     @PatchMapping("/todo/{todoId}/achieve")
-    public BaseResponse updateIsCompleted(//@UserId Long userId,
+    public BaseResponse updateIsCompleted(@UserId Long userId,
                                           @PathVariable Long todoId) {
-        todoService.updateIsCompleted(1L, todoId, LocalDateTime.now());
+        todoService.updateIsCompleted(userId, todoId, LocalDateTime.now());
         return new BaseResponse<>();
     }
     @GetMapping("/histories")
