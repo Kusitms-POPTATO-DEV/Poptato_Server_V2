@@ -7,6 +7,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import server.poptato.category.validator.CategoryValidator;
 import server.poptato.todo.api.request.BacklogCreateRequestDto;
 import server.poptato.todo.application.response.*;
 import server.poptato.todo.converter.TodoDtoConverter;
@@ -30,10 +31,14 @@ public class TodoBacklogService {
     private final TodoRepository todoRepository;
     private final CompletedDateTimeRepository completedDateTimeRepository;
     private final UserValidator userValidator;
+    private final CategoryValidator categoryValidator;
+    private static final Long ALL_CATEGORY = -1L;
+    private static final Long BOOKMARK_CATEGORY = 0L;
 
-    public BacklogListResponseDto getBacklogList(Long userId, int page, int size) {
+    public BacklogListResponseDto getBacklogList(Long userId, Long categoryId, int page, int size) {
         userValidator.checkIsExistUser(userId);
-        Page<Todo> backlogs = getBacklogsPagination(userId, page, size);
+        categoryValidator.validateCategory(userId, categoryId);
+        Page<Todo> backlogs = getBacklogsPagination(userId, categoryId, page, size);
         return TodoDtoConverter.toBacklogListDto(backlogs);
     }
 
@@ -53,13 +58,14 @@ public class TodoBacklogService {
         return TodoDtoConverter.toYesterdayListDto(yesterdaysPage);
     }
 
-    private Page<Todo> getBacklogsPagination(Long userId, int page, int size) {
+    private Page<Todo> getBacklogsPagination(Long userId, Long categoryId, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size);
         List<Type> types = List.of(Type.BACKLOG, Type.YESTERDAY);
-        List<TodayStatus> statuses = List.of(TodayStatus.COMPLETED);
-        Page<Todo> backlogs = todoRepository.findBacklogsByUserId(userId, types, statuses, pageRequest);
-
-        return backlogs;
+        TodayStatus status = TodayStatus.COMPLETED;
+        if (categoryId == ALL_CATEGORY) return todoRepository.findAllBacklogs(userId, types, status, pageRequest);
+        if (categoryId == BOOKMARK_CATEGORY)
+            return todoRepository.findBookmarkBacklogs(userId, types, status, pageRequest);
+        return todoRepository.findBacklogsByCategoryId(userId, categoryId, types, status, pageRequest);
     }
 
     private Todo createNewBacklog(Long userId, BacklogCreateRequestDto backlogCreateRequestDto, Integer maxBacklogOrder) {

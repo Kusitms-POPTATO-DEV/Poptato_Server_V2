@@ -70,23 +70,68 @@ class TodoRepositoryTest {
         }
     }
 
-    @DisplayName("백로그 목록 조회 시, userId가 1이 등록한 백로그 리스트가 BacklogOrder에 따라 성공적으로 내림차순 정렬되어 조회된다.")
+    @DisplayName("전체 백로그 목록 조회 시, userId가 1이 등록한 백로그 리스트가 BacklogOrder에 따라 성공적으로 내림차순 정렬되어 조회된다.")
     @Test
-    void findBacklogs_Success() {
+    void findAllBacklogs_Success() {
         //given
         Long userId = 1L;
         List<Type> types = List.of(Type.BACKLOG, Type.YESTERDAY);
-        List<TodayStatus> statuses = List.of(TodayStatus.COMPLETED);
+        TodayStatus status = TodayStatus.COMPLETED;
         PageRequest pageRequest = PageRequest.of(0, 8);
 
         //when
-        Page<Todo> backlogs = todoRepository.findBacklogsByUserId(userId, types, statuses, pageRequest);
+        Page<Todo> backlogs = todoRepository.findAllBacklogs(userId, types, status, pageRequest);
 
         //then
         assertThat(backlogs.getContent()).isNotEmpty();
         assertThat(backlogs.getContent().stream().allMatch(backlog -> backlog.getUserId().equals(userId))).isTrue();
         assertThat(backlogs.getContent().stream().allMatch(backlog -> backlog.getType().equals(Type.BACKLOG)  || backlog.getType().equals(Type.YESTERDAY))).isTrue();
         for (int i = 0; i < backlogs.getContent().size() - 1; i++) {
+            assertThat(backlogs.getContent().get(i).getBacklogOrder()).isGreaterThan(backlogs.getContent().get(i + 1).getBacklogOrder());
+        }
+    }
+
+    @DisplayName("북마크한 백로그 목록 조회 시, userId가 1이 등록한 백로그 리스트가 BacklogOrder에 따라 성공적으로 내림차순 정렬되어 조회된다.")
+    @Test
+    void findBookmarkBacklogs_Success() {
+        //given
+        Long userId = 1L;
+        List<Type> types = List.of(Type.BACKLOG, Type.YESTERDAY);
+        TodayStatus status = TodayStatus.COMPLETED;
+        PageRequest pageRequest = PageRequest.of(0, 8);
+
+        //when
+        Page<Todo> backlogs = todoRepository.findBookmarkBacklogs(userId, types, status, pageRequest);
+
+        //then
+        assertThat(backlogs.getContent()).isNotEmpty();
+        assertThat(backlogs.getContent().stream().allMatch(backlog -> backlog.getUserId().equals(userId))).isTrue();
+        assertThat(backlogs.getContent().stream().allMatch(backlog -> backlog.getType().equals(Type.BACKLOG)  || backlog.getType().equals(Type.YESTERDAY))).isTrue();
+        for (int i = 0; i < backlogs.getContent().size() - 1; i++) {
+            assertThat(backlogs.getContent().get(i).isBookmark()).isTrue();
+            assertThat(backlogs.getContent().get(i).getBacklogOrder()).isGreaterThan(backlogs.getContent().get(i + 1).getBacklogOrder());
+        }
+    }
+
+    @DisplayName("카테고리 지정 백로그 목록 조회 시, userId가 1이 등록한 백로그 리스트가 CategoryId와 BacklogOrder에 따라 성공적으로 내림차순 정렬되어 조회된다.")
+    @Test
+    void findBacklogsByCategoryId_Success() {
+        //given
+        Long userId = 1L;
+        List<Type> types = List.of(Type.BACKLOG, Type.YESTERDAY);
+        TodayStatus status = TodayStatus.COMPLETED;
+        PageRequest pageRequest = PageRequest.of(0, 8);
+        Long categoryId = 1L;
+
+        //when
+        Page<Todo> backlogs = todoRepository.findBacklogsByCategoryId(userId, categoryId, types, status, pageRequest);
+
+        //then
+        assertThat(backlogs.getContent()).isNotEmpty();
+        assertThat(backlogs.getContent().stream().allMatch(backlog -> backlog.getUserId().equals(userId))).isTrue();
+        assertThat(backlogs.getContent().stream().allMatch(backlog -> backlog.getType().equals(Type.BACKLOG)  || backlog.getType().equals(Type.YESTERDAY))).isTrue();
+        for (int i = 0; i < backlogs.getContent().size() - 1; i++) {
+            assertThat(backlogs.getContent().get(i).getCategoryId()).isEqualTo(categoryId);
             assertThat(backlogs.getContent().get(i).getBacklogOrder()).isGreaterThan(backlogs.getContent().get(i + 1).getBacklogOrder());
         }
     }
