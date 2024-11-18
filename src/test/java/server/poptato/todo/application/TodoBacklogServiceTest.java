@@ -109,7 +109,7 @@ class TodoBacklogServiceTest {
         for(int i = 0; i<histories.size()-1; i++){
             CompletedDateTime current = completedDateTimeRepository.findByDateAndTodoId(histories.get(i).todoId(), date).get();
             CompletedDateTime next = completedDateTimeRepository.findByDateAndTodoId(histories.get(i+1).todoId(), date).get();
-            assertThat(current.getDateTime()).isBeforeOrEqualTo(next.getDateTime());
+            assertThat(current.getDateTime()).isBefore(next.getDateTime());
         }
     }
 
