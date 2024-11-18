@@ -7,6 +7,7 @@ import server.poptato.todo.domain.entity.CompletedDateTime;
 import server.poptato.todo.domain.repository.CompletedDateTimeRepository;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 public interface JpaCompletedDateTimeRepository extends CompletedDateTimeRepository, JpaRepository<CompletedDateTime,Long> {

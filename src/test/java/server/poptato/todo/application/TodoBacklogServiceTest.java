@@ -6,7 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import server.poptato.todo.api.request.BacklogCreateRequestDto;
 import server.poptato.todo.application.response.*;
+import server.poptato.todo.domain.entity.CompletedDateTime;
 import server.poptato.todo.domain.entity.Todo;
+import server.poptato.todo.domain.repository.CompletedDateTimeRepository;
 import server.poptato.todo.domain.repository.TodoRepository;
 import server.poptato.todo.domain.value.Type;
 
@@ -23,6 +25,8 @@ class TodoBacklogServiceTest {
     private TodoBacklogService todoBacklogService;
     @Autowired
     private TodoRepository todoRepository;
+    @Autowired
+    private CompletedDateTimeRepository completedDateTimeRepository;
 
     @DisplayName("백로그 목록 조회 시, size=8을 요청하면 8개가 응답된다.")
     @Test
@@ -49,7 +53,7 @@ class TodoBacklogServiceTest {
 
         //when
         BacklogListResponseDto backlogList = todoBacklogService.getBacklogList(userId, page, size);
-        for(BacklogResponseDto todo : backlogList.getBacklogs()){
+        for (BacklogResponseDto todo : backlogList.getBacklogs()) {
             Long todoId = todo.getTodoId();
             System.out.println(todoId);
         }
@@ -83,6 +87,7 @@ class TodoBacklogServiceTest {
         assertThat(newTodo.isBookmark()).isFalse();
         assertThat(newTodo.getTodayStatus()).isNull();
     }
+
     @Test
     @DisplayName("기록 조회 시 페이징 및 정렬하여 기록 조회를 성공한다.")
     void getHistories_Success() {
@@ -90,16 +95,22 @@ class TodoBacklogServiceTest {
         Long userId = 1L;
         int page = 0;
         int size = 5;
+        LocalDate date = LocalDate.of(2024, 10, 16);
 
         // when
-        PaginatedHistoryResponseDto historiesPage = todoBacklogService.getHistories(userId, page, size);
+        PaginatedHistoryResponseDto historiesPage = todoBacklogService.getHistories(userId, date, page, size);
 
         // then
         int actualSize = historiesPage.getHistories().size();
+        List<HistoryResponseDto> histories = historiesPage.getHistories();
 
         assertThat(actualSize).isLessThanOrEqualTo(size);
-        assertThat(historiesPage.getTotalPageCount()).isGreaterThan(0);
-
+        assertThat(historiesPage.getTotalPageCount()).isEqualTo(2);
+        for(int i = 0; i<histories.size()-1; i++){
+            CompletedDateTime current = completedDateTimeRepository.findByDateAndTodoId(histories.get(i).todoId(), date).get();
+            CompletedDateTime next = completedDateTimeRepository.findByDateAndTodoId(histories.get(i+1).todoId(), date).get();
+            assertThat(current.getDateTime()).isBefore(next.getDateTime());
+        }
     }
 
 

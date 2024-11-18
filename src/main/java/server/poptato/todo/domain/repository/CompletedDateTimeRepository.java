@@ -11,4 +11,5 @@ public interface CompletedDateTimeRepository {
     boolean existsByDateTimeAndTodoId(LocalDateTime dateTime, Long todoId);
     void delete(CompletedDateTime completedDateTime);
     CompletedDateTime save(CompletedDateTime completedDateTime);
+
 }

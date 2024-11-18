@@ -39,6 +39,7 @@ public interface JpaTodoRepository extends TodoRepository, JpaRepository<Todo,Lo
             @Param("types") List<Type> types,
             @Param("statuses") List<TodayStatus> statuses,
             Pageable pageable);
+
     @Query("""
     SELECT t 
     FROM Todo t
@@ -53,4 +54,12 @@ public interface JpaTodoRepository extends TodoRepository, JpaRepository<Todo,Lo
             @Param("userId") Long userId,
             @Param("todayDate") LocalDate todayDate
     );
+    @Query("SELECT t FROM Todo t " +
+            "WHERE t.id IN (" +
+            "    SELECT c.todoId FROM CompletedDateTime c " +
+            "    WHERE DATE(c.dateTime) = :localDate" +
+            ") AND t.userId = :userId " +
+            "ORDER BY (SELECT c.dateTime FROM CompletedDateTime c WHERE c.todoId = t.id) ASC")
+    Page<Todo> findTodosByUserIdAndCompletedDateTime(@Param("userId") Long userId,
+                                                     @Param("localDate") LocalDate localDate, Pageable pageable);
 }

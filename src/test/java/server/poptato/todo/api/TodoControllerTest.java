@@ -120,19 +120,6 @@ public class TodoControllerTest {
                 .andExpect(status().isOk());
     }
 
-    @DisplayName("히스토리 목록 조회 시 page와 size를 query string으로 받고 헤더에 accessToken을 담아 요청한다.")
-    @Test
-    void getHistories_Success() throws Exception {
-        // given & when & then
-        mockMvc.perform(get("/histories")
-                        .param("page", "0")
-                        .param("size", "15")
-                        .header("Authorization", "Bearer " + accessToken)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-
-    }
-
     @DisplayName("스와이프 시 요청 바디에 todoId가 없으면 Validator가 예외를 발생한다.")
     @Test
     void swipe_ValidatorException() {

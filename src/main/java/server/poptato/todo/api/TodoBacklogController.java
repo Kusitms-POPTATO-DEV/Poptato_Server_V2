@@ -12,6 +12,8 @@ import server.poptato.todo.application.response.PaginatedHistoryResponseDto;
 import server.poptato.todo.application.response.PaginatedYesterdayResponseDto;
 import server.poptato.user.resolver.UserId;
 
+import java.time.LocalDate;
+
 @RestController
 @RequiredArgsConstructor
 public class TodoBacklogController {
@@ -37,8 +39,9 @@ public class TodoBacklogController {
     public BaseResponse<PaginatedHistoryResponseDto> getHistories(
             @UserId Long userId,
             @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "15") int size) {
-        PaginatedHistoryResponseDto response = todoBacklogService.getHistories(userId, page, size);
+            @RequestParam(value = "size", defaultValue = "15") int size,
+            @RequestParam LocalDate date) {
+        PaginatedHistoryResponseDto response = todoBacklogService.getHistories(userId,date, page, size);
         return new BaseResponse<>(response);
     }
 

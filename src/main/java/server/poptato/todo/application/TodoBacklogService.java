@@ -1,10 +1,10 @@
 package server.poptato.todo.application;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cglib.core.Local;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import server.poptato.todo.api.request.BacklogCreateRequestDto;
@@ -42,15 +42,15 @@ public class TodoBacklogService {
         return TodoDtoConverter.toBacklogCreateDto(newBacklog);
     }
 
-    public PaginatedHistoryResponseDto getHistories(Long userId, int page, int size) {
+    public PaginatedHistoryResponseDto getHistories(Long userId, LocalDate localDate, int page, int size) {
         userValidator.checkIsExistUser(userId);
-        Page<Todo> historiesPage = getHistoriesPage(userId, page, size);
+        Page<Todo> historiesPage = getHistoriesPage(userId, localDate, page, size);
         return TodoDtoConverter.toHistoryListDto(historiesPage);
     }
 
-    private Page<Todo> getHistoriesPage(Long userId, int page, int size) {
+    private Page<Todo> getHistoriesPage(Long userId, LocalDate localDate, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Todo> historiesPage = todoRepository.findHistories(userId, pageable);
+        Page<Todo> historiesPage = todoRepository.findHistories(userId, localDate, pageable);
         return historiesPage;
     }
 
