@@ -42,12 +42,14 @@ public class TodoBacklogController {
         PaginatedHistoryResponseDto response = todoBacklogService.getHistories(userId,date, page, size);
         return new BaseResponse<>(response);
     }
-    @GetMapping("/histories/month")
+    @GetMapping("/calendar")
     public BaseResponse<HistoryCalendarListResponseDto> getHistoryCalendarDateList(
             @UserId Long userId,
-            @PathVariable YearMonth month
+            @RequestParam String year,
+            @RequestParam int month
             ){
-
+        HistoryCalendarListResponseDto response = todoBacklogService.getHistoriesCalendar(userId, year, month);
+        return new BaseResponse<>(response);
     }
 
     @GetMapping("/yesterdays")

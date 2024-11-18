@@ -11,12 +11,15 @@ import server.poptato.todo.api.request.BacklogCreateRequestDto;
 import server.poptato.todo.application.response.*;
 import server.poptato.todo.converter.TodoDtoConverter;
 import server.poptato.todo.domain.entity.Todo;
+import server.poptato.todo.domain.repository.CompletedDateTimeRepository;
 import server.poptato.todo.domain.repository.TodoRepository;
 import server.poptato.todo.domain.value.TodayStatus;
 import server.poptato.todo.domain.value.Type;
 import server.poptato.user.validator.UserValidator;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Year;
 import java.time.YearMonth;
 import java.util.List;
 
@@ -25,6 +28,7 @@ import java.util.List;
 @Service
 public class TodoBacklogService {
     private final TodoRepository todoRepository;
+    private final CompletedDateTimeRepository completedDateTimeRepository;
     private final UserValidator userValidator;
 
     public BacklogListResponseDto getBacklogList(Long userId, int page, int size) {
@@ -50,6 +54,15 @@ public class TodoBacklogService {
         Pageable pageable = PageRequest.of(page, size);
         Page<Todo> historiesPage = todoRepository.findHistories(userId, localDate, pageable);
         return historiesPage;
+    }
+
+    public HistoryCalendarListResponseDto getHistoriesCalendar(Long userId, String year, int month){
+
+        List<LocalDateTime> dateTimes = completedDateTimeRepository.findHistoryExistingDates(userId, year, month);
+        List<LocalDate> dates = dateTimes.stream()
+                .map(LocalDateTime::toLocalDate)
+                .toList();
+        return HistoryCalendarListResponseDto.builder().dates(dates).build();
     }
 
     public PaginatedYesterdayResponseDto getYesterdays(Long userId, int page, int size) {
