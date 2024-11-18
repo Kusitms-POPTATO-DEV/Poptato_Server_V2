@@ -3,7 +3,9 @@ package server.poptato.category.domain.repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import server.poptato.category.domain.entity.Category;
+import server.poptato.todo.domain.entity.Todo;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 public interface CategoryRepository {
@@ -11,9 +13,13 @@ public interface CategoryRepository {
 
     Category save(Category category);
 
-    Page<Category> findByUserIdOrderByCategoryOrder(Long userId, Pageable pageable);
+    Page<Category> findDefaultAndByUserIdOrderByCategoryOrder(Long userId, Pageable pageable);
 
     Optional<Category> findById(Long categoryId);
 
     void delete(Category category);
+
+    default Page<Category> findCategories(Long userId, Pageable pageable) {
+        return findDefaultAndByUserIdOrderByCategoryOrder(userId, pageable);
+    }
 }
