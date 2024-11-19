@@ -100,19 +100,24 @@ public class Todo{
         this.content = content;
     }
 
-    public void updateTodayStatusToInComplete(int minTodayOrder) {
+    public void updateTodayToInComplete(int minTodayOrder) {
         this.todayStatus = TodayStatus.INCOMPLETE;
         this.todayOrder = --minTodayOrder;
     }
 
-    public void updateTodayStatusToCompleted() {
+    public void updateTodayToCompleted() {
         this.todayStatus = TodayStatus.COMPLETED;
         this.todayOrder = null;
     }
 
-    public void updateYesterdayStatusToCompleted() {
+    public void updateYesterdayToCompleted() {
         this.todayStatus = TodayStatus.COMPLETED;
         this.backlogOrder = null;
+    }
+
+    public void updateYesterdayToInComplete(int minBacklogOrder) {
+        this.todayStatus = TodayStatus.COMPLETED;
+        this.backlogOrder = --minBacklogOrder;
     }
 
     public void setType(Type type) {
