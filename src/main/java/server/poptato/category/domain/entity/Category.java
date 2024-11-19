@@ -49,4 +49,8 @@ public class Category {
         this.name = updateRequestDto.name();
         this.emojiId = updateRequestDto.emojiId();
     }
+
+    public void setCategoryOrder(int categoryOrder) {
+        this.categoryOrder = categoryOrder;
+    }
 }

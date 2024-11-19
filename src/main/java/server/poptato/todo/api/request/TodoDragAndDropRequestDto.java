@@ -12,7 +12,7 @@ import java.util.List;
 @Builder
 @Getter
 @AllArgsConstructor
-public class DragAndDropRequestDto {
+public class TodoDragAndDropRequestDto {
     @NotNull(message = "드래그앤드롭 시 할 일 타입은 필수입니다.")
     Type type;
     @NotNull(message = "드래그앤드롭 시 할 일 리스트는 필수입니다.")

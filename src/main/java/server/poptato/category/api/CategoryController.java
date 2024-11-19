@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import server.poptato.category.api.request.CategoryCreateUpdateRequestDto;
+import server.poptato.category.api.request.CategoryDragAndDropRequestDto;
 import server.poptato.category.application.CategoryService;
 import server.poptato.category.application.response.CategoryCreateResponseDto;
 import server.poptato.category.application.response.CategoryListResponseDto;
@@ -42,6 +43,13 @@ public class CategoryController {
     public BaseResponse deleteCategory(@UserId Long userId,
                                        @PathVariable Long categoryId) {
         categoryService.deleteCategory(userId, categoryId);
+        return new BaseResponse<>();
+    }
+
+    @PatchMapping("/dragAndDrop")
+    public BaseResponse dragAndDrop(@UserId Long userId,
+                                    @Validated @RequestBody CategoryDragAndDropRequestDto categoryDragAndDropRequestDto) {
+        categoryService.dragAndDrop(userId, categoryDragAndDropRequestDto);
         return new BaseResponse<>();
     }
 }

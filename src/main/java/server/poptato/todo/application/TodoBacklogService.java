@@ -29,7 +29,6 @@ import java.util.List;
 @Service
 public class TodoBacklogService {
     private final TodoRepository todoRepository;
-    private final CompletedDateTimeRepository completedDateTimeRepository;
     private final UserValidator userValidator;
     private final CategoryValidator categoryValidator;
     private static final Long ALL_CATEGORY = -1L;
