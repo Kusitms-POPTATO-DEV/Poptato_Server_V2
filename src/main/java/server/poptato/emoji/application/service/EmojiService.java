@@ -22,21 +22,15 @@ public class EmojiService {
 
     private final EmojiRepository emojiRepository;
 
-    private static final Map<String, String> GROUP_KEYWORD_MAP = Map.of(
-            "생산성", "productive",
-            "데일리", "daily",
-            "취미", "hobby",
-            "운동", "sports",
-            "카테고리컬", "categorical"
-    );
-
     public EmojiResponseDTO getGroupedEmojis(int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size);
         Page<Emoji> emojiPage = emojiRepository.findAllEmojis(pageRequest);
 
+        // groupName을 기준으로 그룹핑
         Map<String, List<EmojiDTO>> groupedEmojis = emojiPage.getContent().stream()
+                .filter(emoji -> emoji.getGroupName() != null) // groupName이 null인 경우 제외
                 .collect(Collectors.groupingBy(
-                        emoji -> findGroupByImageUrl(emoji.getImageUrl(), GROUP_KEYWORD_MAP),
+                        emoji -> emoji.getGroupName().name(), // Enum의 name()을 키로 사용
                         Collectors.mapping(
                                 emoji -> new EmojiDTO(emoji.getId(), emoji.getImageUrl()),
                                 Collectors.toList()
@@ -46,13 +40,5 @@ public class EmojiService {
         int totalPageCount = emojiPage.getTotalPages();
 
         return new EmojiResponseDTO(groupedEmojis, totalPageCount);
-    }
-
-    private String findGroupByImageUrl(String imageUrl, Map<String, String> groupKeywordMap) {
-        return groupKeywordMap.entrySet().stream()
-                .filter(entry -> imageUrl.contains(entry.getValue()))
-                .map(Map.Entry::getKey)
-                .findFirst()
-                .orElseThrow(()-> new EmojiException(EMOJI_NOT_EXIST));
     }
 }
