@@ -188,7 +188,7 @@ public class TodoService {
     public TodoDetailResponseDto getTodoInfo(Long userId, Long todoId) {
         userValidator.checkIsExistUser(userId);
         Todo findTodo = validateAndReturnTodo(userId, todoId);
-        Category findCategory = categoryRepository.findById(findTodo.getCategoryId()).orElseThrow(()-> new CategoryException(CATEGORY_NOT_EXIST));
+        Category findCategory = categoryRepository.findById(findTodo.getCategoryId()).get();
         Emoji findEmoji = emojiRepository.findById(findCategory.getEmojiId()).orElseThrow(()-> new EmojiException(EMOJI_NOT_EXIST));
         return TodoDtoConverter.toTodoDetailInfoDto(findTodo, findCategory,findEmoji);
     }
