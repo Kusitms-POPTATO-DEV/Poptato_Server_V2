@@ -8,7 +8,6 @@ import org.springframework.data.repository.query.Param;
 import server.poptato.category.domain.entity.Category;
 import server.poptato.category.domain.repository.CategoryRepository;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface JpaCategoryRepository extends CategoryRepository, JpaRepository<Category, Long> {
@@ -18,6 +17,4 @@ public interface JpaCategoryRepository extends CategoryRepository, JpaRepository
     @Query("SELECT c FROM Category c WHERE c.userId = :userId OR c.userId = -1 ORDER BY c.categoryOrder ASC")
     Page<Category> findDefaultAndByUserIdOrderByCategoryOrder(@Param("userId") Long userId, Pageable pageable);
 
-    @Query("SELECT MIN(c.categoryOrder) FROM Category c WHERE c.id IN :ids")
-    int findMinCategoryOrderByIdIn(@Param("ids") List<Long> ids);
 }

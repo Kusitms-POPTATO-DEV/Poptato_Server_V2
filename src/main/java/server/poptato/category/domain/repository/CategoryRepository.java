@@ -23,6 +23,4 @@ public interface CategoryRepository {
     default Page<Category> findCategories(Long userId, Pageable pageable) {
         return findDefaultAndByUserIdOrderByCategoryOrder(userId, pageable);
     }
-
-    int findMinCategoryOrderByIdIn(List<Long> categoryIds);
 }
