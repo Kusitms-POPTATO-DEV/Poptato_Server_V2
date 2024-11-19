@@ -7,7 +7,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import server.poptato.category.domain.entity.Category;
+import server.poptato.category.domain.repository.CategoryRepository;
+import server.poptato.category.exception.CategoryException;
 import server.poptato.category.validator.CategoryValidator;
+import server.poptato.emoji.domain.entity.Emoji;
+import server.poptato.emoji.domain.repository.EmojiRepository;
+import server.poptato.emoji.exception.EmojiException;
 import server.poptato.todo.api.request.*;
 import server.poptato.todo.application.response.HistoryCalendarListResponseDto;
 import server.poptato.todo.application.response.PaginatedHistoryResponseDto;
@@ -29,7 +34,10 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
+import static server.poptato.category.exception.errorcode.CategoryExceptionErrorCode.CATEGORY_NOT_EXIST;
+import static server.poptato.emoji.exception.errorcode.EmojiExceptionErrorCode.EMOJI_NOT_EXIST;
 import static server.poptato.todo.exception.errorcode.TodoExceptionErrorCode.COMPLETED_DATETIME_NOT_EXIST;
 import static server.poptato.todo.exception.errorcode.TodoExceptionErrorCode.TODO_NOT_EXIST;
 
@@ -41,6 +49,8 @@ public class TodoService {
     private final CompletedDateTimeRepository completedDateTimeRepository;
     private final UserValidator userValidator;
     private final CategoryValidator categoryValidator;
+    private final CategoryRepository categoryRepository;
+    private final EmojiRepository emojiRepository;
 
 
     public void deleteTodoById(Long userId, Long todoId) {
@@ -178,7 +188,12 @@ public class TodoService {
     public TodoDetailResponseDto getTodoInfo(Long userId, Long todoId) {
         userValidator.checkIsExistUser(userId);
         Todo findTodo = validateAndReturnTodo(userId, todoId);
-        return TodoDtoConverter.toTodoDetailInfoDto(findTodo);
+        Category findCategory = findTodo.getCategoryId() != null ?
+                categoryRepository.findById(findTodo.getCategoryId()).orElse(null) : null;
+
+        Emoji findEmoji = findCategory != null && findCategory.getEmojiId() != null ?
+                emojiRepository.findById(findCategory.getEmojiId()).orElse(null) : null;
+        return TodoDtoConverter.toTodoDetailInfoDto(findTodo, findCategory,findEmoji);
     }
 
     public void updateDeadline(Long userId, Long todoId, DeadlineUpdateRequestDto deadlineUpdateRequestDto) {
@@ -266,6 +281,7 @@ public class TodoService {
         List<LocalDateTime> dateTimes = completedDateTimeRepository.findHistoryExistingDates(userId, year, month);
         List<LocalDate> dates = dateTimes.stream()
                 .map(LocalDateTime::toLocalDate)
+                .distinct()
                 .toList();
         return HistoryCalendarListResponseDto.builder().dates(dates).build();
     }

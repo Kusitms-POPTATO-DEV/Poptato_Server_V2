@@ -23,8 +23,10 @@ import server.poptato.todo.exception.errorcode.TodoExceptionErrorCode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -244,14 +246,21 @@ class TodoServiceTest {
         //given
         Long userId = 1L;
         Long todoId = 10L;
+        Long todoId2 = 11L;
 
         //when
         TodoDetailResponseDto todoInfo = todoService.getTodoInfo(userId, todoId);
+        TodoDetailResponseDto todoInfo2 = todoService.getTodoInfo(userId, todoId2);
 
         //then
         assertThat(todoInfo.content()).isEqualTo("할 일 10");
         assertThat(todoInfo.deadline()).isEqualTo(LocalDate.of(2024, 10, 26));
         assertThat(todoInfo.isBookmark()).isTrue();
+        assertThat(todoInfo.isRepeat()).isFalse();
+        assertThat(todoInfo.categoryName()).isEqualTo("카테고리 1");
+        assertThat(todoInfo.emojiImageUrl()).isEqualTo("https://example.com/productive-book1.png");
+        assertThat(todoInfo2.categoryName()).isNull();
+        assertThat(todoInfo2.emojiImageUrl()).isNull();
     }
 
     @DisplayName("마감기한 수정 시 성공한다.")
@@ -485,7 +494,9 @@ class TodoServiceTest {
         LocalDate firstCompletedDate = dates.get(0);
         String completedYear = String.valueOf(firstCompletedDate.getYear());
         int completedMonth = firstCompletedDate.getMonthValue();
+        Set<LocalDate> distinctDates = new HashSet<>(dates);
 
+        assertThat(distinctDates.size()).isEqualTo(dates.size());
         assertThat(year).isEqualTo(completedYear);
         assertThat(month).isEqualTo(completedMonth);
     }
