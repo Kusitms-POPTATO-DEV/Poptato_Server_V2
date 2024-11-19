@@ -13,6 +13,7 @@ public class TodayResponseDto {
     String content;
     TodayStatus todayStatus;
     boolean isBookmark;
+    boolean isRepeat;
     Integer dDay;
     LocalDate deadline;
 
@@ -21,6 +22,7 @@ public class TodayResponseDto {
         this.content = todo.getContent();
         this.todayStatus = todo.getTodayStatus();
         this.isBookmark = todo.isBookmark();
+        this.isRepeat = todo.isRepeat();
         this.deadline = todo.getDeadline();
 
         if (hasDeadline(todo)) {
