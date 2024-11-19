@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import server.poptato.category.exception.CategoryException;
-import server.poptato.category.exception.errorcode.CategoryExceptionErrorCode;
 import server.poptato.todo.api.request.*;
 import server.poptato.todo.application.response.HistoryCalendarListResponseDto;
 import server.poptato.todo.application.response.HistoryResponseDto;
@@ -23,6 +22,7 @@ import server.poptato.todo.exception.errorcode.TodoExceptionErrorCode;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -323,7 +323,7 @@ class TodoServiceTest {
                 .build();
 
         //when & then
-        assertThatThrownBy(()->todoService.updateCategory(userId, todoId, requestDto))
+        assertThatThrownBy(() -> todoService.updateCategory(userId, todoId, requestDto))
                 .isInstanceOf(CategoryException.class)
                 .hasMessage(CATEGORY_NOT_EXIST.getMessage());
     }
@@ -340,12 +340,10 @@ class TodoServiceTest {
                 .build();
 
         //when & then
-        assertThatThrownBy(()->todoService.updateCategory(userId, todoId, requestDto))
+        assertThatThrownBy(() -> todoService.updateCategory(userId, todoId, requestDto))
                 .isInstanceOf(CategoryException.class)
                 .hasMessage(CATEGORY_USER_NOT_MATCH.getMessage());
     }
-
-
 
 
     @DisplayName("투데이 달성 시 성공한다.")
@@ -354,12 +352,12 @@ class TodoServiceTest {
         //given
         Long userId = 1L;
         Long todoId = 1L;
-        LocalDateTime updateDateTime = LocalDateTime.of(2024,10,16,10,0,0,0);
+        LocalDateTime updateDateTime = LocalDateTime.of(2024, 10, 16, 10, 0, 0, 0);
 
         //when
         todoService.updateIsCompleted(userId, todoId, updateDateTime);
         Todo findTodo = todoRepository.findById(todoId).get();
-        Boolean isExist = completedDateTimeRepository.existsByDateTimeAndTodoId(updateDateTime,todoId);
+        Boolean isExist = completedDateTimeRepository.existsByDateTimeAndTodoId(updateDateTime, todoId);
 
         //then
         assertThat(findTodo.getTodayStatus()).isEqualTo(TodayStatus.COMPLETED);
@@ -372,12 +370,12 @@ class TodoServiceTest {
         //given
         Long userId = 1L;
         Long todoId = 35L;
-        LocalDateTime updateDateTime = LocalDateTime.of(2024,11,11,10,0,0);
+        LocalDateTime updateDateTime = LocalDateTime.of(2024, 11, 11, 10, 0, 0);
 
         //when
         todoService.updateIsCompleted(userId, todoId, updateDateTime);
         Todo findTodo = todoRepository.findById(todoId).get();
-        Boolean isExist = completedDateTimeRepository.existsByDateTimeAndTodoId(updateDateTime,todoId);
+        Boolean isExist = completedDateTimeRepository.existsByDateTimeAndTodoId(LocalDateTime.of(findTodo.getTodayDate(), LocalTime.of(23,59)), todoId);
 
         //then
         assertThat(findTodo.getTodayStatus()).isEqualTo(TodayStatus.COMPLETED);
@@ -390,12 +388,12 @@ class TodoServiceTest {
         //given
         Long userId = 1L;
         Long todoId = 3L;
-        LocalDateTime updateDateTime = LocalDateTime.of(2024,10,16,10,00,00);
+        LocalDateTime updateDateTime = LocalDateTime.of(2024, 10, 16, 10, 00, 00);
 
         //when
         todoService.updateIsCompleted(userId, todoId, updateDateTime);
         Todo findTodo = todoRepository.findById(todoId).get();
-        Boolean isExist = completedDateTimeRepository.existsByDateTimeAndTodoId(updateDateTime,todoId);
+        Boolean isExist = completedDateTimeRepository.existsByDateTimeAndTodoId(updateDateTime, todoId);
 
         //then
         assertThat(findTodo.getTodayStatus()).isEqualTo(TodayStatus.INCOMPLETE);
@@ -415,6 +413,7 @@ class TodoServiceTest {
                 .isInstanceOf(TodoException.class)
                 .hasMessage(TodoExceptionErrorCode.BACKLOG_CANT_COMPLETE.getMessage());
     }
+
     @Test
     @DisplayName("기록 조회 시 페이징 및 정렬하여 기록 조회를 성공한다.")
     void getHistories_Success() {
@@ -433,12 +432,13 @@ class TodoServiceTest {
 
         assertThat(actualSize).isLessThanOrEqualTo(size);
         assertThat(historiesPage.getTotalPageCount()).isEqualTo(2);
-        for(int i = 0; i<histories.size()-1; i++){
+        for (int i = 0; i < histories.size() - 1; i++) {
             CompletedDateTime current = completedDateTimeRepository.findByDateAndTodoId(histories.get(i).todoId(), date).get();
-            CompletedDateTime next = completedDateTimeRepository.findByDateAndTodoId(histories.get(i+1).todoId(), date).get();
+            CompletedDateTime next = completedDateTimeRepository.findByDateAndTodoId(histories.get(i + 1).todoId(), date).get();
             assertThat(current.getDateTime()).isBefore(next.getDateTime());
         }
     }
+
     @Test
     @DisplayName("캘린더 조회 시 기록이 있는 날짜들 반환을 성공한다")
     void getCalendar_Success() {
