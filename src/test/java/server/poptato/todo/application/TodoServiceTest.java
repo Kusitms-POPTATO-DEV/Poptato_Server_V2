@@ -345,8 +345,35 @@ class TodoServiceTest {
                 .hasMessage(CATEGORY_USER_NOT_MATCH.getMessage());
     }
 
+    @Test
+    @DisplayName("할 일을 반복 설정한다")
+    void updateRepeat_toTrue_Success() {
+        // given
+        Long userId = 1L;
+        Long todoId = 1L;
 
+        //when
+        todoService.updateRepeat(userId, todoId);
 
+        //then
+        Todo findTodo = todoRepository.findById(todoId).get();
+        assertThat(findTodo.isRepeat()).isTrue();
+    }
+
+    @Test
+    @DisplayName("할 일을 반복 설정을 취소한다")
+    void updateRepeat_toFalse_Success() {
+        // given
+        Long userId = 1L;
+        Long todoId = 2L;
+
+        //when
+        todoService.updateRepeat(userId, todoId);
+
+        //then
+        Todo findTodo = todoRepository.findById(todoId).get();
+        assertThat(findTodo.isRepeat()).isFalse();
+    }
 
     @DisplayName("투데이 달성 시 성공한다.")
     @Test
