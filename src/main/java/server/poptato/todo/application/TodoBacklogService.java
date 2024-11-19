@@ -44,6 +44,7 @@ public class TodoBacklogService {
 
     public BacklogCreateResponseDto generateBacklog(Long userId, BacklogCreateRequestDto backlogCreateRequestDto) {
         userValidator.checkIsExistUser(userId);
+        categoryValidator.validateCategory(userId, backlogCreateRequestDto.getCategoryId());
         Integer maxBacklogOrder = todoRepository.findMaxBacklogOrderByUserIdOrZero(userId);
         Todo newBacklog = createNewBacklog(userId, backlogCreateRequestDto, maxBacklogOrder);
         return TodoDtoConverter.toBacklogCreateDto(newBacklog);
@@ -69,7 +70,14 @@ public class TodoBacklogService {
     }
 
     private Todo createNewBacklog(Long userId, BacklogCreateRequestDto backlogCreateRequestDto, Integer maxBacklogOrder) {
-        Todo backlog = Todo.createBacklog(userId, backlogCreateRequestDto.getContent(), maxBacklogOrder + 1);
+        Todo backlog = null;
+        Long categoryId = backlogCreateRequestDto.getCategoryId();
+        if(categoryId==ALL_CATEGORY)
+            backlog = Todo.createBacklog(userId, backlogCreateRequestDto.getContent(), maxBacklogOrder + 1);
+        if(categoryId==BOOKMARK_CATEGORY)
+            backlog = Todo.createBookmarkBacklog(userId, backlogCreateRequestDto.getContent(), maxBacklogOrder + 1);
+        if (categoryId>BOOKMARK_CATEGORY)
+            backlog = Todo.createCategoryBacklog(userId, categoryId, backlogCreateRequestDto.getContent(), maxBacklogOrder + 1);
         Todo newBacklog = todoRepository.save(backlog);
         return newBacklog;
     }
