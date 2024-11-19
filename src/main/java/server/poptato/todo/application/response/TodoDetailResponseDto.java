@@ -5,5 +5,5 @@ import lombok.Builder;
 import java.time.LocalDate;
 
 @Builder
-public record TodoDetailResponseDto(String content, LocalDate deadline, Boolean isBookmark) {
+public record TodoDetailResponseDto(String content, LocalDate deadline, String categoryName, String emojiImageUrl, Boolean isBookmark, Boolean isRepeat) {
 }
