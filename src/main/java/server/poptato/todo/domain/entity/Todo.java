@@ -64,6 +64,27 @@ public class Todo{
                 .build();
     }
 
+    public static Todo createBookmarkBacklog(Long userId, String content, int backlogOrder) {
+        return Todo.builder()
+                .userId(userId)
+                .content(content)
+                .backlogOrder(backlogOrder)
+                .isBookmark(true)
+                .type(Type.BACKLOG)
+                .build();
+    }
+
+    public static Todo createCategoryBacklog(Long userId, Long categoryId, String content, int backlogOrder) {
+        return Todo.builder()
+                .userId(userId)
+                .content(content)
+                .backlogOrder(backlogOrder)
+                .isBookmark(false)
+                .type(Type.BACKLOG)
+                .categoryId(categoryId)
+                .build();
+    }
+
     public void toggleBookmark() {
         this.isBookmark = !this.isBookmark;
     }

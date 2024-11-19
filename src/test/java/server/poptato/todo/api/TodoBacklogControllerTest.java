@@ -113,18 +113,21 @@ class TodoBacklogControllerTest {
     }
 
 
-    @DisplayName("백로그 생성 시 content가 없거나 비어있으면 Validator가 예외를 발생한다.")
+    @DisplayName("백로그 생성 시 contentId와 content가 없거나 비어있으면 Validator가 예외를 발생한다.")
     @Test
     void generateBacklog_ValidatorException() {
         //given
         String emptyContent = " ";
+        Long nullCategoryId = null;
         String nullContent = null;
         BacklogCreateRequestDto emptyContentCreateRequestDto = BacklogCreateRequestDto.builder()
+                .categoryId(nullCategoryId)
                 .content(emptyContent)
                 .build();
 
         BacklogCreateRequestDto nullContentCreateRequestDto = BacklogCreateRequestDto.builder()
                 .content(nullContent)
+                .categoryId(nullCategoryId)
                 .build();
 
         //when
@@ -132,8 +135,8 @@ class TodoBacklogControllerTest {
         Set<ConstraintViolation<BacklogCreateRequestDto>> nullViolations = validator.validate(nullContentCreateRequestDto);
 
         //then
-        Assertions.assertEquals(emptyViolations.size(), 1);
-        Assertions.assertEquals(nullViolations.size(), 1);
+        Assertions.assertEquals(emptyViolations.size(), 2);
+        Assertions.assertEquals(nullViolations.size(), 2);
     }
 
     @DisplayName("백로그 생성 시 성공한다.")
@@ -141,7 +144,7 @@ class TodoBacklogControllerTest {
     void generateBacklog_Success() throws Exception {
         //when
         mockMvc.perform(post("/backlog")
-                        .content("{\"content\": \"할일 내용 수정본\"}")
+                        .content("{\"categoryId\": \"1\", \"content\": \"할일 내용 수정\"}")
                         .header("Authorization", "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
