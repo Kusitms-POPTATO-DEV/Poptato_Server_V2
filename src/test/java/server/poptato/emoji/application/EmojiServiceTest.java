@@ -8,7 +8,6 @@ import server.poptato.emoji.application.response.EmojiDTO;
 import server.poptato.emoji.application.response.EmojiResponseDTO;
 import server.poptato.emoji.application.service.EmojiService;
 import server.poptato.emoji.domain.repository.EmojiRepository;
-import server.poptato.todo.application.response.BacklogResponseDto;
 
 import java.util.List;
 import java.util.Map;
@@ -32,10 +31,13 @@ public class EmojiServiceTest {
         //when
         EmojiResponseDTO responseDTO = emojiService.getGroupedEmojis(page, size);
         Map<String, List<EmojiDTO>> groupEmojis = responseDTO.groupEmojis();
+
         List<EmojiDTO> emojiList = groupEmojis.get("생산성");
 
+
         //then
-        assertThat(emojiList.size()).isEqualTo(size);
-        assertThat(emojiList.get(0).imageUrl()).isEqualTo("");
+        assertThat(emojiList.size()).isEqualTo(1);
+
+        assertThat(emojiList.get(0).imageUrl()).isEqualTo("https://example.com/productive-book1.png");
     }
 }
