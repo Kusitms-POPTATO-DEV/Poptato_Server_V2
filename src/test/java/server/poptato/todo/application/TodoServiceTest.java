@@ -233,8 +233,8 @@ class TodoServiceTest {
 
         assertThat(TodoId1.getTodayOrder()).isEqualTo(5L);
         assertThat(TodoId5.getTodayOrder()).isEqualTo(4L);
-        assertThat(TodoId2.getTodayOrder()).isEqualTo(3L);
-        assertThat(TodoId4.getTodayOrder()).isEqualTo(2L);
+        assertThat(TodoId2.getTodayOrder()).isEqualTo(2L);
+        assertThat(TodoId4.getTodayOrder()).isEqualTo(1L);
     }
 
 

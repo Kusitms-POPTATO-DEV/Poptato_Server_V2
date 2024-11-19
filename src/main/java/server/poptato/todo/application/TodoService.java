@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import server.poptato.category.domain.entity.Category;
 import server.poptato.category.validator.CategoryValidator;
 import server.poptato.todo.api.request.*;
 import server.poptato.todo.application.response.HistoryCalendarListResponseDto;
@@ -26,6 +27,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static server.poptato.todo.exception.errorcode.TodoExceptionErrorCode.COMPLETED_DATETIME_NOT_EXIST;
@@ -97,10 +99,10 @@ public class TodoService {
         List<Todo> todos = getTodosByIds(requestDto.getTodoIds());
         checkIsValidToDragAndDrop(userId, todos, requestDto);
         if (isTypeToday(requestDto.getType())) {
-            reassignTodayOrder(todos, requestDto.getTodoIds());
+            reassignTodayOrder(todos);
             return;
         }
-        reassignBacklogOrder(todos, requestDto.getTodoIds());
+        reassignBacklogOrder(todos);
     }
 
     private List<Todo> getTodosByIds(List<Long> todoIds) {
@@ -135,25 +137,42 @@ public class TodoService {
         }
     }
 
-    private void reassignTodayOrder(List<Todo> todos, List<Long> todoIds) {
-        int startingOrder = todoRepository.findMaxTodayOrderByIdIn(todoIds);
+    private List<Integer> getTodayOrders(List<Todo> todos) {
+        List<Integer> todayOrders = new ArrayList<>();
         for (Todo todo : todos) {
-            todo.setTodayOrder(startingOrder--);
-            todoRepository.save(todo);
+            todayOrders.add(todo.getTodayOrder());
+        }
+        return todayOrders;
+    }
+
+    private void reassignTodayOrder(List<Todo> todos) {
+        List<Integer> todayOrders = getTodayOrders(todos);
+        Collections.sort(todayOrders, Collections.reverseOrder());
+        for (int i = 0; i < todos.size(); i++) {
+            todos.get(i).setTodayOrder(todayOrders.get(i));
+            todoRepository.save(todos.get(i));
+        }
+    }
+
+    private List<Integer> getBacklogOrders(List<Todo> todos) {
+        List<Integer> backlogOrders = new ArrayList<>();
+        for (Todo todo : todos) {
+            backlogOrders.add(todo.getBacklogOrder());
+        }
+        return backlogOrders;
+    }
+
+    private void reassignBacklogOrder(List<Todo> todos) {
+        List<Integer> backlogOrders = getBacklogOrders(todos);
+        Collections.sort(backlogOrders, Collections.reverseOrder());
+        for (int i = 0; i < todos.size(); i++) {
+            todos.get(i).setBacklogOrder(backlogOrders.get(i));
+            todoRepository.save(todos.get(i));
         }
     }
 
     private boolean isTypeToday(Type type) {
         return type.equals(Type.TODAY);
-    }
-
-
-    private void reassignBacklogOrder(List<Todo> todos, List<Long> todoIds) {
-        int startingOrder = todoRepository.findMaxBacklogOrderByIdIn(todoIds);
-        for (Todo todo : todos) {
-            todo.setBacklogOrder(startingOrder--);
-            todoRepository.save(todo);
-        }
     }
 
     public TodoDetailResponseDto getTodoInfo(Long userId, Long todoId) {

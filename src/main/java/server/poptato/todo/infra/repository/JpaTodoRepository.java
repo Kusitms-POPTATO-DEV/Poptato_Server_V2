@@ -20,24 +20,11 @@ public interface JpaTodoRepository extends TodoRepository, JpaRepository<Todo, L
     @Query("SELECT COALESCE(MAX(t.todayOrder), 0) FROM Todo t WHERE t.userId = :userId AND t.todayOrder IS NOT NULL")
     Integer findMaxTodayOrderByUserIdOrZero(Long userId);
 
-    @Query("SELECT MAX(t.todayOrder) FROM Todo t WHERE t.id IN :ids")
-    int findMaxTodayOrderByIdIn(@Param("ids") List<Long> ids);
-
-    @Query("SELECT MAX(t.backlogOrder) FROM Todo t WHERE t.id IN :ids")
-    int findMaxBacklogOrderByIdIn(@Param("ids") List<Long> ids);
-
     @Query("SELECT COALESCE(MIN(t.backlogOrder), 0) FROM Todo t WHERE t.userId = :userId AND t.backlogOrder IS NOT NULL")
     Integer findMinBacklogOrderByUserIdOrZero(@Param("userId") Long userId);
 
     @Query("SELECT COALESCE(MIN(t.todayOrder), 0) FROM Todo t WHERE t.userId = :userId AND t.todayOrder IS NOT NULL")
     Integer findMinTodayOrderByUserIdOrZero(Long userId);
-
-    @Query("SELECT t FROM Todo t WHERE t.userId = :userId AND t.todayStatus = :todayStatus")
-    Page<Todo> findByUserIdAndCompletedStatus(
-            @Param("userId") Long userId,
-            @Param("todayStatus") TodayStatus todayStatus,
-            Pageable pageable
-    );
 
     @Query("SELECT t FROM Todo t WHERE t.userId = :userId AND (t.type IN :types " +
             "AND (t.todayStatus != :status OR t.todayStatus IS NULL)) " +

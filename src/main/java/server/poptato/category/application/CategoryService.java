@@ -1,6 +1,7 @@
 package server.poptato.category.application;
 
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -24,7 +25,9 @@ import server.poptato.todo.exception.errorcode.TodoExceptionErrorCode;
 import server.poptato.user.validator.UserValidator;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static server.poptato.category.exception.errorcode.CategoryExceptionErrorCode.*;
@@ -109,10 +112,20 @@ public class CategoryService {
     }
 
     private void reassignCategoryOrder(List<Category> categories, List<Long> categoryIds) {
-        int startingOrder = categoryRepository.findMinCategoryOrderByIdIn(categoryIds);
-        for (Category category : categories) {
-            category.setCategoryOrder(startingOrder++);
-            categoryRepository.save(category);
+        List<Integer> categoryOrders = getCategoryOrders(categoryIds);
+        Collections.sort(categoryOrders);
+        for(int i=0;i<categories.size();i++){
+            categories.get(i).setCategoryOrder(categoryOrders.get(i));
+            categoryRepository.save(categories.get(i));
         }
+    }
+
+    private List<Integer> getCategoryOrders(List<Long> categoryIds) {
+        List<Integer> categoryOrders = new ArrayList<>();
+        for(Long categoryId : categoryIds){
+            Category category = categoryRepository.findById(categoryId).get();
+            categoryOrders.add(category.getCategoryOrder());
+        }
+        return categoryOrders;
     }
 }
