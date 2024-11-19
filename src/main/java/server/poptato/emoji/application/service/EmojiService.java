@@ -8,13 +8,10 @@ import server.poptato.emoji.application.response.EmojiDTO;
 import server.poptato.emoji.application.response.EmojiResponseDTO;
 import server.poptato.emoji.domain.entity.Emoji;
 import server.poptato.emoji.domain.repository.EmojiRepository;
-import server.poptato.emoji.exception.EmojiException;
 
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import static server.poptato.emoji.exception.errorcode.EmojiExceptionErrorCode.EMOJI_NOT_EXIST;
 
 @Service
 @RequiredArgsConstructor
@@ -26,19 +23,20 @@ public class EmojiService {
         PageRequest pageRequest = PageRequest.of(page, size);
         Page<Emoji> emojiPage = emojiRepository.findAllEmojis(pageRequest);
 
-        // groupName을 기준으로 그룹핑
-        Map<String, List<EmojiDTO>> groupedEmojis = emojiPage.getContent().stream()
-                .filter(emoji -> emoji.getGroupName() != null) // groupName이 null인 경우 제외
+        Map<String, List<EmojiDTO>> groupedEmojis = groupEmojisByGroupName(emojiPage.getContent());
+
+        return new EmojiResponseDTO(groupedEmojis, emojiPage.getTotalPages());
+    }
+
+    private Map<String, List<EmojiDTO>> groupEmojisByGroupName(List<Emoji> emojis) {
+        return emojis.stream()
+                .filter(emoji -> emoji.getGroupName() != null)
                 .collect(Collectors.groupingBy(
-                        emoji -> emoji.getGroupName().name(), // Enum의 name()을 키로 사용
+                        emoji -> emoji.getGroupName().name(),
                         Collectors.mapping(
                                 emoji -> new EmojiDTO(emoji.getId(), emoji.getImageUrl()),
                                 Collectors.toList()
                         )
                 ));
-
-        int totalPageCount = emojiPage.getTotalPages();
-
-        return new EmojiResponseDTO(groupedEmojis, totalPageCount);
     }
 }
