@@ -131,4 +131,8 @@ public class Todo{
     public void updateCategory(Long categoryId) {
         this.categoryId = categoryId;
     }
+
+    public void updateIsRepeat() {
+        this.isRepeat=!this.isRepeat;
+    }
 }
