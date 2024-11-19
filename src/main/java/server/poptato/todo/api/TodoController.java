@@ -84,6 +84,13 @@ public class TodoController {
         return new BaseResponse<>();
     }
 
+    @PatchMapping("/todo/{todoId}/repeat")
+    public BaseResponse updateIsRepeat(@UserId Long userId,
+                                       @PathVariable Long todoId) {
+        todoService.updateRepeat(userId, todoId);
+        return new BaseResponse<>();
+    }
+
     @GetMapping("/histories")
     public BaseResponse<PaginatedHistoryResponseDto> getHistories(
             @UserId Long userId,
