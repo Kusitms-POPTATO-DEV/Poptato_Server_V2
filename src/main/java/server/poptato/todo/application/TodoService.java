@@ -278,6 +278,7 @@ public class TodoService {
         List<LocalDateTime> dateTimes = completedDateTimeRepository.findHistoryExistingDates(userId, year, month);
         List<LocalDate> dates = dateTimes.stream()
                 .map(LocalDateTime::toLocalDate)
+                .distinct()
                 .toList();
         return HistoryCalendarListResponseDto.builder().dates(dates).build();
     }

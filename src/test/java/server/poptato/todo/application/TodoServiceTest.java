@@ -23,8 +23,10 @@ import server.poptato.todo.exception.errorcode.TodoExceptionErrorCode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -488,7 +490,9 @@ class TodoServiceTest {
         LocalDate firstCompletedDate = dates.get(0);
         String completedYear = String.valueOf(firstCompletedDate.getYear());
         int completedMonth = firstCompletedDate.getMonthValue();
+        Set<LocalDate> distinctDates = new HashSet<>(dates);
 
+        assertThat(distinctDates.size()).isEqualTo(dates.size());
         assertThat(year).isEqualTo(completedYear);
         assertThat(month).isEqualTo(completedMonth);
     }
