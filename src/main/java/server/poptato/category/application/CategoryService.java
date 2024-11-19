@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import server.poptato.category.api.request.CategoryCreateUpdateRequestDto;
+import server.poptato.category.api.request.CategoryDragAndDropRequestDto;
 import server.poptato.category.application.response.CategoryCreateResponseDto;
 import server.poptato.category.application.response.CategoryListResponseDto;
 import server.poptato.category.application.response.CategoryResponseDto;
@@ -15,8 +16,14 @@ import server.poptato.category.exception.CategoryException;
 import server.poptato.category.validator.CategoryValidator;
 import server.poptato.emoji.domain.repository.EmojiRepository;
 import server.poptato.emoji.validator.EmojiValidator;
+import server.poptato.todo.domain.entity.Todo;
+import server.poptato.todo.domain.value.TodayStatus;
+import server.poptato.todo.domain.value.Type;
+import server.poptato.todo.exception.TodoException;
+import server.poptato.todo.exception.errorcode.TodoExceptionErrorCode;
 import server.poptato.user.validator.UserValidator;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,6 +38,10 @@ public class CategoryService {
     private final EmojiValidator emojiValidator;
     private final CategoryValidator categoryValidator;
     private final EmojiRepository emojiRepository;
+
+    private static final Long ALL_CATEGORY = -1L;
+    private static final Long BOOKMARK_CATEGORY = 0L;
+
     public CategoryCreateResponseDto createCategory(Long userId, CategoryCreateUpdateRequestDto request) {
         userValidator.checkIsExistUser(userId);
         emojiValidator.checkIsExistEmoji(request.emojiId());
@@ -70,5 +81,38 @@ public class CategoryService {
         userValidator.checkIsExistUser(userId);
         Category category = categoryValidator.validateAndReturnCategory(userId, categoryId);
         categoryRepository.delete(category);
+    }
+
+    public void dragAndDrop(Long userId, CategoryDragAndDropRequestDto request) {
+        userValidator.checkIsExistUser(userId);
+        List<Category> categories = getCategoriesByIds(request.getCategoryIds());
+        checkIsValidToDragAndDrop(userId, categories, request);
+        reassignCategoryOrder(categories, request.getCategoryIds());
+    }
+
+    private List<Category> getCategoriesByIds(List<Long> categoryIds) {
+        List<Category> categories = new ArrayList<>();
+        for (Long categoryId : categoryIds) {
+            Category category = categoryRepository.findById(categoryId).orElseThrow(() -> new CategoryException(CATEGORY_NOT_EXIST));
+            categories.add(category);
+        }
+        return categories;
+    }
+
+    private void checkIsValidToDragAndDrop(Long userId, List<Category> categories, CategoryDragAndDropRequestDto request) {
+        for (Category category : categories) {
+            categoryValidator.validateCategory(userId, category.getId());
+            if (category.getId()== ALL_CATEGORY || category.getId()==BOOKMARK_CATEGORY) {
+                throw new CategoryException(INVALID_DRAG_AND_DROP_CATEGORY);
+            }
+        }
+    }
+
+    private void reassignCategoryOrder(List<Category> categories, List<Long> categoryIds) {
+        int startingOrder = categoryRepository.findMinCategoryOrderByIdIn(categoryIds);
+        for (Category category : categories) {
+            category.setCategoryOrder(startingOrder++);
+            categoryRepository.save(category);
+        }
     }
 }

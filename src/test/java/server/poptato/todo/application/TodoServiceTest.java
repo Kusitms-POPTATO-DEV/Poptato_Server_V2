@@ -185,7 +185,7 @@ class TodoServiceTest {
     void dragAndDrop_TodoTypeNotMatchException() {
         //given
         Long userId = 1L;
-        DragAndDropRequestDto request = DragAndDropRequestDto.builder()
+        TodoDragAndDropRequestDto request = TodoDragAndDropRequestDto.builder()
                 .type(Type.BACKLOG)
                 .todoIds(List.of(1L))
                 .build();
@@ -201,7 +201,7 @@ class TodoServiceTest {
     void dragAndDrop_AlreadyCompletedTodoException() {
         //given
         Long userId = 1L;
-        DragAndDropRequestDto request = DragAndDropRequestDto.builder()
+        TodoDragAndDropRequestDto request = TodoDragAndDropRequestDto.builder()
                 .type(Type.TODAY)
                 .todoIds(List.of(3L))
                 .build();
@@ -217,7 +217,7 @@ class TodoServiceTest {
     void dragAndDrop_Success() {
         //given
         Long userId = 1L;
-        DragAndDropRequestDto request = DragAndDropRequestDto.builder()
+        TodoDragAndDropRequestDto request = TodoDragAndDropRequestDto.builder()
                 .type(Type.TODAY)
                 .todoIds(List.of(1L, 5L, 2L, 4L))
                 .build();

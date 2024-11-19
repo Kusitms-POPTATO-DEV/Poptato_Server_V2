@@ -38,10 +38,10 @@ public class TodoController {
         return new BaseResponse<>();
     }
 
-    @PatchMapping("/dragAndDrop")
+    @PatchMapping("/todo/dragAndDrop")
     public BaseResponse dragAndDrop(@UserId Long userId,
-                                    @Validated @RequestBody DragAndDropRequestDto dragAndDropRequestDto) {
-        todoService.dragAndDrop(userId, dragAndDropRequestDto);
+                                    @Validated @RequestBody TodoDragAndDropRequestDto todoDragAndDropRequestDto) {
+        todoService.dragAndDrop(userId, todoDragAndDropRequestDto);
         return new BaseResponse<>();
     }
 
