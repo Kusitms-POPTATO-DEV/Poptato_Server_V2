@@ -240,4 +240,11 @@ public class TodoService {
         findTodo.updateCategory(requestDto.categoryId());
         todoRepository.save(findTodo);
     }
+
+    public void updateRepeat(Long userId, Long todoId) {
+        userValidator.checkIsExistUser(userId);
+        Todo findTodo = validateAndReturnTodo(userId, todoId);
+        findTodo.updateIsRepeat();
+        todoRepository.save(findTodo);
+    }
 }

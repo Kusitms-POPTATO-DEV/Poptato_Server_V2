@@ -70,9 +70,9 @@ public class TodoController {
     }
 
     @PatchMapping("/todo/{todoId}/achieve")
-    public BaseResponse updateIsCompleted(@UserId Long userId,
-                                          @PathVariable Long todoId) {
-        todoService.updateIsCompleted(userId, todoId, LocalDateTime.now());
+    public BaseResponse updateIsRepeat(@UserId Long userId,
+                                       @PathVariable Long todoId) {
+        todoService.updateRepeat(userId, todoId);
         return new BaseResponse<>();
     }
 
@@ -81,6 +81,13 @@ public class TodoController {
                                        @PathVariable Long todoId,
                                        @RequestBody TodoCategoryUpdateRequestDto todoCategoryUpdateRequestDto) {
         todoService.updateCategory(userId, todoId, todoCategoryUpdateRequestDto);
+        return new BaseResponse<>();
+    }
+
+    @PatchMapping("/todo/{todoId}/repeat")
+    public BaseResponse updateIsCompleted(@UserId Long userId,
+                                          @PathVariable Long todoId) {
+        todoService.updateIsCompleted(userId, todoId, LocalDateTime.now());
         return new BaseResponse<>();
     }
 
