@@ -39,8 +39,8 @@ public class TodoDtoConverter {
                 .content(todo.getContent())
                 .isBookmark(todo.isBookmark())
                 .isRepeat(todo.isRepeat())
-                .categoryName(category.getName())
-                .emojiImageUrl(emoji.getImageUrl())
+                .categoryName(category != null ? category.getName() : null)
+                .emojiImageUrl(emoji != null ? emoji.getImageUrl() : null)
                 .deadline(todo.getDeadline())
                 .build();
     }

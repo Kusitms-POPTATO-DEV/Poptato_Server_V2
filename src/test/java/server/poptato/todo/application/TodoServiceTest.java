@@ -246,9 +246,11 @@ class TodoServiceTest {
         //given
         Long userId = 1L;
         Long todoId = 10L;
+        Long todoId2 = 11L;
 
         //when
         TodoDetailResponseDto todoInfo = todoService.getTodoInfo(userId, todoId);
+        TodoDetailResponseDto todoInfo2 = todoService.getTodoInfo(userId, todoId2);
 
         //then
         assertThat(todoInfo.content()).isEqualTo("할 일 10");
@@ -257,6 +259,8 @@ class TodoServiceTest {
         assertThat(todoInfo.isRepeat()).isFalse();
         assertThat(todoInfo.categoryName()).isEqualTo("카테고리 1");
         assertThat(todoInfo.emojiImageUrl()).isEqualTo("https://example.com/productive-book1.png");
+        assertThat(todoInfo2.categoryName()).isNull();
+        assertThat(todoInfo2.emojiImageUrl()).isNull();
     }
 
     @DisplayName("마감기한 수정 시 성공한다.")
