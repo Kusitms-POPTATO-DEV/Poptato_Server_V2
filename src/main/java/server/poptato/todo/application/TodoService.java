@@ -92,7 +92,7 @@ public class TodoService {
     }
 
 
-    public void dragAndDrop(Long userId, DragAndDropRequestDto requestDto) {
+    public void dragAndDrop(Long userId, TodoDragAndDropRequestDto requestDto) {
         userValidator.checkIsExistUser(userId);
         List<Todo> todos = getTodosByIds(requestDto.getTodoIds());
         checkIsValidToDragAndDrop(userId, todos, requestDto);
@@ -103,8 +103,36 @@ public class TodoService {
         reassignBacklogOrder(todos, requestDto.getTodoIds());
     }
 
-    private boolean isTypeToday(Type type) {
-        return type.equals(Type.TODAY);
+    private List<Todo> getTodosByIds(List<Long> todoIds) {
+        List<Todo> todos = new ArrayList<>();
+        for (Long todoId : todoIds) {
+            todos.add(todoRepository.findById(todoId).get());
+        }
+        return todos;
+    }
+
+    private void checkIsValidToDragAndDrop(Long userId, List<Todo> todos, TodoDragAndDropRequestDto todoDragAndDropRequestDto) {
+        if (todos.size() != todoDragAndDropRequestDto.getTodoIds().size()) {
+            throw new TodoException(TodoExceptionErrorCode.TODO_NOT_EXIST);
+        }
+        for (Todo todo : todos) {
+            if (!todo.getUserId().equals(userId)) {
+                throw new TodoException(TodoExceptionErrorCode.TODO_USER_NOT_MATCH);
+            }
+            if (todoDragAndDropRequestDto.getType().equals(Type.TODAY) && todo.getTodayStatus() == TodayStatus.COMPLETED) {
+                throw new TodoException(TodoExceptionErrorCode.ALREADY_COMPLETED_TODO);
+            }
+            if (todoDragAndDropRequestDto.getType().equals(Type.TODAY)) {
+                if (!todo.getType().equals(Type.TODAY)) {
+                    throw new TodoException(TodoExceptionErrorCode.TODO_TYPE_NOT_MATCH);
+                }
+            }
+            if (todoDragAndDropRequestDto.getType().equals(Type.BACKLOG)) {
+                if (!(todo.getType().equals(Type.BACKLOG) || todo.getType().equals(Type.YESTERDAY))) {
+                    throw new TodoException(TodoExceptionErrorCode.TODO_TYPE_NOT_MATCH);
+                }
+            }
+        }
     }
 
     private void reassignTodayOrder(List<Todo> todos, List<Long> todoIds) {
@@ -115,43 +143,16 @@ public class TodoService {
         }
     }
 
+    private boolean isTypeToday(Type type) {
+        return type.equals(Type.TODAY);
+    }
+
+
     private void reassignBacklogOrder(List<Todo> todos, List<Long> todoIds) {
         int startingOrder = todoRepository.findMaxBacklogOrderByIdIn(todoIds);
         for (Todo todo : todos) {
             todo.setBacklogOrder(startingOrder--);
             todoRepository.save(todo);
-        }
-    }
-
-    private List<Todo> getTodosByIds(List<Long> todoIds) {
-        List<Todo> todos = new ArrayList<>();
-        for (Long todoId : todoIds) {
-            todos.add(todoRepository.findById(todoId).get());
-        }
-        return todos;
-    }
-
-    private void checkIsValidToDragAndDrop(Long userId, List<Todo> todos, DragAndDropRequestDto dragAndDropRequestDto) {
-        if (todos.size() != dragAndDropRequestDto.getTodoIds().size()) {
-            throw new TodoException(TodoExceptionErrorCode.TODO_NOT_EXIST);
-        }
-        for (Todo todo : todos) {
-            if (!todo.getUserId().equals(userId)) {
-                throw new TodoException(TodoExceptionErrorCode.TODO_USER_NOT_MATCH);
-            }
-            if (dragAndDropRequestDto.getType().equals(Type.TODAY) && todo.getTodayStatus() == TodayStatus.COMPLETED) {
-                throw new TodoException(TodoExceptionErrorCode.ALREADY_COMPLETED_TODO);
-            }
-            if (dragAndDropRequestDto.getType().equals(Type.TODAY)) {
-                if (!todo.getType().equals(Type.TODAY)) {
-                    throw new TodoException(TodoExceptionErrorCode.TODO_TYPE_NOT_MATCH);
-                }
-            }
-            if (dragAndDropRequestDto.getType().equals(Type.BACKLOG)) {
-                if (!(todo.getType().equals(Type.BACKLOG) || todo.getType().equals(Type.YESTERDAY))) {
-                    throw new TodoException(TodoExceptionErrorCode.TODO_TYPE_NOT_MATCH);
-                }
-            }
         }
     }
 
@@ -189,14 +190,14 @@ public class TodoService {
     }
 
     private void updateYesterdayIsCompleted(Todo findTodo) {
-        if(TodayStatus.INCOMPLETE.equals(findTodo.getTodayStatus())){
+        if (TodayStatus.INCOMPLETE.equals(findTodo.getTodayStatus())) {
             LocalDateTime yesterday = LocalDateTime.of(findTodo.getTodayDate(), LocalTime.of(23, 59));
             findTodo.updateYesterdayToCompleted();
             CompletedDateTime completedDateTime = CompletedDateTime.builder().todoId(findTodo.getId()).dateTime(yesterday).build();
             completedDateTimeRepository.save(completedDateTime);
             return;
         }
-        if(TodayStatus.COMPLETED.equals(findTodo.getTodayStatus())){
+        if (TodayStatus.COMPLETED.equals(findTodo.getTodayStatus())) {
             Integer minBacklogOrder = todoRepository.findMinBacklogOrderByUserIdOrZero(findTodo.getUserId());
             findTodo.updateYesterdayToInComplete(minBacklogOrder);
             CompletedDateTime completedDateTime = completedDateTimeRepository.findByDateAndTodoId(findTodo.getId(), findTodo.getTodayDate())
@@ -206,13 +207,13 @@ public class TodoService {
     }
 
     private void updateTodayIsCompleted(Todo findTodo, LocalDateTime now) {
-        if(TodayStatus.INCOMPLETE.equals(findTodo.getTodayStatus())){
+        if (TodayStatus.INCOMPLETE.equals(findTodo.getTodayStatus())) {
             findTodo.updateTodayToCompleted();
             CompletedDateTime completedDateTime = CompletedDateTime.builder().todoId(findTodo.getId()).dateTime(now).build();
             completedDateTimeRepository.save(completedDateTime);
             return;
         }
-        if(TodayStatus.COMPLETED.equals(findTodo.getTodayStatus())){
+        if (TodayStatus.COMPLETED.equals(findTodo.getTodayStatus())) {
             Integer minTodayOrder = todoRepository.findMinTodayOrderByUserIdOrZero(findTodo.getUserId());
             findTodo.updateTodayToInComplete(minTodayOrder);
             CompletedDateTime completedDateTime = completedDateTimeRepository.findByDateAndTodoId(findTodo.getId(), findTodo.getTodayDate())
@@ -253,7 +254,7 @@ public class TodoService {
     public void updateCategory(Long userId, Long todoId, TodoCategoryUpdateRequestDto requestDto) {
         userValidator.checkIsExistUser(userId);
         Todo findTodo = validateAndReturnTodo(userId, todoId);
-        if(requestDto.categoryId()!=null) categoryValidator.validateCategory(userId, requestDto.categoryId());
+        if (requestDto.categoryId() != null) categoryValidator.validateCategory(userId, requestDto.categoryId());
         findTodo.updateCategory(requestDto.categoryId());
         todoRepository.save(findTodo);
     }

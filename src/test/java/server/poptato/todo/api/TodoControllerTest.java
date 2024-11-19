@@ -14,7 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import server.poptato.auth.application.service.JwtService;
 import server.poptato.todo.api.request.ContentUpdateRequestDto;
-import server.poptato.todo.api.request.DragAndDropRequestDto;
+import server.poptato.todo.api.request.TodoDragAndDropRequestDto;
 import server.poptato.todo.api.request.SwipeRequestDto;
 import server.poptato.todo.application.TodoBacklogService;
 import server.poptato.todo.application.TodoService;
@@ -150,7 +150,7 @@ public class TodoControllerTest {
     @Test
     void dragAndDrop_Success() throws Exception {
         //given & when & then
-        mockMvc.perform(patch("/dragAndDrop")
+        mockMvc.perform(patch("/todo/dragAndDrop")
                         .content("{\"type\": \"TODAY\", \"todoIds\": [1, 2, 3, 4]}")
                         .header("Authorization", "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -162,13 +162,13 @@ public class TodoControllerTest {
     @Test
     void dragAndDrop_ValidatorException() {
         //given
-        DragAndDropRequestDto dragAndDropRequestDto = DragAndDropRequestDto.builder()
+        TodoDragAndDropRequestDto todoDragAndDropRequestDto = TodoDragAndDropRequestDto.builder()
                 .type(null)
                 .todoIds(new ArrayList<>())
                 .build();
 
         //when
-        Set<ConstraintViolation<DragAndDropRequestDto>> violations = validator.validate(dragAndDropRequestDto);
+        Set<ConstraintViolation<TodoDragAndDropRequestDto>> violations = validator.validate(todoDragAndDropRequestDto);
 
         //then
         Assertions.assertEquals(violations.size(), 2);

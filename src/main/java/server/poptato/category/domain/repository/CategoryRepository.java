@@ -6,6 +6,7 @@ import server.poptato.category.domain.entity.Category;
 import server.poptato.todo.domain.entity.Todo;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 public interface CategoryRepository {
@@ -22,4 +23,6 @@ public interface CategoryRepository {
     default Page<Category> findCategories(Long userId, Pageable pageable) {
         return findDefaultAndByUserIdOrderByCategoryOrder(userId, pageable);
     }
+
+    int findMinCategoryOrderByIdIn(List<Long> categoryIds);
 }
