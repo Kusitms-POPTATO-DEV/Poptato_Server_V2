@@ -24,6 +24,7 @@ import server.poptato.user.validator.UserValidator;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -178,39 +179,55 @@ public class TodoService {
         userValidator.checkIsExistUser(userId);
         Todo findTodo = validateAndReturnTodo(userId, todoId);
         checkIsValidToUpdateIsCompleted(findTodo);
-
-        if (isStatusCompleted(findTodo)) {
-            Integer minTodayOrder = todoRepository.findMinTodayOrderByUserIdOrZero(userId);
-            findTodo.updateTodayStatusToInComplete(minTodayOrder);
-            CompletedDateTime completedDateTime = completedDateTimeRepository.findByDateAndTodoId(findTodo.getId(), now.toLocalDate())
-                    .orElseThrow(() -> new TodoException(COMPLETED_DATETIME_NOT_EXIST));
-            completedDateTimeRepository.delete(completedDateTime);
+        if (isTypeYesterday(findTodo.getType())) {
+            updateYesterdayIsCompleted(findTodo);
+            todoRepository.save(findTodo);
             return;
         }
-        if (isTypeYesterday(findTodo)) {
-            findTodo.updateYesterdayStatusToCompleted();
+        if (isTypeToday(findTodo.getType())) updateTodayIsCompleted(findTodo, now);
+        todoRepository.save(findTodo);
+    }
+
+    private void updateYesterdayIsCompleted(Todo findTodo) {
+        if(TodayStatus.INCOMPLETE.equals(findTodo.getTodayStatus())){
+            LocalDateTime yesterday = LocalDateTime.of(findTodo.getTodayDate(), LocalTime.of(23, 59));
+            findTodo.updateYesterdayToCompleted();
+            CompletedDateTime completedDateTime = CompletedDateTime.builder().todoId(findTodo.getId()).dateTime(yesterday).build();
+            completedDateTimeRepository.save(completedDateTime);
+            return;
+        }
+        if(TodayStatus.COMPLETED.equals(findTodo.getTodayStatus())){
+            Integer minBacklogOrder = todoRepository.findMinBacklogOrderByUserIdOrZero(findTodo.getUserId());
+            findTodo.updateYesterdayToInComplete(minBacklogOrder);
+            CompletedDateTime completedDateTime = completedDateTimeRepository.findByDateAndTodoId(findTodo.getId(), findTodo.getTodayDate())
+                    .orElseThrow(() -> new TodoException(COMPLETED_DATETIME_NOT_EXIST));
+            completedDateTimeRepository.delete(completedDateTime);
+        }
+    }
+
+    private void updateTodayIsCompleted(Todo findTodo, LocalDateTime now) {
+        if(TodayStatus.INCOMPLETE.equals(findTodo.getTodayStatus())){
+            findTodo.updateTodayToCompleted();
             CompletedDateTime completedDateTime = CompletedDateTime.builder().todoId(findTodo.getId()).dateTime(now).build();
             completedDateTimeRepository.save(completedDateTime);
             return;
         }
-        findTodo.updateTodayStatusToCompleted();
-        CompletedDateTime completedDateTime = CompletedDateTime.builder().todoId(findTodo.getId()).dateTime(now).build();
-        completedDateTimeRepository.save(completedDateTime);
+        if(TodayStatus.COMPLETED.equals(findTodo.getTodayStatus())){
+            Integer minTodayOrder = todoRepository.findMinTodayOrderByUserIdOrZero(findTodo.getUserId());
+            findTodo.updateTodayToInComplete(minTodayOrder);
+            CompletedDateTime completedDateTime = completedDateTimeRepository.findByDateAndTodoId(findTodo.getId(), findTodo.getTodayDate())
+                    .orElseThrow(() -> new TodoException(COMPLETED_DATETIME_NOT_EXIST));
+            completedDateTimeRepository.delete(completedDateTime);
+        }
     }
 
     private void checkIsValidToUpdateIsCompleted(Todo todo) {
         if (todo.getType().equals(Type.BACKLOG))
             throw new TodoException(TodoExceptionErrorCode.BACKLOG_CANT_COMPLETE);
-        if (todo.getType().equals(Type.YESTERDAY) && todo.getTodayStatus().equals(TodayStatus.COMPLETED))
-            throw new TodoException(TodoExceptionErrorCode.YESTERDAY_CANT_COMPLETE);
     }
 
-    private boolean isTypeYesterday(Todo findTodo) {
-        return findTodo.getType().equals(Type.YESTERDAY);
-    }
-
-    private boolean isStatusCompleted(Todo findTodo) {
-        return findTodo.getTodayStatus().equals(TodayStatus.COMPLETED);
+    private boolean isTypeYesterday(Type type) {
+        return type.equals(Type.YESTERDAY);
     }
 
     public PaginatedHistoryResponseDto getHistories(Long userId, LocalDate localDate, int page, int size) {
