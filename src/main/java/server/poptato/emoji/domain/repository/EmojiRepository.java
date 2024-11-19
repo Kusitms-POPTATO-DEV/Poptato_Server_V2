@@ -9,5 +9,5 @@ import java.util.Optional;
 public interface EmojiRepository {
     Optional<Emoji> findById(Long id);
     String findImageUrlById(Long emojiId);
-    Page<Emoji> findAll(Pageable pageable);
+    Page<Emoji> findAllEmojis(Pageable pageable);
 }

@@ -32,7 +32,7 @@ public class EmojiService {
 
     public EmojiResponseDTO getGroupedEmojis(int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size);
-        Page<Emoji> emojiPage = emojiRepository.findAll(pageRequest);
+        Page<Emoji> emojiPage = emojiRepository.findAllEmojis(pageRequest);
 
         Map<String, List<EmojiDTO>> groupedEmojis = emojiPage.getContent().stream()
                 .collect(Collectors.groupingBy(

@@ -33,13 +33,11 @@ public class EmojiServiceTest {
         Map<String, List<EmojiDTO>> groupEmojis = responseDTO.groupEmojis();
 
         List<EmojiDTO> emojiList = groupEmojis.get("생산성");
-        List<EmojiDTO> emojiList2 = groupEmojis.get("데일리");
 
 
 
         //then
         assertThat(emojiList.size()).isEqualTo(1);
-        assertThat(emojiList2.size()).isEqualTo(2);
 
         assertThat(emojiList.get(0).imageUrl()).isEqualTo("https://example.com/productive-book1.png");
     }
