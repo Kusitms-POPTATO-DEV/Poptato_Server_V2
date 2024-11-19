@@ -252,6 +252,9 @@ class TodoServiceTest {
         assertThat(todoInfo.content()).isEqualTo("할 일 10");
         assertThat(todoInfo.deadline()).isEqualTo(LocalDate.of(2024, 10, 26));
         assertThat(todoInfo.isBookmark()).isTrue();
+        assertThat(todoInfo.isRepeat()).isFalse();
+        assertThat(todoInfo.categoryName()).isEqualTo("카테고리 1");
+        assertThat(todoInfo.emojiImageUrl()).isEqualTo("https://example.com/productive-book1.png");
     }
 
     @DisplayName("마감기한 수정 시 성공한다.")
