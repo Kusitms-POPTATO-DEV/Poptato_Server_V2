@@ -100,13 +100,15 @@ class TodoBacklogServiceTest {
         }
     }
 
-    @DisplayName("백로그 생성 시 성공한다.")
+    @DisplayName("전체 카테고리로 백로그 생성 시 성공한다.")
     @Test
-    void generateBacklog_Success() {
+    void generateBacklog_AllCategory_Success() {
         //given
         Long userId = 1L;
+        Long categoryId = -1L;
         String content = "할 일 내용";
         BacklogCreateRequestDto backlogCreateRequestDto = BacklogCreateRequestDto.builder()
+                .categoryId(categoryId)
                 .content(content)
                 .build();
         Integer maxBacklogOrder = todoRepository.findMaxBacklogOrderByUserIdOrZero(userId);
@@ -123,6 +125,63 @@ class TodoBacklogServiceTest {
         assertThat(newTodo.getType()).isEqualTo(Type.BACKLOG);
         assertThat(newTodo.isBookmark()).isFalse();
         assertThat(newTodo.getTodayStatus()).isNull();
+        assertThat(newTodo.getCategoryId()).isNull();
+    }
+
+    @DisplayName("중요 카테고리로 백로그 생성 시 성공한다.")
+    @Test
+    void generateBacklog_BookmarkCategory_Success() {
+        //given
+        Long userId = 1L;
+        Long categoryId = 0L;
+        String content = "할 일 내용";
+        BacklogCreateRequestDto backlogCreateRequestDto = BacklogCreateRequestDto.builder()
+                .categoryId(categoryId)
+                .content(content)
+                .build();
+        Integer maxBacklogOrder = todoRepository.findMaxBacklogOrderByUserIdOrZero(userId);
+
+        //when
+        BacklogCreateResponseDto backlogCreateResponseDto = todoBacklogService.generateBacklog(userId, backlogCreateRequestDto);
+        Todo newTodo = todoRepository.findById(backlogCreateResponseDto.todoId()).get();
+
+        //then
+        assertThat(newTodo).isNotNull();
+        assertThat(newTodo.getUserId()).isEqualTo(userId);
+        assertThat(newTodo.getContent()).isEqualTo(content);
+        assertThat(newTodo.getBacklogOrder()).isEqualTo(maxBacklogOrder + 1);
+        assertThat(newTodo.getType()).isEqualTo(Type.BACKLOG);
+        assertThat(newTodo.isBookmark()).isTrue();
+        assertThat(newTodo.getTodayStatus()).isNull();
+        assertThat(newTodo.getCategoryId()).isNull();
+    }
+
+    @DisplayName("사용자 생성 카테고리로 백로그 생성 시 성공한다.")
+    @Test
+    void generateBacklog_UserCategory_Success() {
+        //given
+        Long userId = 1L;
+        Long categoryId = 1L;
+        String content = "할 일 내용";
+        BacklogCreateRequestDto backlogCreateRequestDto = BacklogCreateRequestDto.builder()
+                .categoryId(categoryId)
+                .content(content)
+                .build();
+        Integer maxBacklogOrder = todoRepository.findMaxBacklogOrderByUserIdOrZero(userId);
+
+        //when
+        BacklogCreateResponseDto backlogCreateResponseDto = todoBacklogService.generateBacklog(userId, backlogCreateRequestDto);
+        Todo newTodo = todoRepository.findById(backlogCreateResponseDto.todoId()).get();
+
+        //then
+        assertThat(newTodo).isNotNull();
+        assertThat(newTodo.getUserId()).isEqualTo(userId);
+        assertThat(newTodo.getContent()).isEqualTo(content);
+        assertThat(newTodo.getBacklogOrder()).isEqualTo(maxBacklogOrder + 1);
+        assertThat(newTodo.getType()).isEqualTo(Type.BACKLOG);
+        assertThat(newTodo.isBookmark()).isFalse();
+        assertThat(newTodo.getTodayStatus()).isNull();
+        assertThat(newTodo.getCategoryId()).isEqualTo(categoryId);
     }
 
 
