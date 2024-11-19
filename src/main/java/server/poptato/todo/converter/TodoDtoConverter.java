@@ -2,6 +2,8 @@ package server.poptato.todo.converter;
 
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
+import server.poptato.category.domain.entity.Category;
+import server.poptato.emoji.domain.entity.Emoji;
 import server.poptato.todo.application.response.*;
 import server.poptato.todo.domain.entity.Todo;
 
@@ -32,10 +34,13 @@ public class TodoDtoConverter {
                 .build();
     }
 
-    public static TodoDetailResponseDto toTodoDetailInfoDto(Todo todo) {
+    public static TodoDetailResponseDto toTodoDetailInfoDto(Todo todo, Category category, Emoji emoji) {
         return TodoDetailResponseDto.builder()
                 .content(todo.getContent())
                 .isBookmark(todo.isBookmark())
+                .isRepeat(todo.isRepeat())
+                .categoryName(category != null ? category.getName() : null)
+                .emojiImageUrl(emoji != null ? emoji.getImageUrl() : null)
                 .deadline(todo.getDeadline())
                 .build();
     }

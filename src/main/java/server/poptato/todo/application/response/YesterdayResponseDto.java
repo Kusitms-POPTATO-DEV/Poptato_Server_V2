@@ -11,12 +11,14 @@ public class YesterdayResponseDto{
     Long todoId;
     Integer dDay;
     boolean isBookmark;
+    boolean isRepeat;
     String content;
 
     public YesterdayResponseDto(Todo todo) {
         this.todoId = todo.getId();
         this.content = todo.getContent();
         this.isBookmark = todo.isBookmark();
+        this.isRepeat = todo.isRepeat();
 
         if (hasDeadline(todo)) {
             this.dDay = (int) ChronoUnit.DAYS.between(LocalDate.now(), todo.getDeadline());
