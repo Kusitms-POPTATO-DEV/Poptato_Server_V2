@@ -1,5 +1,6 @@
 package server.poptato.todo.application.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import server.poptato.todo.domain.entity.Todo;
 import server.poptato.todo.domain.value.TodayStatus;
@@ -12,7 +13,9 @@ public class TodayResponseDto {
     Long todoId;
     String content;
     TodayStatus todayStatus;
+    @JsonProperty("isBookmark")
     boolean isBookmark;
+    @JsonProperty("isRepeat")
     boolean isRepeat;
     Integer dDay;
     LocalDate deadline;

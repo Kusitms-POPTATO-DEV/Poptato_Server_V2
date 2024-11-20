@@ -1,5 +1,6 @@
 package server.poptato.todo.application.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import server.poptato.todo.domain.entity.Todo;
 
@@ -10,7 +11,10 @@ import java.time.temporal.ChronoUnit;
 public class BacklogResponseDto {
     Long todoId;
     String content;
+    @JsonProperty("isBookmark")
     boolean isBookmark;
+    @JsonProperty("isRepeat")
+    boolean isRepeat;
     Integer dDay;
     LocalDate deadline;
 
@@ -18,6 +22,7 @@ public class BacklogResponseDto {
         this.todoId = todo.getId();
         this.content = todo.getContent();
         this.isBookmark = todo.isBookmark();
+        this.isRepeat = todo.isRepeat();
         this.deadline = todo.getDeadline();
         LocalDate todayDate = LocalDate.now();
         if (this.deadline==null)
