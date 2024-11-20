@@ -53,27 +53,22 @@ class TodoSchedulerTest {
 
         //then
         List<Todo> yesterdayTasks = todoRepository.findByType(Type.YESTERDAY);
-        assertTrue(yesterdayTasks.stream().anyMatch(todo -> todo.getContent().equals("할 일 1")));
-        assertTrue(yesterdayTasks.stream().anyMatch(todo -> todo.getContent().equals("할 일 2")));
-        assertTrue(yesterdayTasks.stream().anyMatch(todo -> todo.getContent().equals("할 일 4")));
-        assertTrue(yesterdayTasks.stream().anyMatch(todo -> todo.getContent().equals("할 일 5")));
-        assertTrue(yesterdayTasks.stream().anyMatch(todo -> todo.getContent().equals("할 일 7")));
-        assertTrue(yesterdayTasks.stream().anyMatch(todo -> todo.getContent().equals("할 일 8")));
-        assertTrue(yesterdayTasks.stream().anyMatch(todo -> todo.getContent().equals("할 일 10")));
-        assertTrue(yesterdayTasks.stream().anyMatch(todo -> todo.getContent().equals("할 일 12")));
-        assertTrue(yesterdayTasks.stream().anyMatch(todo -> todo.getContent().equals("할 일 14")));
-        assertTrue(yesterdayTasks.stream().anyMatch(todo -> todo.getContent().equals("할 일 16")));
+        List<Long> expectedYesterdays = List.of(1L, 2L, 4L, 5L, 7L, 8L, 10L, 12L, 14L, 16L, 38L, 39L);
+        assertTasksContainIds(yesterdayTasks, expectedYesterdays);
 
         List<Todo> backlogTasks = todoRepository.findByType(Type.BACKLOG);
-        assertTrue(backlogTasks.stream().anyMatch(todo -> todo.getContent().equals("할 일 1")));
-        assertTrue(backlogTasks.stream().anyMatch(todo -> todo.getContent().equals("할 일 2")));
-        assertTrue(backlogTasks.stream().anyMatch(todo -> todo.getContent().equals("할 일 3")));
-        assertTrue(backlogTasks.stream().anyMatch(todo -> todo.getContent().equals("할 일 4")));
-        assertTrue(backlogTasks.stream().anyMatch(todo -> todo.getContent().equals("할 일 5")));
-        assertTrue(backlogTasks.stream().anyMatch(todo -> todo.getContent().equals("할 일 6")));
-        assertTrue(backlogTasks.stream().anyMatch(todo -> todo.getContent().equals("할 일 7")));
-        assertTrue(backlogTasks.stream().anyMatch(todo -> todo.getContent().equals("할 일 8")));
-        assertTrue(backlogTasks.stream().anyMatch(todo -> todo.getContent().equals("할 일 9")));
-        assertTrue(backlogTasks.stream().anyMatch(todo -> todo.getContent().equals("할 일 10")));
+        List<Long> expectedBacklogs = List.of(3L, 6L, 27L, 28L, 29L, 30L, 31L, 32L, 33L, 34L, 35L, 36L, 37L);
+        assertTasksContainIds(backlogTasks, expectedBacklogs);
+    }
+
+    private void assertTasksContainIds(List<Todo> tasks, List<Long> expectedIds) {
+        List<Long> taskIds = tasks.stream()
+                .map(Todo::getId)
+                .toList();
+        assertTrue(taskIds.containsAll(expectedIds),
+                () -> "다음 할 일이 포함되어있지 않습니다: " +
+                        expectedIds.stream()
+                                .filter(content -> !taskIds.contains(content))
+                                .toList());
     }
 }

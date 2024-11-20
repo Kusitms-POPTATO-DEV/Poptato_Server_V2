@@ -22,47 +22,59 @@ public class TodoScheduler {
     @Transactional
     public void updateTodoType() {
         List<Long> updatedTodoIds = new ArrayList<>();
-        Map<Long, List<Todo>> userIdAndIncompleteTodaysMap = changeIncompleteTodayToYesterday(updatedTodoIds);
-        List<Todo> yesterdayIncompleteTodos = changeIncompleteYesterdayToBacklog(updatedTodoIds);
-        save(userIdAndIncompleteTodaysMap, yesterdayIncompleteTodos);
+        Map<Long, List<Todo>> userIdAndTodaysMap = updateTodays(updatedTodoIds);
+        List<Todo> yesterdayTodos = updateYesterdays(updatedTodoIds);
+        save(userIdAndTodaysMap, yesterdayTodos);
     }
 
-    private Map<Long, List<Todo>> changeIncompleteTodayToYesterday(List<Long> updatedTodoIds) {
-        Map<Long, List<Todo>> userIdAndIncompleteTodaysMap = todoRepository.findByTypeAndTodayStatus(Type.TODAY, TodayStatus.INCOMPLETE)
+    private Map<Long, List<Todo>> updateTodays(List<Long> updatedTodoIds) {
+        Map<Long, List<Todo>> userIdAndTodaysMap = todoRepository.findByType(Type.TODAY)
                 .stream()
                 .collect(Collectors.groupingBy(Todo::getUserId));
 
-        userIdAndIncompleteTodaysMap.forEach((userId, todos) -> {
+        userIdAndTodaysMap.forEach((userId, todos) -> {
             Integer minBacklogOrder = todoRepository.findMinBacklogOrderByUserIdOrZero(userId);
             int startingOrder = minBacklogOrder - 1;
 
             for (Todo todo : todos) {
-                todo.setType(Type.YESTERDAY);
-                todo.setBacklogOrder(startingOrder--);
-                updatedTodoIds.add(todo.getId());
+                if (todo.getTodayStatus() == TodayStatus.INCOMPLETE) {
+                    todo.setType(Type.YESTERDAY);
+                    todo.setTodayOrder(null);
+                    updatedTodoIds.add(todo.getId());
+                    continue;
+                }
+                if (todo.getTodayStatus() == TodayStatus.COMPLETED && todo.isRepeat()) {
+                    todo.setType(Type.BACKLOG);
+                    todo.setTodayOrder(null);
+                    todo.setBacklogOrder(startingOrder--);
+                    updatedTodoIds.add(todo.getId());
+                }
             }
         });
-        return userIdAndIncompleteTodaysMap;
+        return userIdAndTodaysMap;
     }
 
-    private List<Todo> changeIncompleteYesterdayToBacklog(List<Long> updatedTodoIds) {
-        List<Todo> yesterdayIncompleteTodos = todoRepository.findByTypeAndTodayStatus(Type.YESTERDAY, TodayStatus.INCOMPLETE)
+    private List<Todo> updateYesterdays(List<Long> updatedTodoIds) {
+        return todoRepository.findByType(Type.YESTERDAY)
                 .stream()
                 .filter(todo -> !updatedTodoIds.contains(todo.getId()))
+                .peek(todo -> {
+                    if (todo.getTodayStatus() == TodayStatus.INCOMPLETE) {
+                        todo.setType(Type.BACKLOG);
+                        todo.setTodayStatus(null);
+                    } else if (todo.getTodayStatus() == TodayStatus.COMPLETED && todo.isRepeat()) {
+                        todo.setType(Type.BACKLOG);
+                        todo.setTodayStatus(null);
+                    }
+                })
                 .collect(Collectors.toList());
-
-        yesterdayIncompleteTodos.forEach(todo -> {
-            todo.setType(Type.BACKLOG);
-            todo.setTodayStatus(null);
-        });
-        return yesterdayIncompleteTodos;
     }
 
-    private void save(Map<Long, List<Todo>> userIdAndIncompleteTodaysMap, List<Todo> yesterdayIncompleteTodos) {
-        for (Todo todo : userIdAndIncompleteTodaysMap.values().stream().flatMap(List::stream).collect(Collectors.toList())) {
+    private void save(Map<Long, List<Todo>> userIdAndTodaysMap, List<Todo> yesterdayTodos) {
+        for (Todo todo : userIdAndTodaysMap.values().stream().flatMap(List::stream).collect(Collectors.toList())) {
             todoRepository.save(todo);
         }
-        for (Todo todo : yesterdayIncompleteTodos) {
+        for (Todo todo : yesterdayTodos) {
             todoRepository.save(todo);
         }
     }
