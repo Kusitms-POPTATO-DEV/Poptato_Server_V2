@@ -20,9 +20,10 @@ public class TodoDtoConverter {
                 .build();
     }
 
-    public static BacklogListResponseDto toBacklogListDto(Page<Todo> backlogs) {
+    public static BacklogListResponseDto toBacklogListDto(String categoryName, Page<Todo> backlogs) {
         return BacklogListResponseDto.builder()
                 .totalCount(backlogs.getTotalElements())
+                .categoryName(categoryName)
                 .backlogs(backlogs.getContent())
                 .totalPageCount(backlogs.getTotalPages())
                 .build();

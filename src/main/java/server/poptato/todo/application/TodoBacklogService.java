@@ -7,6 +7,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import server.poptato.category.domain.repository.CategoryRepository;
 import server.poptato.category.validator.CategoryValidator;
 import server.poptato.todo.api.request.BacklogCreateRequestDto;
 import server.poptato.todo.application.response.*;
@@ -29,6 +30,7 @@ import java.util.List;
 @Service
 public class TodoBacklogService {
     private final TodoRepository todoRepository;
+    private final CategoryRepository categoryRepository;
     private final UserValidator userValidator;
     private final CategoryValidator categoryValidator;
     private static final Long ALL_CATEGORY = -1L;
@@ -38,7 +40,8 @@ public class TodoBacklogService {
         userValidator.checkIsExistUser(userId);
         categoryValidator.validateCategory(userId, categoryId);
         Page<Todo> backlogs = getBacklogsPagination(userId, categoryId, page, size);
-        return TodoDtoConverter.toBacklogListDto(backlogs);
+        String categoryName = categoryRepository.findById(categoryId).get().getName();
+        return TodoDtoConverter.toBacklogListDto(categoryName, backlogs);
     }
 
     public BacklogCreateResponseDto generateBacklog(Long userId, BacklogCreateRequestDto backlogCreateRequestDto) {

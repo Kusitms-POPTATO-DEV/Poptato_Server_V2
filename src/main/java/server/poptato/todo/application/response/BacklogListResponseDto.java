@@ -10,11 +10,13 @@ import java.util.stream.Collectors;
 @Getter
 public class BacklogListResponseDto {
     long totalCount;
+    String categoryName;
     List<BacklogResponseDto> backlogs;
     int totalPageCount;
 
     @Builder
-    public BacklogListResponseDto(long totalCount, List<Todo> backlogs, int totalPageCount) {
+    public BacklogListResponseDto(String categoryName, long totalCount, List<Todo> backlogs, int totalPageCount) {
+        this.categoryName = categoryName;
         this.totalCount = totalCount;
         this.backlogs = backlogs.stream()
                 .map(BacklogResponseDto::new)
