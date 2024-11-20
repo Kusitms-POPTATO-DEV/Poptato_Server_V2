@@ -105,7 +105,7 @@ public class Todo{
         this.todayDate = null;
     }
 
-    public void setTodayOrder(int order) {
+    public void setTodayOrder(Integer order) {
         this.todayOrder = order;
     }
 
