@@ -4,19 +4,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import server.poptato.auth.application.response.LoginResponseDto;
-import server.poptato.deleteReason.domain.entity.DeleteReason;
-import server.poptato.deleteReason.domain.repository.DeleteReasonRepository;
-import server.poptato.deleteReason.domain.value.Reason;
-import server.poptato.user.api.request.UserDeleteRequestDTO;
 import server.poptato.user.application.response.UserInfoResponseDto;
 import server.poptato.user.application.service.UserService;
 import server.poptato.user.domain.repository.UserRepository;
 import server.poptato.user.exception.UserException;
 import server.poptato.user.exception.errorcode.UserExceptionErrorCode;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -29,9 +21,6 @@ class UserServiceTest {
 
     @Autowired
     private UserRepository userRepository;
-
-    @Autowired
-    private DeleteReasonRepository deleteReasonRepository;
 
     @Test
     @DisplayName("마이페이지 조회 시 성공한다.")
