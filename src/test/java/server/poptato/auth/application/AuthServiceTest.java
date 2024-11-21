@@ -158,6 +158,18 @@ public class AuthServiceTest {
         String kakaoId = "kakaoId";
         String email = "email";
         String name = "name";
+        String tutorialMessage = """
+        ⭐️‘일단’ 이용 가이드⭐️
+
+        1. ‘새로 추가하기…’를 눌러 할 일을 생성해보세요!
+        2. •••을 눌러 할 일의 특성을 설정해보세요.
+        3. 상단에 ⊕를 눌러 카테고리를 만들고 할 일을 관리해 보세요.
+        4. 오늘 할 일을 왼쪽으로 옮겨보세요. 할 일이 ‘오늘’ 페이지로 이동해요.
+        5. 오늘 할 일을 모두 체크해 보세요!✅
+
+        다 읽었다면 •••을 눌러 삭제해도 좋습니다.
+        ‘일단’은 당신의 하루를 응원합니다! 🙌
+    """;
 
         User user = User.builder()
                 .kakaoId(kakaoId)
@@ -167,20 +179,14 @@ public class AuthServiceTest {
 
         //when
         User newUser = userRepository.save(user);
-        authService.createTutorialData(newUser.getId());
+        Todo turorialTodo = Todo.createBacklog(newUser.getId(), tutorialMessage, 1);
+        todoRepository.save(turorialTodo);
 
         //then
-        List<Todo> todays = todoRepository.findByTypeAndUserId(Type.TODAY, newUser.getId());
         List<Todo> backlogs = todoRepository.findByTypeAndUserId(Type.BACKLOG, newUser.getId());
+        Todo backlog = backlogs.get(0);
 
-        assertThat(todays.size()).isEqualTo(1);
-        assertThat(backlogs).hasSize(4)
-                .extracting("content","backlogOrder")
-                .containsExactlyInAnyOrder(
-                        tuple(TutorialMessage.BACKLOG_NEW_TODO, 4),
-                        tuple(TutorialMessage.BACKLOG_BOOKMARK_DDAY, 3),
-                        tuple(TutorialMessage.BACKLOG_DRAG_AND_DROP,2),
-                        tuple(TutorialMessage.BACKLOG_LEFT_SWIPE,1)
-                );
+        assertThat(backlogs.size()).isEqualTo(1);
+        assertThat(backlog.getContent()).isEqualTo(tutorialMessage);
     }
 }

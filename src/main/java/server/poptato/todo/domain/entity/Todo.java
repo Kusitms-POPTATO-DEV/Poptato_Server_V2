@@ -33,6 +33,8 @@ public class Todo{
     @Enumerated(EnumType.STRING)
     private Type type;
     @NotNull
+    @Lob
+    @Column(columnDefinition = "LONGTEXT")
     private String content;
     @Nullable
     private LocalDate deadline;

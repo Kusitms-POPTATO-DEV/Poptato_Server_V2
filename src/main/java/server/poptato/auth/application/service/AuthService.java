@@ -33,6 +33,18 @@ public class AuthService {
     private final UserRepository userRepository;
     private final UserValidator userValidator;
     private final TodoRepository todoRepository;
+    private String tutorialMessage = """
+        ⭐️‘일단’ 이용 가이드⭐️
+
+        1. ‘새로 추가하기…’를 눌러 할 일을 생성해보세요!
+        2. •••을 눌러 할 일의 특성을 설정해보세요.
+        3. 상단에 ⊕를 눌러 카테고리를 만들고 할 일을 관리해 보세요.
+        4. 오늘 할 일을 왼쪽으로 옮겨보세요. 할 일이 ‘오늘’ 페이지로 이동해요.
+        5. 오늘 할 일을 모두 체크해 보세요!✅
+
+        다 읽었다면 •••을 눌러 삭제해도 좋습니다.
+        ‘일단’은 당신의 하루를 응원합니다! 🙌
+    """;
 
     public LoginResponseDto login(final KakaoLoginRequestDto loginRequestDto) {
         String accessToken = loginRequestDto.getKakaoCode();
@@ -43,10 +55,15 @@ public class AuthService {
         Optional<User> user = userRepository.findByKakaoId(userInfo.socialId());
         if (user.isEmpty()) {
             LoginResponseDto response = createNewUserResponse(userInfo);
-            createTutorialData(response.userId());
+            createTutorial(response);
             return response;
         }
         return createOldUserResponse(user.get(), userInfo);
+    }
+
+    public void createTutorial(LoginResponseDto response) {
+        Todo turorialTodo = Todo.createBacklog(response.userId(), tutorialMessage, 1);
+        todoRepository.save(turorialTodo);
     }
 
     private LoginResponseDto createNewUserResponse(SocialUserInfo userInfo) {
@@ -59,35 +76,6 @@ public class AuthService {
         userRepository.save(newUser);
 
         return createLoginResponse(newUser, true);
-    }
-
-    public void createTutorialData(Long userId) {
-        createAndSaveTodo(Type.TODAY, userId, 1, TutorialMessage.TODAY_COMPLETE);
-        for (int i = 0; i < 4; i++) {
-            createAndSaveTodo(Type.BACKLOG, userId, 4 - i, TutorialMessage.BACKLOG_MESSAGES.get(i));
-        }
-    }
-    private void createAndSaveTodo(Type type, Long userId, int order, String tutorialMessage) {
-        Todo todo = null;
-        if (type.equals(Type.TODAY)) {
-            todo = Todo.builder()
-                    .userId(userId)
-                    .type(type)
-                    .content(tutorialMessage)
-                    .todayDate(LocalDate.now())
-                    .todayStatus(TodayStatus.COMPLETED)
-                    .todayOrder(order)
-                    .build();
-        }
-        if (type.equals(Type.BACKLOG)) {
-            todo = Todo.builder()
-                    .userId(userId)
-                    .type(type)
-                    .content(tutorialMessage)
-                    .backlogOrder(order)
-                    .build();
-        }
-        todoRepository.save(todo);
     }
 
     private LoginResponseDto createOldUserResponse(User existingUser, SocialUserInfo userInfo) {
