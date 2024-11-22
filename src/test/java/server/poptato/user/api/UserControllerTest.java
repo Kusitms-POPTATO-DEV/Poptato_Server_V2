@@ -77,6 +77,8 @@ class UserControllerTest {
     void deleteUser_Success() throws Exception {
         //given & when & then
         mockMvc.perform(MockMvcRequestBuilders.delete("/user")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"reasons\": [\"NOT_USED_OFTEN\", \"MISSING_FEATURES\"], \"userInputReason\": \"서비스가 복잡해요\"}")
                         .header("Authorization", "Bearer " + accessToken))
                 .andExpect(status().isOk())
                 .andDo(print());
@@ -99,6 +101,8 @@ class UserControllerTest {
 
         //when & then
         mockMvc.perform(MockMvcRequestBuilders.delete("/user")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"reasons\": [\"NOT_USED_OFTEN\", \"MISSING_FEATURES\"], \"userInputReason\": \"서비스가 복잡해요\"}")
                         .header("Authorization", "Bearer " + invalidToken))
                 .andExpect(status().isUnauthorized())
                 .andDo(print());

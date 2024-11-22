@@ -43,10 +43,15 @@ public class AuthService {
         Optional<User> user = userRepository.findByKakaoId(userInfo.socialId());
         if (user.isEmpty()) {
             LoginResponseDto response = createNewUserResponse(userInfo);
-            createTutorialData(response.userId());
+            createTutorial(response);
             return response;
         }
         return createOldUserResponse(user.get(), userInfo);
+    }
+
+    public void createTutorial(LoginResponseDto response) {
+        Todo turorialTodo = Todo.createBacklog(response.userId(), TutorialMessage.GUIDE, 1);
+        todoRepository.save(turorialTodo);
     }
 
     private LoginResponseDto createNewUserResponse(SocialUserInfo userInfo) {
@@ -59,35 +64,6 @@ public class AuthService {
         userRepository.save(newUser);
 
         return createLoginResponse(newUser, true);
-    }
-
-    public void createTutorialData(Long userId) {
-        createAndSaveTodo(Type.TODAY, userId, 1, TutorialMessage.TODAY_COMPLETE);
-        for (int i = 0; i < 4; i++) {
-            createAndSaveTodo(Type.BACKLOG, userId, 4 - i, TutorialMessage.BACKLOG_MESSAGES.get(i));
-        }
-    }
-    private void createAndSaveTodo(Type type, Long userId, int order, String tutorialMessage) {
-        Todo todo = null;
-        if (type.equals(Type.TODAY)) {
-            todo = Todo.builder()
-                    .userId(userId)
-                    .type(type)
-                    .content(tutorialMessage)
-                    .todayDate(LocalDate.now())
-                    .todayStatus(TodayStatus.COMPLETED)
-                    .todayOrder(order)
-                    .build();
-        }
-        if (type.equals(Type.BACKLOG)) {
-            todo = Todo.builder()
-                    .userId(userId)
-                    .type(type)
-                    .content(tutorialMessage)
-                    .backlogOrder(order)
-                    .build();
-        }
-        todoRepository.save(todo);
     }
 
     private LoginResponseDto createOldUserResponse(User existingUser, SocialUserInfo userInfo) {
