@@ -193,7 +193,7 @@ public class TodoService {
 
         Emoji findEmoji = findCategory != null && findCategory.getEmojiId() != null ?
                 emojiRepository.findById(findCategory.getEmojiId()).orElse(null) : null;
-        return TodoDtoConverter.toTodoDetailInfoDto(findTodo, findCategory,findEmoji);
+        return TodoDtoConverter.toTodoDetailInfoDto(findTodo, findCategory, findEmoji);
     }
 
     public void updateDeadline(Long userId, Long todoId, DeadlineUpdateRequestDto deadlineUpdateRequestDto) {

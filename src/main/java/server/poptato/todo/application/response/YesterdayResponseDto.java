@@ -1,6 +1,5 @@
 package server.poptato.todo.application.response;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import server.poptato.todo.domain.entity.Todo;
 
@@ -11,10 +10,8 @@ import java.time.temporal.ChronoUnit;
 public class YesterdayResponseDto{
     Long todoId;
     Integer dDay;
-    @JsonProperty("isBookmark")
-    boolean isBookmark;
-    @JsonProperty("isRepeat")
-    boolean isRepeat;
+    Boolean isBookmark;
+    Boolean isRepeat;
     String content;
 
     public YesterdayResponseDto(Todo todo) {
