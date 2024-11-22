@@ -21,6 +21,7 @@ class UserServiceTest {
 
     @Autowired
     private UserRepository userRepository;
+
     @Test
     @DisplayName("마이페이지 조회 시 성공한다.")
     public void getUserInfo_Success() {
