@@ -76,7 +76,7 @@ class UserControllerTest {
     @DisplayName("회원 탈퇴 시 성공한다.")
     void deleteUser_Success() throws Exception {
         //given & when & then
-        mockMvc.perform(MockMvcRequestBuilders.delete("/user")
+        mockMvc.perform(MockMvcRequestBuilders.post("/user/delete")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"reasons\": [\"NOT_USED_OFTEN\", \"MISSING_FEATURES\"], \"userInputReason\": \"서비스가 복잡해요\"}")
                         .header("Authorization", "Bearer " + accessToken))
@@ -88,7 +88,7 @@ class UserControllerTest {
     @DisplayName("회원 탈퇴 시 토큰이 없으면 예외가 발생한다.")
     void deleteUser_NoTokenException() throws Exception {
         //given & when & then
-        mockMvc.perform(MockMvcRequestBuilders.delete("/user"))
+        mockMvc.perform(MockMvcRequestBuilders.post("/user/delete"))
                 .andExpect(status().isUnauthorized())
                 .andDo(print());
     }
@@ -100,7 +100,7 @@ class UserControllerTest {
         String invalidToken = "invalidToken";
 
         //when & then
-        mockMvc.perform(MockMvcRequestBuilders.delete("/user")
+        mockMvc.perform(MockMvcRequestBuilders.post("/user/delete")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"reasons\": [\"NOT_USED_OFTEN\", \"MISSING_FEATURES\"], \"userInputReason\": \"서비스가 복잡해요\"}")
                         .header("Authorization", "Bearer " + invalidToken))
