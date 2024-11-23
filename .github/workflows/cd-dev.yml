@@ -11,7 +11,7 @@ jobs:
       - name: Connect to EC2 via SSH
         uses: appleboy/ssh-action@master
         env:
-          APPLICATION_YML: ${{ secrets.DEV_APPLICATION_YML }}
+          DEV_APPLICATION_YML: ${{ secrets.DEV_APPLICATION_YML }}
           APPLICATION_TEST_YML: ${{ secrets.APPLICATION_TEST_YML }}
           TEST_DATA_SQL: ${{ secrets.TEST_DATA_SQL }}
         with:
@@ -32,7 +32,7 @@ jobs:
 
             mkdir -p src/main/resources
 
-            echo "$APPLICATION_YML" > src/main/resources/application.yml
+            echo "$DEV_APPLICATION_YML" > src/main/resources/application.yml
 
             rm -rf src/test/resources/application.yml
             
