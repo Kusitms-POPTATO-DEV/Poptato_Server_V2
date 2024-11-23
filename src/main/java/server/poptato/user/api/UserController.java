@@ -15,7 +15,7 @@ public class UserController {
 
     private final UserService userService;
 
-    @DeleteMapping
+    @PostMapping("/delete")
     public BaseResponse deleteUser(@UserId Long userId,
                                    @RequestBody UserDeleteRequestDTO requestDTO) {
         userService.deleteUser(userId, requestDTO);
