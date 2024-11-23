@@ -1,8 +1,8 @@
-name: Java CD with Gradle
+name: Java CD with Gradle - Dev
 
 on:
   push:
-    branches: [ "dev", "main" ]
+    branches: [ "dev" ]
 
 jobs:
   deploy:
@@ -11,7 +11,7 @@ jobs:
       - name: Connect to EC2 via SSH
         uses: appleboy/ssh-action@master
         env:
-          APPLICATION_YML: ${{ secrets.APPLICATION_YML }}
+          APPLICATION_YML: ${{ secrets.DEV_APPLICATION_YML }}
           APPLICATION_TEST_YML: ${{ secrets.APPLICATION_TEST_YML }}
           TEST_DATA_SQL: ${{ secrets.TEST_DATA_SQL }}
         with:
@@ -19,10 +19,10 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script_stop: true
-          envs: APPLICATION_YML, APPLICATION_TEST_YML, TEST_DATA_SQL
+          envs: DEV_APPLICATION_YML, APPLICATION_TEST_YML, TEST_DATA_SQL
           # git clone 같은 초기 작업은 ec2에서 먼저 진행
           script: |
-            cd /home/ubuntu/poptato_server/Poptato_Server_V2
+            cd /home/ubuntu/poptato_server/Poptato_Server_Dev
 
             git switch dev
 
@@ -41,7 +41,7 @@ jobs:
             echo "$APPLICATION_TEST_YML" > src/test/resources/application.yml
             
             rm -rf src/test/resources/data.sql
-          
+            
             echo "$TEST_DATA_SQL" > src/test/resources/data.sql
 
             chmod +x gradlew
@@ -49,6 +49,7 @@ jobs:
             ./gradlew clean
             ./gradlew build
 
-            sudo fuser -k -n tcp "${{ secrets.SERVER_PORT }}" || true
+            sudo fuser -k -n tcp "${{ secrets.DEV_SERVER_PORT }}" || true
 
             nohup java -Duser.timezone=Asia/Seoul -jar build/libs/*SNAPSHOT.jar > ./output.log 2>&1 &
+
