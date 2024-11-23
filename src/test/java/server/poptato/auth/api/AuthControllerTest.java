@@ -90,13 +90,13 @@ public class AuthControllerTest {
     @Test
     public void login_ValidationException() {
         //given
-        String emptyKakaoCode = " ";
-        KakaoLoginRequestDto kakaoLoginRequestDto = KakaoLoginRequestDto.builder()
-                .kakaoCode(emptyKakaoCode)
+        String authAccessToken = " ";
+        LoginRequestDto loginRequestDto = LoginRequestDto.builder()
+                .accessToken(authAccessToken)
                 .build();
 
         //when
-        Set<ConstraintViolation<KakaoLoginRequestDto>> violations = validator.validate(kakaoLoginRequestDto);
+        Set<ConstraintViolation<KakaoLoginRequestDto>> violations = validator.validate(loginRequestDto);
 
         //then
         Assertions.assertEquals(violations.size(), 1);

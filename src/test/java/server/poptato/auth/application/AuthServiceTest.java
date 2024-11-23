@@ -151,16 +151,43 @@ public class AuthServiceTest {
                 .equals(INVALID_TOKEN);
     }
 
-    @DisplayName("회원가입 시, 튜토리얼 할 일이 성공적으로 추가된다.")
+    @DisplayName("카카오 회원가입 시, 튜토리얼 할 일이 성공적으로 추가된다.")
     @Test
     void createTutorialData_Success() {
         // given
-        String kakaoId = "kakaoId";
+        String authId = "authId";
         String email = "email";
         String name = "name";
 
         User user = User.builder()
-                .kakaoId(kakaoId)
+                .authId(authId)
+                .email(email)
+                .name(name)
+                .build();
+
+        //when
+        User newUser = userRepository.save(user);
+        Todo turorialTodo = Todo.createBacklog(newUser.getId(), TutorialMessage.GUIDE, 1);
+        todoRepository.save(turorialTodo);
+
+        //then
+        List<Todo> backlogs = todoRepository.findByTypeAndUserId(Type.BACKLOG, newUser.getId());
+        Todo backlog = backlogs.get(0);
+
+        assertThat(backlogs.size()).isEqualTo(1);
+        assertThat(backlog.getContent()).isEqualTo(TutorialMessage.GUIDE);
+    }
+
+    @DisplayName("애플 회원가입 시, 튜토리얼 할 일이 성공적으로 추가된다.")
+    @Test
+    void createTutorialData_Success() {
+        // given
+        String authId = "authId";
+        String email = "email";
+        String name = "name";
+
+        User user = User.builder()
+                .authId(authId)
                 .email(email)
                 .name(name)
                 .build();
