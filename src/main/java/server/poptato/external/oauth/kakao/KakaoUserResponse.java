@@ -1,4 +1,4 @@
-package server.poptato.external.oauth.kakao.dto.response;
+package server.poptato.external.oauth.kakao;
 
 
 public record KakaoUserResponse(Long id, KakaoUserProperties properties, KakaoAccount kakao_account) {

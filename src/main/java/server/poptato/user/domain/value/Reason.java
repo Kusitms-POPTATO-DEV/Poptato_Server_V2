@@ -1,4 +1,4 @@
-package server.poptato.deleteReason.domain.value;
+package server.poptato.user.domain.value;
 
 import lombok.AccessLevel;
 import lombok.Getter;

@@ -44,6 +44,9 @@ dependencies {
     // redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
+    // gson
+    implementation 'com.google.code.gson:gson:2.8.6'
+
     //test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.7.1'

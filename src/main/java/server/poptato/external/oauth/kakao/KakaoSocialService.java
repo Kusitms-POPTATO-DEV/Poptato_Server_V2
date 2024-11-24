@@ -1,12 +1,10 @@
-package server.poptato.external.oauth.kakao.service;
+package server.poptato.external.oauth.kakao;
 
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import server.poptato.external.oauth.SocialService;
 import server.poptato.external.oauth.SocialUserInfo;
-import server.poptato.external.oauth.kakao.dto.response.KakaoUserResponse;
-import server.poptato.external.oauth.kakao.feign.KakaoApiClient;
 
 @Service
 @RequiredArgsConstructor

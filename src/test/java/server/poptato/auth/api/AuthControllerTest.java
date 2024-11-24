@@ -22,11 +22,13 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import server.poptato.auth.api.request.KakaoLoginRequestDto;
+import server.poptato.auth.api.request.LoginRequestDto;
 import server.poptato.auth.application.service.AuthService;
 import server.poptato.auth.application.service.JwtService;
 import server.poptato.global.dto.TokenPair;
 import server.poptato.user.application.service.UserService;
+import server.poptato.user.domain.value.MobileType;
+import server.poptato.user.domain.value.SocialType;
 
 import java.util.Set;
 
@@ -90,13 +92,19 @@ public class AuthControllerTest {
     @Test
     public void login_ValidationException() {
         //given
-        String emptyKakaoCode = " ";
-        KakaoLoginRequestDto kakaoLoginRequestDto = KakaoLoginRequestDto.builder()
-                .kakaoCode(emptyKakaoCode)
+        String authAccessToken = " ";
+        SocialType socialType = SocialType.KAKAO;
+        MobileType mobileType = MobileType.ANDROID;
+        String clientId = "clientId";
+        LoginRequestDto loginRequestDto = LoginRequestDto.builder()
+                .socialType(socialType)
+                .accessToken(authAccessToken)
+                .mobileType(mobileType)
+                .clientId(clientId)
                 .build();
 
         //when
-        Set<ConstraintViolation<KakaoLoginRequestDto>> violations = validator.validate(kakaoLoginRequestDto);
+        Set<ConstraintViolation<LoginRequestDto>> violations = validator.validate(loginRequestDto);
 
         //then
         Assertions.assertEquals(violations.size(), 1);
