@@ -13,6 +13,9 @@ src/test/resources/application.yml
 src/main/resources/data.sql
 src/test/resources/data.sql
 
+##gson
+/src/main/resources/google-services.gson
+
 ### STS ###
 .apt_generated
 .classpath
