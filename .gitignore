@@ -14,7 +14,7 @@ src/main/resources/data.sql
 src/test/resources/data.sql
 
 ##gson
-/src/main/resources/google-services.gson
+src/main/resources/google-services.gson
 
 ### STS ###
 .apt_generated
