@@ -17,8 +17,10 @@ import server.poptato.user.domain.entity.Mobile;
 import server.poptato.user.domain.entity.User;
 import server.poptato.user.domain.repository.MobileRepository;
 import server.poptato.user.domain.repository.UserRepository;
+import server.poptato.user.domain.value.MobileType;
 import server.poptato.user.validator.UserValidator;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -37,17 +39,33 @@ public class AuthService {
         Optional<User> findUser = userRepository.findBySocialId(userInfo.socialId());
         if (findUser.isEmpty()) {
             User newUser = saveNewDatas(loginRequestDto, userInfo);
+            saveOrUpdateFcmToken(newUser.getId(), loginRequestDto);
             return createLoginResponse(newUser.getId(), true);
         }
         updateImage(findUser.get(),userInfo);
+        saveOrUpdateFcmToken(findUser.get().getId(), loginRequestDto);
         return createLoginResponse(findUser.get().getId(), false);
+    }
+    private void saveOrUpdateFcmToken(Long userId, LoginRequestDto requestDto) {
+
+        Optional<Mobile> existingMobile = mobileRepository.findByUserIdAndClientId(userId, requestDto.clientId());
+        if (existingMobile.isEmpty()) {
+            Mobile newMobile = Mobile.create(requestDto, userId);
+            mobileRepository.save(newMobile);
+        } else {
+            Mobile mobile = existingMobile.get();
+            if (!mobile.getClientId().equals(requestDto.clientId())) {
+                mobile.setClientId(requestDto.clientId());
+            }
+
+            mobile.setModifyDate(LocalDateTime.now());
+            mobileRepository.save(mobile);
+        }
     }
 
     private User saveNewDatas(LoginRequestDto requestDto, SocialUserInfo userInfo) {
         User user = User.create(requestDto, userInfo);
         User newUser = userRepository.save(user);
-        Mobile mobile = Mobile.create(requestDto, newUser.getId());
-        mobileRepository.save(mobile);
         Todo turorialTodo = Todo.createBacklog(newUser.getId(), TutorialMessage.GUIDE, 1);
         todoRepository.save(turorialTodo);
         return newUser;

@@ -55,6 +55,13 @@ jobs:
       - name: Set Release Test YML File
         run: |
           echo "${{ secrets.APPLICATION_TEST_YML }}" > src/test/resources/application.yml
+          
+      # Firebase Admin Key 파일 생성
+      - name: Write Firebase Admin Key to File
+        env:
+          FIREBASE_ADMIN_SDK: ${{ secrets.FIREBASE_ADMIN }}
+        run: |
+          echo "$FIREBASE_ADMIN" > ildan-project-firebase-adminsdk-rcb58-766d3dd75f.json
 
       # Gradle 설정 및 의존성 다운
       - name: Setup Gradle
