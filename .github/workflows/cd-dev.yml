@@ -14,12 +14,13 @@ jobs:
           DEV_APPLICATION_YML: ${{ secrets.DEV_APPLICATION_YML }}
           APPLICATION_TEST_YML: ${{ secrets.APPLICATION_TEST_YML }}
           TEST_DATA_SQL: ${{ secrets.TEST_DATA_SQL }}
+          FIREBASE_ADMIN: ${{ secrets.FIREBASE_ADMIN }}
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script_stop: true
-          envs: DEV_APPLICATION_YML, APPLICATION_TEST_YML, TEST_DATA_SQL
+          envs: DEV_APPLICATION_YML, APPLICATION_TEST_YML, TEST_DATA_SQL, FIREBASE_ADMIN
           # git clone 같은 초기 작업은 ec2에서 먼저 진행
           script: |
             cd /home/ubuntu/poptato_server/Poptato_Server_Dev
@@ -43,6 +44,8 @@ jobs:
             rm -rf src/test/resources/data.sql
             
             echo "$TEST_DATA_SQL" > src/test/resources/data.sql
+
+            echo "$FIREBASE_ADMIN" > ildan-project-firebase-adminsdk-rcb58-766d3dd75f.json
 
             chmod +x gradlew
 
