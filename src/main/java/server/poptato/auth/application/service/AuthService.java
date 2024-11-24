@@ -39,29 +39,29 @@ public class AuthService {
         Optional<User> findUser = userRepository.findBySocialId(userInfo.socialId());
         if (findUser.isEmpty()) {
             User newUser = saveNewDatas(loginRequestDto, userInfo);
-            saveOrUpdateFcmToken(newUser.getId(), loginRequestDto);
+//            saveOrUpdateFcmToken(newUser.getId(), loginRequestDto);
             return createLoginResponse(newUser.getId(), true);
         }
         updateImage(findUser.get(),userInfo);
-        saveOrUpdateFcmToken(findUser.get().getId(), loginRequestDto);
+//        saveOrUpdateFcmToken(findUser.get().getId(), loginRequestDto);
         return createLoginResponse(findUser.get().getId(), false);
     }
-    private void saveOrUpdateFcmToken(Long userId, LoginRequestDto requestDto) {
-
-        Optional<Mobile> existingMobile = mobileRepository.findByUserIdAndClientId(userId, requestDto.clientId());
-        if (existingMobile.isEmpty()) {
-            Mobile newMobile = Mobile.create(requestDto, userId);
-            mobileRepository.save(newMobile);
-        } else {
-            Mobile mobile = existingMobile.get();
-            if (!mobile.getClientId().equals(requestDto.clientId())) {
-                mobile.setClientId(requestDto.clientId());
-            }
-
-            mobile.setModifyDate(LocalDateTime.now());
-            mobileRepository.save(mobile);
-        }
-    }
+//    private void saveOrUpdateFcmToken(Long userId, LoginRequestDto requestDto) {
+//
+//        Optional<Mobile> existingMobile = mobileRepository.findByUserIdAndClientId(userId, requestDto.clientId());
+//        if (existingMobile.isEmpty()) {
+//            Mobile newMobile = Mobile.create(requestDto, userId);
+//            mobileRepository.save(newMobile);
+//        } else {
+//            Mobile mobile = existingMobile.get();
+//            if (!mobile.getClientId().equals(requestDto.clientId())) {
+//                mobile.setClientId(requestDto.clientId());
+//            }
+//
+//            mobile.setModifyDate(LocalDateTime.now());
+//            mobileRepository.save(mobile);
+//        }
+//    }
 
     private User saveNewDatas(LoginRequestDto requestDto, SocialUserInfo userInfo) {
         User user = User.create(requestDto, userInfo);
