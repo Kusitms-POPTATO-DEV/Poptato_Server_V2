@@ -13,6 +13,9 @@ src/test/resources/application.yml
 src/main/resources/data.sql
 src/test/resources/data.sql
 
+##firebase
+ildan-project-firebase-adminsdk-rcb58-766d3dd75f.json
+
 ### STS ###
 .apt_generated
 .classpath

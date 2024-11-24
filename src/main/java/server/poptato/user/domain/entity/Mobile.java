@@ -30,7 +30,7 @@ public class Mobile {
     MobileType type;
 
     @NotNull
-    String client_id;
+    String clientId;
 
     @CreatedDate
     @Column(updatable = false)
@@ -39,11 +39,17 @@ public class Mobile {
     @LastModifiedDate
     private LocalDateTime modifyDate;
 
+    public void setModifyDate(LocalDateTime modifyDate){
+        this.modifyDate = modifyDate;
+    }
+    public void setClientId(String client_id){
+        this.clientId = client_id;
+    }
     public static Mobile create(LoginRequestDto requestDto, Long userId) {
         return Mobile.builder()
                 .userId(userId)
                 .type(requestDto.mobileType())
-                .client_id(requestDto.clientId())
+                .clientId(requestDto.clientId())
                 .build();
     }
 }

@@ -4,11 +4,17 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import server.poptato.external.firebase.service.FCMService;
 import server.poptato.todo.domain.entity.Todo;
 import server.poptato.todo.domain.repository.TodoRepository;
 import server.poptato.todo.domain.value.TodayStatus;
 import server.poptato.todo.domain.value.Type;
+import server.poptato.user.domain.entity.Mobile;
+import server.poptato.user.domain.entity.User;
+import server.poptato.user.domain.repository.MobileRepository;
+import server.poptato.user.domain.repository.UserRepository;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +24,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class TodoScheduler {
     private final TodoRepository todoRepository;
+    private final UserRepository userRepository;
+    private final MobileRepository mobileRepository;
+    private final FCMService fcmService;
+
     @Scheduled(cron = "0 0 0 * * *")
     @Transactional
     public void updateTodoType() {
@@ -25,6 +35,7 @@ public class TodoScheduler {
         Map<Long, List<Todo>> userIdAndTodaysMap = updateTodays(updatedTodoIds);
         List<Todo> yesterdayTodos = updateYesterdays(updatedTodoIds);
         save(userIdAndTodaysMap, yesterdayTodos);
+        sendDeadlineNotifications();
     }
 
     private Map<Long, List<Todo>> updateTodays(List<Long> updatedTodoIds) {
@@ -77,6 +88,38 @@ public class TodoScheduler {
         for (Todo todo : yesterdayTodos) {
             todoRepository.save(todo);
         }
+    }
+
+    public void sendDeadlineNotifications() {
+        List<User> users = userRepository.findAll();
+
+        for (User user : users) {
+            if (Boolean.TRUE.equals(user.getIsPushAlarm())) {
+                List<Todo> todosDueToday = todoRepository.findTodosDueToday(user.getId(), LocalDate.now());
+                sendFcmMessage(user, todosDueToday);
+            }
+        }
+    }
+
+    private void sendFcmMessage(User user, List<Todo> todosDueToday) {
+        if (!todosDueToday.isEmpty()) {
+            String todoContents = formatTodoContents(todosDueToday);
+
+            Mobile mobile = mobileRepository.findByUserId(user.getId());
+            if (mobile != null) {
+                fcmService.sendPushNotification(
+                        mobile.getClientId(),
+                        "오늘 마감 예정인 할 일",
+                        todoContents
+                );
+            }
+        }
+    }
+
+    private String formatTodoContents(List<Todo> todos) {
+        StringBuilder contentBuilder = new StringBuilder();
+        todos.forEach(todo -> contentBuilder.append(": ").append(todo.getContent()).append("\n"));
+        return contentBuilder.toString().trim();
     }
 }
 
