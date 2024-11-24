@@ -54,8 +54,14 @@ public class AuthService {
     }
 
     private void updateImage(User existingUser, SocialUserInfo userInfo) {
-        if (existingUser.getImageUrl() == null || existingUser.getImageUrl().isEmpty()) {
-            existingUser.updateImageUrl(userInfo.imageUrl());
+        String imageUrl = userInfo.imageUrl();
+
+        if (imageUrl != null && imageUrl.startsWith("http://")) {
+            imageUrl = imageUrl.replaceFirst("http://", "https://");
+        }
+        
+        if (existingUser.getImageUrl() == null || !existingUser.getImageUrl().equals(imageUrl)) {
+            existingUser.updateImageUrl(imageUrl);
             userRepository.save(existingUser);
         }
     }
