@@ -59,7 +59,7 @@ public class AuthService {
         if (imageUrl != null && imageUrl.startsWith("http://")) {
             imageUrl = imageUrl.replaceFirst("http://", "https://");
         }
-        
+
         if (existingUser.getImageUrl() == null || !existingUser.getImageUrl().equals(imageUrl)) {
             existingUser.updateImageUrl(imageUrl);
             userRepository.save(existingUser);
