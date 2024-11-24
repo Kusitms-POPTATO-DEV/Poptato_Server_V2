@@ -13,8 +13,8 @@ src/test/resources/application.yml
 src/main/resources/data.sql
 src/test/resources/data.sql
 
-##gson
-src/main/resources/google-services.json
+##firebase
+ildan-project-firebase-adminsdk-rcb58-766d3dd75f.json
 
 ### STS ###
 .apt_generated

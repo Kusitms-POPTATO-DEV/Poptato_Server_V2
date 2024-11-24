@@ -59,7 +59,7 @@ public class User {
     public static User create(LoginRequestDto requestDto, SocialUserInfo userInfo){
         return User.builder()
                 .socialType(requestDto.socialType())
-                .isPushAlarm(false)
+                .isPushAlarm(true)
                 .socialId(userInfo.socialId())
                 .name(userInfo.nickname())
                 .email(userInfo.email())

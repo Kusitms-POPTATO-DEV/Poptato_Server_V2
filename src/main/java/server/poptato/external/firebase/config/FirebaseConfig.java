@@ -8,16 +8,22 @@ import org.springframework.context.annotation.Configuration;
 import javax.annotation.PostConstruct;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 @Configuration
 public class FirebaseConfig {
 
     @PostConstruct
     public void initializeFirebase() throws IOException {
-        FileInputStream serviceAccount = new FileInputStream("src/main/resources/google-services.json");
+        String firebaseKeyPath = "ildan-project-firebase-adminsdk-rcb58-766d3dd75f.json";
+
+        if (!Files.exists(Paths.get(firebaseKeyPath))) {
+            throw new IllegalArgumentException("Firebase key file not found: " + firebaseKeyPath);
+        }
 
         FirebaseOptions options = FirebaseOptions.builder()
-                .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                .setCredentials(GoogleCredentials.fromStream(new FileInputStream(firebaseKeyPath)))
                 .build();
 
         FirebaseApp.initializeApp(options);

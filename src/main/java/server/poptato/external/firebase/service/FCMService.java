@@ -22,7 +22,7 @@ public class FCMService {
             FirebaseMessaging.getInstance().send(firebaseMessage);
         } catch (
                 FirebaseMessagingException e) {
-            e.printStackTrace(); // 로깅 처리 필요
+            e.printStackTrace();
         }
     }
 }
