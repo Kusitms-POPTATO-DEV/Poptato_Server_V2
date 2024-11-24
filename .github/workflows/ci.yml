@@ -59,7 +59,7 @@ jobs:
       # Firebase Admin Key 파일 생성
       - name: Write Firebase Admin Key to File
         env:
-          FIREBASE_ADMIN_SDK: ${{ secrets.FIREBASE_ADMIN }}
+          FIREBASE_ADMIN: ${{ secrets.FIREBASE_ADMIN }}
         run: |
           echo "$FIREBASE_ADMIN" > ildan-project-firebase-adminsdk-rcb58-766d3dd75f.json
 
