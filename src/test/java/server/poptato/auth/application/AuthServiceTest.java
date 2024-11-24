@@ -10,8 +10,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -23,23 +21,14 @@ import server.poptato.auth.api.request.ReissueTokenRequestDto;
 import server.poptato.auth.application.service.AuthService;
 import server.poptato.auth.application.service.JwtService;
 import server.poptato.auth.exception.AuthException;
-import server.poptato.external.oauth.SocialService;
 import server.poptato.external.oauth.SocialServiceProvider;
 import server.poptato.global.dto.TokenPair;
-import server.poptato.todo.constant.TutorialMessage;
-import server.poptato.todo.domain.entity.Todo;
 import server.poptato.todo.domain.repository.TodoRepository;
-import server.poptato.todo.domain.value.TodayStatus;
-import server.poptato.todo.domain.value.Type;
-import server.poptato.user.domain.entity.User;
 import server.poptato.user.domain.repository.UserRepository;
 import server.poptato.user.exception.UserException;
 import server.poptato.user.validator.UserValidator;
 
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.groups.Tuple.tuple;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static server.poptato.auth.exception.errorcode.AuthExceptionErrorCode.INVALID_TOKEN;
@@ -49,8 +38,6 @@ import static server.poptato.auth.exception.errorcode.AuthExceptionErrorCode.INV
 public class AuthServiceTest {
     @Autowired
     private AuthService authService;
-    @Autowired
-    private SocialService socialService;
     @Autowired
     private SocialServiceProvider socialServiceProvider;
     @Autowired
@@ -151,57 +138,4 @@ public class AuthServiceTest {
                 .equals(INVALID_TOKEN);
     }
 
-    @DisplayName("카카오 회원가입 시, 튜토리얼 할 일이 성공적으로 추가된다.")
-    @Test
-    void createTutorialData_Success() {
-        // given
-        String authId = "authId";
-        String email = "email";
-        String name = "name";
-
-        User user = User.builder()
-                .authId(authId)
-                .email(email)
-                .name(name)
-                .build();
-
-        //when
-        User newUser = userRepository.save(user);
-        Todo turorialTodo = Todo.createBacklog(newUser.getId(), TutorialMessage.GUIDE, 1);
-        todoRepository.save(turorialTodo);
-
-        //then
-        List<Todo> backlogs = todoRepository.findByTypeAndUserId(Type.BACKLOG, newUser.getId());
-        Todo backlog = backlogs.get(0);
-
-        assertThat(backlogs.size()).isEqualTo(1);
-        assertThat(backlog.getContent()).isEqualTo(TutorialMessage.GUIDE);
-    }
-
-    @DisplayName("애플 회원가입 시, 튜토리얼 할 일이 성공적으로 추가된다.")
-    @Test
-    void createTutorialData_Success() {
-        // given
-        String authId = "authId";
-        String email = "email";
-        String name = "name";
-
-        User user = User.builder()
-                .authId(authId)
-                .email(email)
-                .name(name)
-                .build();
-
-        //when
-        User newUser = userRepository.save(user);
-        Todo turorialTodo = Todo.createBacklog(newUser.getId(), TutorialMessage.GUIDE, 1);
-        todoRepository.save(turorialTodo);
-
-        //then
-        List<Todo> backlogs = todoRepository.findByTypeAndUserId(Type.BACKLOG, newUser.getId());
-        Todo backlog = backlogs.get(0);
-
-        assertThat(backlogs.size()).isEqualTo(1);
-        assertThat(backlog.getContent()).isEqualTo(TutorialMessage.GUIDE);
-    }
 }
