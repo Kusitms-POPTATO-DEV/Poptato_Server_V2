@@ -22,10 +22,12 @@ public class FirebaseConfig {
             throw new IllegalArgumentException("Firebase key file not found: " + firebaseKeyPath);
         }
 
-        FirebaseOptions options = FirebaseOptions.builder()
-                .setCredentials(GoogleCredentials.fromStream(new FileInputStream(firebaseKeyPath)))
-                .build();
+        if (FirebaseApp.getApps().isEmpty()) {
+            FirebaseOptions options = FirebaseOptions.builder()
+                    .setCredentials(GoogleCredentials.fromStream(new FileInputStream(firebaseKeyPath)))
+                    .build();
 
-        FirebaseApp.initializeApp(options);
+            FirebaseApp.initializeApp(options);
+        }
     }
 }
