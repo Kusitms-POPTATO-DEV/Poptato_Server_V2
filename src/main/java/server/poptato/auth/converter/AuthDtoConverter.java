@@ -7,12 +7,12 @@ import server.poptato.user.domain.entity.User;
 
 @Component
 public class AuthDtoConverter {
-    public static LoginResponseDto toLoginDto(TokenPair tokenPair, User user, boolean isNewUser ){
+    public static LoginResponseDto toLoginDto(TokenPair tokenPair, Long userId, boolean isNewUser ){
         return LoginResponseDto.builder()
                 .accessToken(tokenPair.accessToken())
                 .refreshToken(tokenPair.refreshToken())
                 .isNewUser(isNewUser)
-                .userId(user.getId())
+                .userId(userId)
                 .build();
     }
 

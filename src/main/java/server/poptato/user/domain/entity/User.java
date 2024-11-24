@@ -7,6 +7,9 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.lang.Nullable;
+import server.poptato.auth.api.request.LoginRequestDto;
+import server.poptato.external.oauth.SocialUserInfo;
+import server.poptato.user.domain.value.SocialType;
 
 import java.time.LocalDateTime;
 
@@ -24,7 +27,11 @@ public class User {
     private Long id;
 
     @NotNull
-    private String kakaoId;
+    @Enumerated(EnumType.STRING)
+    private SocialType socialType;
+
+    @NotNull
+    private String socialId;
 
     @NotNull
     private String name;
@@ -35,6 +42,9 @@ public class User {
     @Nullable
     private String imageUrl;
 
+    @NotNull
+    private Boolean isPushAlarm;
+
     @CreatedDate
     @Column(updatable = false)
     private LocalDateTime createDate;
@@ -44,5 +54,16 @@ public class User {
 
     public void updateImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public static User create(LoginRequestDto requestDto, SocialUserInfo userInfo){
+        return User.builder()
+                .socialType(requestDto.socialType())
+                .isPushAlarm(false)
+                .socialId(userInfo.socialId())
+                .name(userInfo.nickname())
+                .email(userInfo.email())
+                .imageUrl(userInfo.imageUrl())
+                .build();
     }
 }

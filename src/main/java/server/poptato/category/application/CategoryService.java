@@ -18,6 +18,7 @@ import server.poptato.category.validator.CategoryValidator;
 import server.poptato.emoji.domain.repository.EmojiRepository;
 import server.poptato.emoji.validator.EmojiValidator;
 import server.poptato.todo.domain.entity.Todo;
+import server.poptato.todo.domain.repository.TodoRepository;
 import server.poptato.todo.domain.value.TodayStatus;
 import server.poptato.todo.domain.value.Type;
 import server.poptato.todo.exception.TodoException;
@@ -41,6 +42,7 @@ public class CategoryService {
     private final EmojiValidator emojiValidator;
     private final CategoryValidator categoryValidator;
     private final EmojiRepository emojiRepository;
+    private final TodoRepository todoRepository;
 
     private static final Long ALL_CATEGORY = -1L;
     private static final Long BOOKMARK_CATEGORY = 0L;
@@ -84,6 +86,7 @@ public class CategoryService {
         userValidator.checkIsExistUser(userId);
         Category category = categoryValidator.validateAndReturnCategory(userId, categoryId);
         categoryRepository.delete(category);
+        todoRepository.deleteAllByCategoryId(categoryId);
     }
 
     public void dragAndDrop(Long userId, CategoryDragAndDropRequestDto request) {

@@ -9,6 +9,6 @@ import server.poptato.user.domain.repository.UserRepository;
 import java.util.Optional;
 
 public interface JpaUserRepository extends UserRepository, JpaRepository<User, Long> {
-    @Query("SELECT u FROM User u WHERE u.kakaoId = :kakaoId")
-    Optional<User> findByKakaoId(@Param("kakaoId") String kakaoId);
+    @Query("SELECT u FROM User u WHERE u.socialId = :socialId")
+    Optional<User> findBySocialId(@Param("socialId") String socialId);
 }

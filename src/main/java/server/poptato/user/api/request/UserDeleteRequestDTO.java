@@ -1,6 +1,6 @@
 package server.poptato.user.api.request;
 
-import server.poptato.deleteReason.domain.value.Reason;
+import server.poptato.user.domain.value.Reason;
 
 import java.util.List;
 

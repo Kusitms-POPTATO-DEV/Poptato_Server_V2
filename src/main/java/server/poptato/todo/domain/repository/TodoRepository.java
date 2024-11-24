@@ -2,6 +2,7 @@ package server.poptato.todo.domain.repository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import server.poptato.category.domain.entity.Category;
 import server.poptato.todo.domain.entity.Todo;
 import server.poptato.todo.domain.value.TodayStatus;
 import server.poptato.todo.domain.value.Type;
@@ -57,4 +58,6 @@ public interface TodoRepository {
     Page<Todo> findBookmarkBacklogs(Long userId, List<Type> types, TodayStatus status, Pageable pageable);
 
     Page<Todo> findBacklogsByCategoryId(Long userId, Long categoryId, List<Type> types, TodayStatus status, Pageable pageable);
+
+    void deleteAllByCategoryId(Long categoryId);
 }

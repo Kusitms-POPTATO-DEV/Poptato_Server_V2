@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import server.poptato.auth.api.request.KakaoLoginRequestDto;
+import server.poptato.auth.api.request.LoginRequestDto;
 import server.poptato.auth.api.request.ReissueTokenRequestDto;
 import server.poptato.auth.application.response.LoginResponseDto;
 import server.poptato.auth.application.service.AuthService;
@@ -21,7 +21,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    public BaseResponse<LoginResponseDto> login(@RequestBody KakaoLoginRequestDto loginRequestDto) {
+    public BaseResponse<LoginResponseDto> login(@RequestBody LoginRequestDto loginRequestDto) {
         LoginResponseDto response = authService.login(loginRequestDto);
         return new BaseResponse<>(response);
     }
