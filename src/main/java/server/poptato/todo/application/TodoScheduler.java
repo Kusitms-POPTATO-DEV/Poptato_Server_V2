@@ -34,10 +34,14 @@ public class TodoScheduler {
     @Transactional
     public void updateTodoType() {
         List<Long> updatedTodoIds = new ArrayList<>();
+        updateTodo(updatedTodoIds);
+        sendDeadlineNotifications();
+    }
+
+    public void updateTodo(List<Long> updatedTodoIds) {
         Map<Long, List<Todo>> userIdAndTodaysMap = updateTodays(updatedTodoIds);
         List<Todo> yesterdayTodos = updateYesterdays(updatedTodoIds);
         save(userIdAndTodaysMap, yesterdayTodos);
-        sendDeadlineNotifications();
     }
 
     private Map<Long, List<Todo>> updateTodays(List<Long> updatedTodoIds) {
@@ -50,16 +54,18 @@ public class TodoScheduler {
             int startingOrder = minBacklogOrder - 1;
 
             for (Todo todo : todos) {
-                if (todo.getTodayStatus() == TodayStatus.INCOMPLETE) {
-                    todo.setType(Type.YESTERDAY);
+                if (todo.getTodayStatus() == TodayStatus.COMPLETED && todo.isRepeat()) {
+                    todo.setType(Type.BACKLOG);
+                    todo.setTodayStatus(null);
                     todo.setTodayOrder(null);
+                    todo.setBacklogOrder(startingOrder--);
                     updatedTodoIds.add(todo.getId());
                     continue;
                 }
-                if (todo.getTodayStatus() == TodayStatus.COMPLETED && todo.isRepeat()) {
-                    todo.setType(Type.BACKLOG);
+
+                if (todo.getTodayStatus() == TodayStatus.INCOMPLETE) {
+                    todo.setType(Type.YESTERDAY);
                     todo.setTodayOrder(null);
-                    todo.setBacklogOrder(startingOrder--);
                     updatedTodoIds.add(todo.getId());
                 }
             }
