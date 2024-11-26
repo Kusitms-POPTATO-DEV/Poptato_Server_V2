@@ -1,6 +1,7 @@
 package server.poptato.auth.application.service;
 
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import server.poptato.auth.api.request.LoginRequestDto;
 import server.poptato.auth.api.request.ReissueTokenRequestDto;
@@ -64,19 +65,25 @@ public class AuthService {
 //    }
 
     private User saveNewDatas(LoginRequestDto requestDto, SocialUserInfo userInfo) {
-        User user = User.create(requestDto, userInfo);
+        String imageUrl = getHttpsUrl(userInfo);
+        User user = User.create(requestDto, userInfo, imageUrl);
         User newUser = userRepository.save(user);
         Todo turorialTodo = Todo.createBacklog(newUser.getId(), TutorialMessage.GUIDE, 1);
         todoRepository.save(turorialTodo);
         return newUser;
     }
 
-    private void updateImage(User existingUser, SocialUserInfo userInfo) {
+    private static String getHttpsUrl(SocialUserInfo userInfo) {
         String imageUrl = userInfo.imageUrl();
 
         if (imageUrl != null && imageUrl.startsWith("http://")) {
             imageUrl = imageUrl.replaceFirst("http://", "https://");
         }
+        return imageUrl;
+    }
+
+    private void updateImage(User existingUser, SocialUserInfo userInfo) {
+        String imageUrl = getHttpsUrl(userInfo);
 
         if (existingUser.getImageUrl() == null || !existingUser.getImageUrl().equals(imageUrl)) {
             existingUser.updateImageUrl(imageUrl);

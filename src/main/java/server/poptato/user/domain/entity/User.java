@@ -56,14 +56,14 @@ public class User {
         this.imageUrl = imageUrl;
     }
 
-    public static User create(LoginRequestDto requestDto, SocialUserInfo userInfo){
+    public static User create(LoginRequestDto requestDto, SocialUserInfo userInfo, String imageUrl){
         return User.builder()
                 .socialType(requestDto.socialType())
                 .isPushAlarm(true)
                 .socialId(userInfo.socialId())
                 .name(userInfo.nickname())
                 .email(userInfo.email())
-                .imageUrl(userInfo.imageUrl())
+                .imageUrl(imageUrl)
                 .build();
     }
 }
