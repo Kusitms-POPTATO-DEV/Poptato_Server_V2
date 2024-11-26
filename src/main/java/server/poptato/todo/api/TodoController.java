@@ -14,12 +14,13 @@ import server.poptato.user.resolver.UserId;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
 public class TodoController {
     private final TodoService todoService;
-    private final TodoScheduler todoScheduler;
 
     @DeleteMapping("/todo/{todoId}")
     public BaseResponse deleteTodo(@UserId Long userId, @PathVariable Long todoId) {
@@ -111,11 +112,5 @@ public class TodoController {
     ) {
         HistoryCalendarListResponseDto response = todoService.getHistoriesCalendar(userId, year, month);
         return new BaseResponse<>(response);
-    }
-
-    @PostMapping("/send-deadlines")
-    public BaseResponse<String> sendDeadlines() {
-        todoScheduler.sendDeadlineNotifications();
-        return new BaseResponse<>("Deadline notifications sent!");
     }
 }
