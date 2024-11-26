@@ -29,9 +29,10 @@ public class Mobile {
     @Enumerated(EnumType.STRING)
     MobileType type;
 
-    @Column(length = 1000, nullable = false)
+    @Lob
+    @Column(columnDefinition = "LONGTEXT", nullable = false)
     @NotNull
-    String clientId;
+    private String clientId;
 
     @CreatedDate
     @Column(updatable = false)
