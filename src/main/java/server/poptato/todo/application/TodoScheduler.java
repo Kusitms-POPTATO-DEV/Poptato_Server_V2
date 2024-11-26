@@ -2,6 +2,7 @@ package server.poptato.todo.application;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import server.poptato.external.firebase.service.FCMService;
@@ -37,7 +38,7 @@ public class TodoScheduler {
         updateTodo(updatedTodoIds);
         sendDeadlineNotifications();
     }
-
+    @Async
     public void updateTodo(List<Long> updatedTodoIds) {
         Map<Long, List<Todo>> userIdAndTodaysMap = updateTodays(updatedTodoIds);
         List<Todo> yesterdayTodos = updateYesterdays(updatedTodoIds);
@@ -97,7 +98,7 @@ public class TodoScheduler {
             todoRepository.save(todo);
         }
     }
-
+    @Async
     public void sendDeadlineNotifications() {
         List<User> users = userRepository.findAll();
 
