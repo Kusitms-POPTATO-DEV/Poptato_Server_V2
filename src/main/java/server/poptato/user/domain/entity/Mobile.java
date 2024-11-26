@@ -42,14 +42,14 @@ public class Mobile {
     public void setModifyDate(LocalDateTime modifyDate){
         this.modifyDate = modifyDate;
     }
-//    public void setClientId(String client_id){
-//        this.clientId = client_id;
-//    }
-//    public static Mobile create(LoginRequestDto requestDto, Long userId) {
-//        return Mobile.builder()
-//                .userId(userId)
-//                .type(requestDto.mobileType())
-//                .clientId(requestDto.clientId())
-//                .build();
-//    }
+    public void setClientId(String client_id){
+        this.clientId = client_id;
+    }
+    public static Mobile create(LoginRequestDto requestDto, Long userId) {
+        return Mobile.builder()
+                .userId(userId)
+                .type(requestDto.mobileType())
+                .clientId(requestDto.clientId())
+                .build();
+    }
 }

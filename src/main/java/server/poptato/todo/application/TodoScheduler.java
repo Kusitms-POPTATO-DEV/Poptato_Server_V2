@@ -18,6 +18,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,7 +36,7 @@ public class TodoScheduler {
         Map<Long, List<Todo>> userIdAndTodaysMap = updateTodays(updatedTodoIds);
         List<Todo> yesterdayTodos = updateYesterdays(updatedTodoIds);
         save(userIdAndTodaysMap, yesterdayTodos);
-        sendDeadlineNotifications();
+//        sendDeadlineNotifications();
     }
 
     private Map<Long, List<Todo>> updateTodays(List<Long> updatedTodoIds) {
@@ -105,10 +106,10 @@ public class TodoScheduler {
         if (!todosDueToday.isEmpty()) {
             String todoContents = formatTodoContents(todosDueToday);
 
-            Mobile mobile = mobileRepository.findByUserId(user.getId());
-            if (mobile != null) {
+            Optional<Mobile> mobile = mobileRepository.findByUserId(user.getId());
+            if (!mobile.isEmpty()) {
                 fcmService.sendPushNotification(
-                        mobile.getClientId(),
+                        mobile.get().getClientId(),
                         "오늘 마감 예정인 할 일",
                         todoContents
                 );
