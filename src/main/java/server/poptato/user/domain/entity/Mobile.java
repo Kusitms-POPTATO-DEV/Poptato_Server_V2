@@ -29,6 +29,7 @@ public class Mobile {
     @Enumerated(EnumType.STRING)
     MobileType type;
 
+    @Column(length = 1000, nullable = false)
     @NotNull
     String clientId;
 
