@@ -19,7 +19,7 @@ public class EmojiController {
     @GetMapping
     public BaseResponse<EmojiResponseDTO> getCategories(@UserId Long userId,
                                                                     @RequestParam(value = "page", defaultValue = "0") int page,
-                                                                    @RequestParam(value = "size", defaultValue = "60") int size) {
+                                                                    @RequestParam(value = "size", defaultValue = "70") int size) {
         EmojiResponseDTO response = emojiService.getGroupedEmojis(page, size);
         return new BaseResponse<>(response);
     }
