@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+
 @Service
 @RequiredArgsConstructor
 public class TodoScheduler {
@@ -36,7 +37,7 @@ public class TodoScheduler {
         Map<Long, List<Todo>> userIdAndTodaysMap = updateTodays(updatedTodoIds);
         List<Todo> yesterdayTodos = updateYesterdays(updatedTodoIds);
         save(userIdAndTodaysMap, yesterdayTodos);
-//        sendDeadlineNotifications();
+        sendDeadlineNotifications();
     }
 
     private Map<Long, List<Todo>> updateTodays(List<Long> updatedTodoIds) {
@@ -98,29 +99,29 @@ public class TodoScheduler {
             if (Boolean.TRUE.equals(user.getIsPushAlarm())) {
                 List<Todo> todosDueToday = todoRepository.findTodosDueToday(user.getId(), LocalDate.now());
                 sendFcmMessage(user, todosDueToday);
+
             }
         }
     }
 
     private void sendFcmMessage(User user, List<Todo> todosDueToday) {
         if (!todosDueToday.isEmpty()) {
-            String todoContents = formatTodoContents(todosDueToday);
-
             Optional<Mobile> mobile = mobileRepository.findByUserId(user.getId());
-            if (!mobile.isEmpty()) {
-                fcmService.sendPushNotification(
-                        mobile.get().getClientId(),
-                        "오늘 마감 예정인 할 일",
-                        todoContents
-                );
+            if (mobile.isPresent()) {
+                for (Todo todo : todosDueToday) {
+                    String todoContent = formatTodoContent(todo);
+                    fcmService.sendPushNotification(
+                            mobile.get().getClientId(),
+                            "오늘 마감 예정인 할 일",
+                            todoContent
+                    );
+                }
             }
         }
     }
 
-    private String formatTodoContents(List<Todo> todos) {
-        StringBuilder contentBuilder = new StringBuilder();
-        todos.forEach(todo -> contentBuilder.append(": ").append(todo.getContent()).append("\n"));
-        return contentBuilder.toString().trim();
+    private String formatTodoContent(Todo todo) {
+        return ": " + todo.getContent();
     }
 }
 
