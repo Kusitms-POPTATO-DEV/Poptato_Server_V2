@@ -74,7 +74,10 @@ public interface JpaTodoRepository extends TodoRepository, JpaRepository<Todo, L
             "    SELECT c.todoId FROM CompletedDateTime c " +
             "    WHERE DATE(c.dateTime) = :localDate" +
             ") AND t.userId = :userId " +
-            "ORDER BY (SELECT c.dateTime FROM CompletedDateTime c WHERE c.todoId = t.id) ASC")
+            "ORDER BY (" +
+            "    SELECT c.dateTime FROM CompletedDateTime c " +
+            "    WHERE c.todoId = t.id AND DATE(c.dateTime) = :localDate" +
+            ") ASC")
     Page<Todo> findTodosByUserIdAndCompletedDateTime(@Param("userId") Long userId,
                                                      @Param("localDate") LocalDate localDate, Pageable pageable);
 

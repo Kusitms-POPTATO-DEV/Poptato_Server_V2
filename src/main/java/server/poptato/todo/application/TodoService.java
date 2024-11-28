@@ -36,6 +36,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static org.hibernate.query.sqm.tree.SqmNode.log;
 import static server.poptato.category.exception.errorcode.CategoryExceptionErrorCode.CATEGORY_NOT_EXIST;
 import static server.poptato.emoji.exception.errorcode.EmojiExceptionErrorCode.EMOJI_NOT_EXIST;
 import static server.poptato.todo.exception.errorcode.TodoExceptionErrorCode.COMPLETED_DATETIME_NOT_EXIST;
