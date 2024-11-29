@@ -21,7 +21,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TodoController {
     private final TodoService todoService;
-
     @DeleteMapping("/todo/{todoId}")
     public BaseResponse deleteTodo(@UserId Long userId, @PathVariable Long todoId) {
         todoService.deleteTodoById(userId, todoId);

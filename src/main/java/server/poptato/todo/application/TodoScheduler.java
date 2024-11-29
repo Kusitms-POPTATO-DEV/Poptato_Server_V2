@@ -16,10 +16,7 @@ import server.poptato.user.domain.repository.MobileRepository;
 import server.poptato.user.domain.repository.UserRepository;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -40,19 +37,21 @@ public class TodoScheduler {
     }
     @Async
     public void updateTodo(List<Long> updatedTodoIds) {
-        Map<Long, List<Todo>> userIdAndTodaysMap = updateTodays(updatedTodoIds);
-        List<Todo> yesterdayTodos = updateYesterdays(updatedTodoIds);
+        Map<Long, Integer> userIdToStartingOrder = new HashMap<>();
+        Map<Long, List<Todo>> userIdAndTodaysMap = updateTodays(updatedTodoIds, userIdToStartingOrder);
+        List<Todo> yesterdayTodos = updateYesterdays(updatedTodoIds, userIdToStartingOrder);
         save(userIdAndTodaysMap, yesterdayTodos);
     }
 
-    private Map<Long, List<Todo>> updateTodays(List<Long> updatedTodoIds) {
+    private Map<Long, List<Todo>> updateTodays(List<Long> updatedTodoIds, Map<Long, Integer> userIdToStartingOrder) {
         Map<Long, List<Todo>> userIdAndTodaysMap = todoRepository.findByType(Type.TODAY)
                 .stream()
                 .collect(Collectors.groupingBy(Todo::getUserId));
 
         userIdAndTodaysMap.forEach((userId, todos) -> {
-            Integer minBacklogOrder = todoRepository.findMinBacklogOrderByUserIdOrZero(userId);
-            int startingOrder = minBacklogOrder - 1;
+
+            userIdToStartingOrder.putIfAbsent(userId, todoRepository.findMinBacklogOrderByUserIdOrZero(userId) - 1);
+            int startingOrder = userIdToStartingOrder.get(userId);
 
             for (Todo todo : todos) {
                 if (todo.getTodayStatus() == TodayStatus.COMPLETED && todo.isRepeat()) {
@@ -67,25 +66,37 @@ public class TodoScheduler {
                 if (todo.getTodayStatus() == TodayStatus.INCOMPLETE) {
                     todo.setType(Type.YESTERDAY);
                     todo.setTodayOrder(null);
+                    todo.setBacklogOrder(startingOrder--);
                     updatedTodoIds.add(todo.getId());
                 }
             }
+
+            userIdToStartingOrder.put(userId, startingOrder);
         });
         return userIdAndTodaysMap;
     }
 
-    private List<Todo> updateYesterdays(List<Long> updatedTodoIds) {
+    private List<Todo> updateYesterdays(List<Long> updatedTodoIds, Map<Long, Integer> userIdToStartingOrder) {
         return todoRepository.findByType(Type.YESTERDAY)
                 .stream()
                 .filter(todo -> !updatedTodoIds.contains(todo.getId()))
                 .peek(todo -> {
+                    Long userId = todo.getUserId();
+
+                    userIdToStartingOrder.putIfAbsent(userId, todoRepository.findMinBacklogOrderByUserIdOrZero(userId) - 1);
+                    int startingOrder = userIdToStartingOrder.get(userId);
+
                     if (todo.getTodayStatus() == TodayStatus.INCOMPLETE) {
                         todo.setType(Type.BACKLOG);
                         todo.setTodayStatus(null);
+                        todo.setBacklogOrder(startingOrder--);
                     } else if (todo.getTodayStatus() == TodayStatus.COMPLETED && todo.isRepeat()) {
                         todo.setType(Type.BACKLOG);
                         todo.setTodayStatus(null);
+                        todo.setBacklogOrder(startingOrder--);
                     }
+
+                    userIdToStartingOrder.put(userId, startingOrder);
                 })
                 .collect(Collectors.toList());
     }
